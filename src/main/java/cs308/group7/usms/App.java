@@ -1,6 +1,10 @@
 package cs308.group7.usms;
 
-public class App {
+import javafx.application.Application;
+
+import static javafx.application.Application.launch;
+
+public class App{
 
     public static DatabaseConnection databaseConnection;
     public static SystemOperations systemOperations;
@@ -8,6 +12,7 @@ public class App {
     public static void main(String[] args) {
         databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
         systemOperations = new SystemOperations(databaseConnection);
-        System.out.println("Hello world!");
+        //studentUI stu = new studentUI("tom");
+        Application.launch(loginUI.class, args);
     }
 }
