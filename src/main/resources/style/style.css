@@ -1,0 +1,42 @@
+
+* {
+    -color-bg: #fffbff;
+    -color-txt: #1c1b1f;
+    -color-pri: #8F8FEF;
+    -color-sec: #9DE2B4;
+    -color-ter: #F26A8D;
+    -gradient: linear-gradient(to left, #8F8FEF, #9DE2B4);
+}
+
+@font-face {
+    font-family: "Noto Sans";
+    font-weight: normal;
+    src: url("NotoSans-Regular.ttf");
+}
+
+.root {
+    -fx-font-size: 16px;
+    -fx-font-family: "Noto Sans";
+}
+
+.button
+{
+    -fx-padding: 0.5em 25px;
+    -fx-text-alignment: center;
+    -fx-background-insets: 0, 0, -1, 0;
+    -fx-min-width: 80;
+    -fx-text-fill: -color-pri;
+    -fx-background-color: -color-bg;
+    -fx-border-size: 20em;
+    -fx-border-color: -gradient;
+    -fx-border-radius: 100em;
+    -fx-background-radius: 100em;
+}
+
+.button:hover {
+    -fx-background-color: -gradient;
+    -fx-text-fill: -color-bg;
+    -fx-color: -color-bg;
+}
+
+

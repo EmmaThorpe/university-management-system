@@ -1,4 +1,6 @@
-package cs308.group7.usms;
+package cs308.group7.usms.database;
+
+import cs308.group7.usms.database.DatabaseConnection;
 
 /**
  * Contains the methods that the system will use to interact with the database.

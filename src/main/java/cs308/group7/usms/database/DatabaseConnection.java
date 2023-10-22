@@ -1,4 +1,4 @@
-package cs308.group7.usms;
+package cs308.group7.usms.database;
 
 import org.jetbrains.annotations.NotNull;
 

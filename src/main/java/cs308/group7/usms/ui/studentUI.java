@@ -1,5 +1,6 @@
-package cs308.group7.usms;
+package cs308.group7.usms.ui;
 
+import cs308.group7.usms.Student;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -9,11 +10,9 @@ import javafx.stage.Stage;
 public class studentUI extends Application {
     Student current;
 
-    public studentUI(String name){
-        current = new Student(name);
-    }
     @Override
     public void start(Stage primaryStage) throws Exception {
+        current = new Student("tom");
 
         primaryStage.setScene(greeting());
         primaryStage.show();

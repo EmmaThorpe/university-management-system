@@ -1,4 +1,4 @@
-package cs308.group7.usms;
+package cs308.group7.usms.ui;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -11,13 +11,15 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class loginUI extends Application {
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        primaryStage.setScene(loginScene(primaryStage));
+        Scene scene = loginScene(primaryStage);
+        String css = this.getClass().getResource("/style/style.css").toExternalForm();
+        scene.getStylesheets().add(css);
+        primaryStage.setScene(scene);
         primaryStage.show();
+
+
     }
 
     public Scene loginScene(Stage primaryStage){
@@ -36,8 +38,6 @@ public class loginUI extends Application {
             }
         });
 
-
-
         GridPane root=new GridPane();
         root.setHgap(20);
         root.setVgap(15);
@@ -47,7 +47,6 @@ public class loginUI extends Application {
         root.addRow(2, Submit);
 
         //Adding CSS file to the root
-        root.getStylesheets().add("Style.css");
         return scene;
     }
 
@@ -60,6 +59,4 @@ public class loginUI extends Application {
         root.addRow(0, test);
         return scene;
     }
-
-
 }
