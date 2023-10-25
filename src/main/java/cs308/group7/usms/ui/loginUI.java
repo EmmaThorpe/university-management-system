@@ -38,7 +38,8 @@ public class loginUI extends Application {
                 primaryStage.setScene(signUpScene("hello"));
                 primaryStage.show();
                  */
-                l.setText("selected");
+                //l.setText("selected");
+                studentUI stu = new studentUI("aa", primaryStage);
             }
         });
 
