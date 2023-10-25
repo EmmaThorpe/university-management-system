@@ -7,24 +7,33 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class studentUI extends Application {
-    Student current;
+public class studentUI {
+    static Student current;
+    Stage curr;
 
-    @Override
+    public studentUI(String name, Stage stage) {
+        current= new Student(name);
+        curr = stage;
+        greeting();
+    }
+
+    /*@Override
     public void start(Stage primaryStage) throws Exception {
-        current = new Student("tom");
 
         primaryStage.setScene(greeting());
         primaryStage.show();
-    }
+    }*/
 
-    public Scene greeting(){
+    public void greeting(){
         Label test=new Label("Hello " + current.getName());
         GridPane root=new GridPane();
         root.setHgap(20);
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        return scene;
+        curr.setScene(scene);
+        curr.show();
     }
+
+
 }
