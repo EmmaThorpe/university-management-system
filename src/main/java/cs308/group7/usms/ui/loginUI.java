@@ -15,29 +15,41 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class loginUI extends Application {
+    Stage currentStage;
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Scene scene = loginScene(primaryStage);
+        currentStage = primaryStage;
 
-        String css = this.getClass().getResource("/css/style.css").toExternalForm();
-        scene.getStylesheets().add(css);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        loginScene();
     }
 
-    public Scene loginScene(Stage primaryStage){
+    public void displayScene(Scene scene){
+        String css = this.getClass().getResource("/style/style.css").toExternalForm();
+        scene.getStylesheets().add(css);
+        currentStage.setScene(scene);
+        currentStage.sizeToScene();
+        currentStage.show();
+    }
+
+    public void loginScene(){
 
         GridPane formContent = loginFields();
 
         Button Submit=new Button("Submit");
-        HBox formBtns = new HBox(Submit);
+
+        Button New=new Button("New User");
+        HBox formBtns = new HBox(Submit, New);
         Submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
-                primaryStage.setScene(signUpScene("hello"));
-                primaryStage.show();
+                studentUI stu = new studentUI("aa", currentStage);
+            }
+        });
 
+        New.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                signUpScene();
             }
         });
 
@@ -48,18 +60,27 @@ public class loginUI extends Application {
 
         root.setPadding(new Insets(10));
 
-        Scene scene = new Scene(root);
-        return scene;
+        displayScene(new Scene(root));
     }
 
-    public Scene signUpScene(String tex){
-        Label test=new Label(tex);
-        GridPane root=new GridPane();
-        root.setHgap(20);
-        root.setVgap(15);
-        Scene scene = new Scene(root,500,300);
-        root.addRow(0, test);
-        return scene;
+    public void signUpScene(){
+        BorderPane root = new BorderPane(signUpFieldsStudent());
+
+        Button Submit=new Button("Submit");
+        HBox formBtns = new HBox(Submit);
+        Submit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                loginScene();
+            }
+        });
+
+        formBtns.setPadding(new Insets(20, 0, 0, 0));
+        root.setBottom(formBtns);
+
+        root.setPadding(new Insets(10));
+
+        displayScene(new Scene(root));
     }
 
 
@@ -74,6 +95,27 @@ public class loginUI extends Application {
         root.setVgap(20);
         root.addRow(0, email, tf1);
         root.addRow(1, password, tf2);
+        return root;
+    }
+
+    private GridPane signUpFieldsStudent() {
+        Label email=new Label("Email");
+        Label forename=new Label("Forename");
+        Label surname=new Label("Surname");
+        Label password=new Label("Password");
+        TextField tf1=new TextField();
+        TextField tf2=new TextField();
+        TextField tf3=new TextField();
+        TextField tf4=new TextField();
+
+        GridPane root = new GridPane();
+        root.setHgap(20);
+        root.setVgap(20);
+
+        root.addRow(0, email, tf1);
+        root.addRow(1, password, tf2);
+        root.addRow(2, forename, tf3);
+        root.addRow(3, surname, tf4);
         return root;
     }
 }

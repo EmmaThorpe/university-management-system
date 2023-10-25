@@ -16,5 +16,7 @@ public class App{
         databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
         systemOperations = new SystemOperations(databaseConnection);
         Application.launch(loginUI.class, args);
+
+
     }
 }
