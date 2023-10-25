@@ -11,16 +11,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class loginUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Scene scene = loginScene(primaryStage);
-        String css = this.getClass().getResource("/style/style.css").toExternalForm();
+
+        String css = this.getClass().getResource("/css/style.css").toExternalForm();
         scene.getStylesheets().add(css);
+
         primaryStage.setScene(scene);
-        primaryStage.sizeToScene();
         primaryStage.show();
     }
 
@@ -30,15 +32,12 @@ public class loginUI extends Application {
 
         Button Submit=new Button("Submit");
         HBox formBtns = new HBox(Submit);
-        Label l = new Label("button not selected");
         Submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
-                /*
                 primaryStage.setScene(signUpScene("hello"));
                 primaryStage.show();
-                 */
-                l.setText("selected");
+
             }
         });
 
