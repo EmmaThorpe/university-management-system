@@ -46,4 +46,9 @@ public class App{
         }
         databaseConnection = null;
     }
+
+    public static DatabaseConnection getDatabaseConnection(){
+        return databaseConnection;
+    }
+
 }
