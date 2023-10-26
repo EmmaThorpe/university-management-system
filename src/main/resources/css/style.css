@@ -1,11 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
 
 * {
     -color-pri: #8F8FEF;
-    -color-sec: #9DE2B4;
+    -color-pri-light: #c2c1ff;
+    -color-pri-dark: #8787e6;
+    -color-sec: #79da9f;
+    -color-sec-light: #c1ffd4;
+    -color-sec-dark: #5dbe85;
     -color-ter: #F26A8D;
+    -color-ter-light: #ffd9df;
+    -color-ter-dark:#a83155;
     -gradient: linear-gradient(to left, #8F8FEF, #9DE2B4);
+    -gradient-light: linear-gradient(to left, #c2c1ff, #c1ffd4);
+    -gradient-dark: linear-gradient(to left, #8787e6, #5dbe85);
     -drop-shadow: #f5f5fa;
     -color-white: #fcfcfc;
     -color-black: #23263c;
@@ -17,21 +27,24 @@
     -fx-font-size: 1.2em;
     -fx-font-family: "Noto Sans JP";
     -fx-background-color: -color-white;
+    -fx-focus-color: -color-sec;
 }
 
 .button
 {
-    -fx-padding: 0.5em 25px;
+    -fx-padding: 5px 25px;
     -fx-text-alignment: center;
     -fx-background-insets: 0, 0, -1, 0;
     -fx-min-width: 80;
+    -fx-height: 80;
     -fx-background-color: -gradient;
     -fx-text-fill: -color-white;
-    -fx-border-size: 20em;
     -fx-border-color: -gradient;
     -fx-border-radius: 100em;
     -fx-background-radius: 100em;
     -fx-font-family: "Noto Sans";
+    -fx-font-weight: 700;
+    -fx-border-width: 2px;
 }
 
 .button:pressed, .button:focused {
@@ -42,6 +55,18 @@
 .button:hover {
     -fx-translate-y: -2;
     -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+}
+
+.outline-button {
+    -fx-background-color: -color-white;
+    -fx-text-fill: -color-sec;
+    -fx-border-color: -color-sec;
+}
+
+.outline-button:hover, .outline-button:pressed, .outline-button:focused {
+    -fx-background-color: -color-white;
+    -fx-text-fill: -color-sec-dark;
+    -fx-border-color: -color-sec-dark;
 }
 
 .text-field {
@@ -66,5 +91,48 @@
     -fx-text-fill: -color-dark-grey;
     -fx-font-family: "Poppins";
     -fx-font-size: 1em;
+    -fx-padding: 0.2em 0px;
 }
 
+.login-graphic {
+    -fx-icon-color: -color-white;
+    -fx-icon-size: 40;
+}
+
+.login-title {
+    -fx-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 40;
+    -fx-padding: 0.2em 0px;
+}
+
+.login-back {
+    -fx-fill: -color-pri;
+}
+
+.card {
+    -fx-border-radius: 10;
+    -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
+    -fx-background-color: -color-white;
+    -fx-background-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: -color-light-grey;
+    -fx-min-height: 70;
+    -fx-min-width: 50;
+    -fx-padding: 5;
+    -fx-text-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: normal;
+}
+
+.card:hover {
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+    -fx-background-color: -drop-shadow;
+}
+
+.card:pressed, .card:focused {
+    -fx-background-color: -drop-shadow;
+    -fx-border-color: -color-light-grey;
+}
