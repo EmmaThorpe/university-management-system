@@ -11,20 +11,30 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.apache.commons.validator.routines.EmailValidator;
+
+
+
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class loginUI extends Application {
     Stage currentStage;
+    String css;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         currentStage = primaryStage;
+        css = this.getClass().getResource("/css/style.css").toExternalForm();
         loginScene();
     }
 
     public void displayScene(Scene scene) {
-        String css = this.getClass().getResource("/css/style.css").toExternalForm();
         scene.getStylesheets().add(css);
         currentStage.setScene(scene);
         currentStage.sizeToScene();
@@ -56,14 +66,49 @@ public class loginUI extends Application {
 
 
     public void signUpScene(){
-        BorderPane root = new BorderPane(signUpFieldsStudent());
+        Label email=new Label("Email");
+        TextField emailTF =new TextField();
+        final Text emailHandler = new Text();
+
+        Label forename=new Label("Forename");
+        TextField nameTF =new TextField();
+
+        Label surname=new Label("Surname");
+        TextField surnameTF =new TextField();
+
+        Label password=new Label("Password");
+        TextField passwordTF =new TextField();
+
 
         Button Submit=new Button("Submit");
         HBox formBtns = new HBox(Submit);
         Submit.setOnAction(goToLogin());
+        Submit.setDisable(true);
+
+
+        emailTF.textProperty().addListener((obs, oldText, newText) -> {
+            if(!EmailValidator.getInstance().isValid(newText)){
+                emailHandler.setText("Not Valid Email Format");
+                Submit.setDisable(true);
+            }else{
+                emailHandler.setText("");
+                Submit.setDisable(false);
+            }
+
+        });
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
-        root.setBottom(formBtns);
+
+        GridPane root = new GridPane();
+        root.setHgap(20);
+        root.setVgap(20);
+
+        root.addRow(0, email, emailTF);
+        root.addRow(1, emailHandler);
+        root.addRow(2, password, nameTF);
+        root.addRow(3, forename, surnameTF);
+        root.addRow(4, surname, passwordTF);
+        root.addRow(5,formBtns);
 
         root.setPadding(new Insets(10));
 
@@ -77,34 +122,18 @@ public class loginUI extends Application {
         TextField tf1=new TextField();
         TextField tf2=new TextField();
 
+
+
         GridPane root = new GridPane();
         root.setHgap(20);
         root.setVgap(20);
         root.addRow(0, email, tf1);
         root.addRow(1, password, tf2);
+
         return root;
     }
 
-    private GridPane signUpFieldsStudent() {
-        Label email=new Label("Email");
-        Label forename=new Label("Forename");
-        Label surname=new Label("Surname");
-        Label password=new Label("Password");
-        TextField tf1=new TextField();
-        TextField tf2=new TextField();
-        TextField tf3=new TextField();
-        TextField tf4=new TextField();
 
-        GridPane root = new GridPane();
-        root.setHgap(20);
-        root.setVgap(20);
-
-        root.addRow(0, email, tf1);
-        root.addRow(1, password, tf2);
-        root.addRow(2, forename, tf3);
-        root.addRow(3, surname, tf4);
-        return root;
-    }
 
 
 

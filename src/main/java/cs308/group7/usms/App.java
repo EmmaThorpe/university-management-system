@@ -13,7 +13,7 @@ public class App{
     public static void main(String[] args) {
         // Create database pool
         try {
-            databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
+            //databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
             Application.launch(loginUI.class, args);
         } catch (Exception e) {
             System.out.println("There was an error creating database pool!: " + e);
