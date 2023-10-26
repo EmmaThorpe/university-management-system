@@ -1,7 +1,6 @@
 package cs308.group7.usms;
 
 import cs308.group7.usms.database.DatabaseConnection;
-import cs308.group7.usms.database.SystemOperations;
 import cs308.group7.usms.ui.loginUI;
 import javafx.application.Application;
 import javax.sql.rowset.CachedRowSet;
