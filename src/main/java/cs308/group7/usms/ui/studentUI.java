@@ -7,13 +7,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class studentUI {
+public class studentUI extends loginUI {
     static Student current;
-    Stage curr;
 
     public studentUI(String name, Stage stage) {
         current= new Student(name);
-        curr = stage;
+        currentStage = stage;
         greeting();
     }
 
@@ -31,8 +30,7 @@ public class studentUI {
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        curr.setScene(scene);
-        curr.show();
+        displayScene(scene);
     }
 
 

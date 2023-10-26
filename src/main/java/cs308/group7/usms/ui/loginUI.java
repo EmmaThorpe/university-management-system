@@ -39,19 +39,9 @@ public class loginUI extends Application {
         Button New = new Button("New User");
 
         HBox formBtns = new HBox(Submit, New);
-        Submit.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                studentUI stu = new studentUI("aa", currentStage);
-            }
-        });
+        Submit.setOnAction(goToStudent());
 
-        New.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                signUpScene();
-            }
-        });
+        New.setOnAction(goToSignUp());
 
         BorderPane root = new BorderPane(formContent);
 
@@ -70,12 +60,7 @@ public class loginUI extends Application {
 
         Button Submit=new Button("Submit");
         HBox formBtns = new HBox(Submit);
-        Submit.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                loginScene();
-            }
-        });
+        Submit.setOnAction(goToLogin());
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
         root.setBottom(formBtns);
@@ -119,6 +104,28 @@ public class loginUI extends Application {
         root.addRow(2, forename, tf3);
         root.addRow(3, surname, tf4);
         return root;
+    }
+
+
+
+    public EventHandler<ActionEvent> goToSignUp() {
+        return (arg0 -> signUpScene());
+
+    }
+
+    public EventHandler<ActionEvent> goToLogin() {
+        return (arg0 -> loginScene());
+
+    }
+
+    public EventHandler<ActionEvent> goToStudent() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                studentUI stu = new studentUI("aa", currentStage);
+            }
+        };
+
     }
 }
 
