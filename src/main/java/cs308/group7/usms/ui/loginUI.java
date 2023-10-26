@@ -16,13 +16,14 @@ import javafx.stage.Stage;
 
 public class loginUI extends Application {
     Stage currentStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         currentStage = primaryStage;
         loginScene();
     }
 
-    public void displayScene(Scene scene){
+    public void displayScene(Scene scene) {
         String css = this.getClass().getResource("/css/style.css").toExternalForm();
         scene.getStylesheets().add(css);
         currentStage.setScene(scene);
@@ -30,12 +31,12 @@ public class loginUI extends Application {
         currentStage.show();
     }
 
-    public void loginScene(){
+    public void loginScene() {
 
         GridPane formContent = loginFields();
 
-        Button Submit=new Button("Submit");
-        Button New=new Button("New User");
+        Button Submit = new Button("Submit");
+        Button New = new Button("New User");
 
         HBox formBtns = new HBox(Submit, New);
         Submit.setOnAction(new EventHandler<ActionEvent>() {
@@ -61,6 +62,8 @@ public class loginUI extends Application {
 
         displayScene(new Scene(root));
     }
+
+
 
     public void signUpScene(){
         BorderPane root = new BorderPane(signUpFieldsStudent());
