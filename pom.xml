@@ -64,6 +64,8 @@
                     <mainClass>src/main/java/cs308.group7.usms.App</mainClass>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
     

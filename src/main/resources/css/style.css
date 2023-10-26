@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+* {
+    -color-pri: #8F8FEF;
+    -color-sec: #9DE2B4;
+    -color-ter: #F26A8D;
+    -gradient: linear-gradient(to left, #8F8FEF, #9DE2B4);
+    -drop-shadow: #f5f5fa;
+    -color-white: #fcfcfc;
+    -color-black: #23263c;
+    -color-dark-grey: #5d6494;
+    -color-light-grey: #c5c9e0;
+}
+
+.root {
+    -fx-font-size: 1.2em;
+    -fx-font-family: "Noto Sans JP";
+    -fx-background-color: -color-white;
+}
+
+.button
+{
+    -fx-padding: 0.5em 25px;
+    -fx-text-alignment: center;
+    -fx-background-insets: 0, 0, -1, 0;
+    -fx-min-width: 80;
+    -fx-background-color: -gradient;
+    -fx-text-fill: -color-white;
+    -fx-border-size: 20em;
+    -fx-border-color: -gradient;
+    -fx-border-radius: 100em;
+    -fx-background-radius: 100em;
+    -fx-font-family: "Noto Sans";
+}
+
+.button:pressed, .button:focused {
+    -fx-background-color: -color-pri;
+    -fx-border-color: -color-pri;
+}
+
+.button:hover {
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+}
+
+.text-field {
+    -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-border-color: -drop-shadow;
+    -fx-border-radius: 3;
+}
+
+.text-field:focused {
+    -fx-border-color: -color-light-grey;
+    -fx-effect: innershadow(gaussian, -drop-shadow, 0, 0, 0, 0);
+}
+
+.text-field:hover {
+    -fx-border-color: -color-light-grey;
+    -fx-background-color: -drop-shadow;
+    -fx-effect: innershadow(gaussian, -drop-shadow, 0, 0, 0, 0);
+}
+
+.label {
+    -fx-text-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-size: 1em;
+}
+

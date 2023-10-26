@@ -1,16 +1,20 @@
 package cs308.group7.usms;
 
+import cs308.group7.usms.database.DatabaseConnection;
+import cs308.group7.usms.ui.loginUI;
+import javafx.application.Application;
 import javax.sql.rowset.CachedRowSet;
 
-public class App {
+import static javafx.application.Application.launch;
 
+public class App{
     public static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
-
         // Create database pool
         try {
             databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
+            Application.launch(loginUI.class, args);
         } catch (Exception e) {
             System.out.println("There was an error creating database pool!: " + e);
             System.exit(65);
@@ -25,9 +29,7 @@ public class App {
             System.out.println("There was an error querying the database!: " + e);
         }
 
-
         // Close database pool
         databaseConnection.close();
-
     }
 }
