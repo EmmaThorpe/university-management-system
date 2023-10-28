@@ -1,7 +1,7 @@
 package cs308.group7.usms;
 
 import cs308.group7.usms.database.DatabaseConnection;
-import cs308.group7.usms.ui.loginUI;
+import cs308.group7.usms.ui.LoginUI;
 import javafx.application.Application;
 import javax.sql.rowset.CachedRowSet;
 
@@ -14,7 +14,7 @@ public class App{
         // Create database pool
         try {
             //databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
-            Application.launch(loginUI.class, args);
+            Application.launch(LoginUI.class, args);
         } catch (Exception e) {
             System.out.println("There was an error creating database pool!: " + e);
             System.exit(65);

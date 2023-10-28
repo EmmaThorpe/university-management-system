@@ -6,13 +6,34 @@ import java.util.Map;
 public class PasswordManager {
 
     /** Uses the database to check if a sign in is successful or not
-     * @param Email
-     * @param Password
+     * @param email The email the user enters
+     * @param password The password the user enters
      * @return A Map representing if the sign in was successful. Null is returned on details not being right and a map containing the userID, the role and if the user is activated or not is returned if the details are correct.
      */
-    public Map<String,String> login(String Email, String Password){
-        Map<String,String> user= new HashMap<String, String>();
-        user.put(Email, Password);
+    public Map<String,String> login(String email, String password){
+        Map<String,String> user= new HashMap<>();
+        user.put("userID", "idk2?");
+        if(email.equals("student") && password.equals("a")){
+            user.put("role", "Student");
+            user.put("activated", "True");
+
+        }else if(email.equals("lecturer") && password.equals("a")){
+            user.put("role", "Lecturer");
+            user.put("activated", "True");
+
+        }else if(email.equals("manager") && password.equals("a")){
+            user.put("role", "Manager");
+            user.put("activated", "True");
+
+        }else if(email.equals("unactivated") && password.equals("a")){
+            user.put("role", "Student");
+            user.put("activated", "False");
+
+        }else{
+            return null;
+        }
+        System.out.println(user.toString());
+
         return user;
     }
 
