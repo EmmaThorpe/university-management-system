@@ -23,9 +23,11 @@ import javafx.scene.layout.HBox;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.Map;
+import java.util.Stack;
 
-public class LoginUI extends Application {
+public class LoginUI {
     Stage currentStage;
+    Stack<Scene> scenes;
     String css;
     PasswordManager pass;
 
@@ -34,17 +36,36 @@ public class LoginUI extends Application {
         currentStage = primaryStage;
         css = this.getClass().getResource("/css/style.css").toExternalForm();
         pass = new PasswordManager();
-        loginScene();
+        scenes = new Stack<>();
+        initialScene(loginScene());
     }
 
-    public void displayScene(Scene scene) {
+    /*public void addScene(Scene scene){
+        scene.getStylesheets().add(css);
+        scenes.add(scene);
+    }
+
+    public void removeScenes(Scene scene, int amount){
+        for(int i=0; i<amount; i++){
+            scenes.pop();
+        }
+    }*/
+
+    public void initialScene(Scene scene) {
+        //Scene scene = scenes.pop();
         scene.getStylesheets().add(css);
         currentStage.setScene(scene);
         currentStage.sizeToScene();
         currentStage.show();
     }
 
-    public void loginScene() {
+    public void displayScene(Scene scene) {
+        //Scene scene = scenes.pop();
+        scene.getStylesheets().add(css);
+        currentStage.setScene(scene);
+    }
+
+    public Scene loginScene() {
         Label email = new Label("Email");
         TextField emailTF = new TextField();
 
@@ -91,7 +112,7 @@ public class LoginUI extends Application {
 
         root.setPadding(new Insets(10));
 
-        displayScene(new Scene(root));
+        return new Scene(root);
     }
 
 
@@ -207,12 +228,10 @@ public class LoginUI extends Application {
 
         public EventHandler<ActionEvent> goToSignUp () {
             return (arg0 -> signUpScene());
-
         }
 
         public EventHandler<ActionEvent> goToLogin () {
             return (arg0 -> loginScene());
-
         }
 
         public EventHandler<ActionEvent> logIn (TextField email, PasswordField password, Text validHandler){

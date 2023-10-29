@@ -7,7 +7,7 @@ import javax.sql.rowset.CachedRowSet;
 
 import static javafx.application.Application.launch;
 
-public class App{
+public class App extends Application {
     public static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
