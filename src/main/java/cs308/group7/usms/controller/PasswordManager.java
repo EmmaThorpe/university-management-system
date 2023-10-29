@@ -14,20 +14,21 @@ import javafx.stage.Stage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PasswordManager extends UIController implements EventHandler{
+public class PasswordManager extends UIController{
     LoginUI loginUI;
 
     public PasswordManager(Stage currentStage) {
         super(currentStage);
-        loginUI = new LoginUI(this);
-        displayScene(loginUI.loginScene());
+        loginUI = new LoginUI();
+        displayScene(loginUI.loginScene(()->goToSignUp()));
     }
 
 
-    /*public EventHandler<ActionEvent> goToSignUp () {
-        return (arg0 -> signUpScene());
+    public EventHandler<ActionEvent> goToSignUp(){
+        return (arg0 -> loginUI.signUpScene());
     }
 
+    /*
     public EventHandler<ActionEvent> goToLogin () {
         return (arg0 -> loginScene());
     }
@@ -103,8 +104,5 @@ public class PasswordManager extends UIController implements EventHandler{
     }
 
 
-    @Override
-    public void handle(Event event) {
-        displayScene(loginUI.signUpScene());
-    }
+
 }

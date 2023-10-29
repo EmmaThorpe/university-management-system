@@ -27,10 +27,8 @@ import java.util.Map;
 import java.util.Stack;
 
 public class LoginUI{
-    EventHandler controller;
 
-    public LoginUI(EventHandler cont){
-        controller=cont;
+    public LoginUI(){
     }
 
     Stack<Scene> scenes;
@@ -58,7 +56,7 @@ public class LoginUI{
 
 
 
-    public Scene loginScene() {
+    public Scene loginScene(Runnable goToSignUp) {
         Label email = new Label("Email");
         TextField emailTF = new TextField();
 
@@ -94,7 +92,7 @@ public class LoginUI{
         //Submit.setOnAction(logIn(emailTF, passwordF, validHandler));
 
         //Submit.setOnAction(goToStudent());
-        New.setOnAction(controller);
+        New.setOnAction(evt->goToSignUp.run());
 
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
