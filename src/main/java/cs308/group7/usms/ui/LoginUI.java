@@ -1,6 +1,7 @@
 package cs308.group7.usms.ui;
 
 import cs308.group7.usms.controller.PasswordManager;
+import cs308.group7.usms.controller.UIController;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -25,20 +26,24 @@ import org.apache.commons.validator.routines.EmailValidator;
 import java.util.Map;
 import java.util.Stack;
 
-public class LoginUI {
-    Stage currentStage;
+public class LoginUI{
+    EventHandler controller;
+
+    public LoginUI(EventHandler cont){
+        controller=cont;
+    }
+
     Stack<Scene> scenes;
-    String css;
     PasswordManager pass;
 
-    @Override
+    /*@Override
     public void start(Stage primaryStage) throws Exception {
         currentStage = primaryStage;
         css = this.getClass().getResource("/css/style.css").toExternalForm();
         pass = new PasswordManager();
         scenes = new Stack<>();
         initialScene(loginScene());
-    }
+    }*/
 
     /*public void addScene(Scene scene){
         scene.getStylesheets().add(css);
@@ -51,19 +56,7 @@ public class LoginUI {
         }
     }*/
 
-    public void initialScene(Scene scene) {
-        //Scene scene = scenes.pop();
-        scene.getStylesheets().add(css);
-        currentStage.setScene(scene);
-        currentStage.sizeToScene();
-        currentStage.show();
-    }
 
-    public void displayScene(Scene scene) {
-        //Scene scene = scenes.pop();
-        scene.getStylesheets().add(css);
-        currentStage.setScene(scene);
-    }
 
     public Scene loginScene() {
         Label email = new Label("Email");
@@ -98,10 +91,10 @@ public class LoginUI {
         formBtns.setPadding(new Insets(20, 0, 0, 0));
         Text validHandler = new Text();
 
-        Submit.setOnAction(logIn(emailTF, passwordF, validHandler));
+        //Submit.setOnAction(logIn(emailTF, passwordF, validHandler));
 
         //Submit.setOnAction(goToStudent());
-        New.setOnAction(goToSignUp());
+        New.setOnAction(controller);
 
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
@@ -116,7 +109,7 @@ public class LoginUI {
     }
 
 
-    public void signUpScene() {
+    public Scene signUpScene() {
         Label email = new Label("Email");
         TextField emailTF = new TextField();
         Text emailHandler = new Text();
@@ -133,7 +126,7 @@ public class LoginUI {
 
         Button Submit = new Button("Submit");
         HBox formBtns = new HBox(Submit);
-        Submit.setOnAction(goToLogin());
+        //Submit.setOnAction(goToLogin());
         Submit.setDisable(true);
 
 
@@ -163,16 +156,16 @@ public class LoginUI {
 
         root.setPadding(new Insets(10));
 
-        displayScene(new Scene(root));
+        return new Scene(root);
     }
 
-    public void unactivatedAccount(){
+    public Scene unactivatedAccount(){
         Text message = new Text();
         message.setText("Sorry your account has not been activated yet. Try again later.");
 
         Button Submit = new Button("Return to Login");
         HBox formBtns = new HBox(Submit);
-        Submit.setOnAction(goToLogin());
+        //Submit.setOnAction(goToLogin());
 
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
@@ -186,26 +179,9 @@ public class LoginUI {
 
         root.setPadding(new Insets(10));
 
-        displayScene(new Scene(root));
+        return new Scene(root);
     }
 
-    private VBox loginFields() {
-        Label email = new Label("E-MAIL");
-        Label password = new Label("PASSWORD");
-        TextField tf1 = new TextField();
-        TextField tf2 = new TextField();
-
-        VBox emailField = new VBox(email, tf1);
-        emailField.setPadding(new Insets(10));
-
-        VBox passwordField = new VBox(password, tf2);
-        passwordField.setPadding(new Insets(10));
-
-        VBox root = new VBox(emailField, passwordField);
-        root.setPadding(new Insets(10));
-        root.setSpacing(8);
-        return root;
-    }
 
     private VBox setTitle(String titleText) {
         StackPane iconStack = new StackPane();
@@ -226,49 +202,7 @@ public class LoginUI {
     }
 
 
-        public EventHandler<ActionEvent> goToSignUp () {
-            return (arg0 -> signUpScene());
-        }
 
-        public EventHandler<ActionEvent> goToLogin () {
-            return (arg0 -> loginScene());
-        }
-
-        public EventHandler<ActionEvent> logIn (TextField email, PasswordField password, Text validHandler){
-            return new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent arg0) {
-                    Map<String, String> result = pass.login(email.getText(), password.getText());
-                    //System.out.println(result.toString());
-                    if (result == null) {
-                        validHandler.setText("Incorrect Details");
-                    }else if(result.get("activated").equals("True")){
-                        switch(result.get("role")){
-                            case("Student"):
-                                System.out.println("s");
-                                StudentUI stuUI = new StudentUI(result.get("userID"), currentStage);
-                                System.out.println("a");
-                                stuUI.home();
-                                goToLogin();
-                                break;
-                            case("Lecturer"):
-                                LecturerUI lecUI = new LecturerUI(result.get("userID"), currentStage);
-                                lecUI.home();
-                                goToLogin();
-                                break;
-                            case("Manager"):
-                                ManagerUI manUI = new ManagerUI(result.get("userID"), currentStage);
-                                manUI.home();
-                                goToLogin();
-                                break;
-                        }
-                    }else{
-                        unactivatedAccount();
-                    }
-                }
-            };
-
-        }
 
 }
 

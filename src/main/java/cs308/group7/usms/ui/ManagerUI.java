@@ -6,13 +6,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class ManagerUI extends LoginUI {
+public class ManagerUI {
     static Student current;
 
-    public ManagerUI(String name, Stage stage) {
-        currentStage = stage;
-        css = this.getClass().getResource("/css/style.css").toExternalForm();
-    }
+    //public ManagerUI(String name, Stage stage) {
+        //currentStage = stage;
+        //css = this.getClass().getResource("/css/style.css").toExternalForm();
+    //}
 
 
     /*@Override
@@ -29,7 +29,7 @@ public class ManagerUI extends LoginUI {
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        displayScene(scene);
+        //displayScene(scene);
     }
 
     public void home(){
@@ -39,7 +39,7 @@ public class ManagerUI extends LoginUI {
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        displayScene(scene);
+        //displayScene(scene);
     }
 
 }

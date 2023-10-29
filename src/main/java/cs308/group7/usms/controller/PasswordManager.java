@@ -1,9 +1,74 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.ui.LoginUI;
+import cs308.group7.usms.ui.ManagerUI;
+import cs308.group7.usms.ui.StudentUI;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class PasswordManager {
+public class PasswordManager extends UIController implements EventHandler{
+    LoginUI loginUI;
+
+    public PasswordManager(Stage currentStage) {
+        super(currentStage);
+        loginUI = new LoginUI(this);
+        displayScene(loginUI.loginScene());
+    }
+
+
+    /*public EventHandler<ActionEvent> goToSignUp () {
+        return (arg0 -> signUpScene());
+    }
+
+    public EventHandler<ActionEvent> goToLogin () {
+        return (arg0 -> loginScene());
+    }
+
+    public EventHandler<ActionEvent> logIn (TextField email, PasswordField password, Text validHandler){
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                Map<String, String> result = login(email.getText(), password.getText());
+                //System.out.println(result.toString());
+                if (result == null) {
+                    validHandler.setText("Incorrect Details");
+                }else if(result.get("activated").equals("True")){
+                    switch(result.get("role")){
+                        case("Student"):
+                            System.out.println("s");
+                            StudentUI stuUI = new StudentUI(result.get("userID"), currentStage);
+                            System.out.println("a");
+                            stuUI.home();
+                            goToLogin();
+                            break;
+                        case("Lecturer"):
+                            LecturerUI lecUI = new LecturerUI(result.get("userID"), currentStage);
+                            lecUI.home();
+                            goToLogin();
+                            break;
+                        case("Manager"):
+                            ManagerUI manUI = new ManagerUI(result.get("userID"), currentStage);
+                            manUI.home();
+                            goToLogin();
+                            break;
+                    }
+                }else{
+                    unactivatedAccount();
+                }
+            }
+        };
+
+    }*/
+
+
 
     /** Uses the database to check if a sign in is successful or not
      * @param email The email the user enters
@@ -38,5 +103,8 @@ public class PasswordManager {
     }
 
 
-
+    @Override
+    public void handle(Event event) {
+        displayScene(loginUI.signUpScene());
+    }
 }

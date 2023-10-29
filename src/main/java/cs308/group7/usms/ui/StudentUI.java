@@ -6,14 +6,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class StudentUI extends LoginUI {
+public class StudentUI{
     static Student current;
 
-    public StudentUI(String name, Stage stage) {
+    /*public StudentUI(String name, Stage stage) {
         currentStage = stage;
         css = this.getClass().getResource("/css/style.css").toExternalForm();
     }
-
+*/
 
     /*@Override
     public void start(Stage primaryStage) throws Exception {
@@ -29,7 +29,7 @@ public class StudentUI extends LoginUI {
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        displayScene(scene);
+        //displayScene(scene);
     }
 
     public void home(){
@@ -39,7 +39,7 @@ public class StudentUI extends LoginUI {
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        displayScene(scene);
+        //displayScene(scene);
 
         System.out.println("b");
     }
