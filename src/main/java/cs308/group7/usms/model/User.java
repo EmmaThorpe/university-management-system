@@ -4,17 +4,26 @@ import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 public class User {
 
-    private final int userID;
-    private final int managedBy;
+    public enum UserType {
+        STUDENT,
+        LECTURER,
+        MANAGER
+    }
+
+    private final String userID;
+    private final String managedBy;
     private final String forename;
     private final String surname;
     private final String email;
+    private final Date dob;
     private final String gender;
+    private final UserType type;
     private boolean activated;
 
     /**
@@ -22,32 +31,41 @@ public class User {
      * @param userID The ID of the user to create
      * @throws SQLException If the user does not exist
      */
-    public User(int userID) throws SQLException {
+    public User(String userID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         CachedRowSet res = db.select(new String[]{"Users"}, null, new String[]{"UserID = " + userID});
-        this.userID = res.getInt("UserID");
-        this.managedBy = res.getInt("ManagedBy");
+        this.userID = res.getString("UserID");
+        this.managedBy = res.getString("ManagedBy");
         this.forename = res.getString("Forename");
         this.surname = res.getString("Surname");
         this.email = res.getString("Email");
+        this.dob = res.getDate("DOB");
         this.gender = res.getString("Gender");
+        this.type = switch (res.getString("Type")) {
+            case "Student" -> UserType.STUDENT;
+            case "Lecturer" -> UserType.LECTURER;
+            case "Manager" -> UserType.MANAGER;
+            default -> throw new SQLException("Unexpected user type: " + res.getString("Type"));
+        };
         this.activated = res.getBoolean("Activated");
     }
 
     /**
      * Creates a new User object from the given parameters without checking the database
      */
-    public User(int userID, int managerID, String forename, String surname, String email, String gender, boolean activated) {
+    public User(String userID, String managerID, String forename, String surname, String email, Date dob, String gender, UserType type, boolean activated) {
         this.userID = userID;
         this.managedBy = managerID;
         this.forename = forename;
         this.surname = surname;
         this.email = email;
+        this.dob = dob;
         this.gender = gender;
+        this.type = type;
         this.activated = activated;
     }
 
-    public int getUserID() { return userID; }
+    public String getUserID() { return userID; }
 
     /**
      * Checks if the user is a manager
@@ -74,7 +92,11 @@ public class User {
 
     public String getEmail() { return email; }
 
+    public Date getDOB() { return dob; }
+
     public String getGender() { return gender; }
+
+    public UserType getType() { return type; }
 
     public boolean getActivated() { return activated; }
 
