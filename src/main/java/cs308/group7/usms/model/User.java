@@ -29,25 +29,29 @@ public class User {
     /**
      * Creates a new User object from the database
      * @param userID The ID of the user to create
-     * @throws SQLException If the user does not exist
+     * @throws SQLException If the user does not exist or is otherwise invalid
      */
     public User(String userID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
-        CachedRowSet res = db.select(new String[]{"Users"}, null, new String[]{"UserID = " + userID});
-        this.userID = res.getString("UserID");
-        this.managedBy = res.getString("ManagedBy");
-        this.forename = res.getString("Forename");
-        this.surname = res.getString("Surname");
-        this.email = res.getString("Email");
-        this.dob = res.getDate("DOB");
-        this.gender = res.getString("Gender");
-        this.type = switch (res.getString("Type")) {
-            case "Student" -> UserType.STUDENT;
-            case "Lecturer" -> UserType.LECTURER;
-            case "Manager" -> UserType.MANAGER;
-            default -> throw new SQLException("Unexpected user type: " + res.getString("Type"));
-        };
-        this.activated = res.getBoolean("Activated");
+        CachedRowSet res = db.select(new String[]{"Users"}, null, new String[]{"UserID = '" + userID + "'"});
+        if (res.next()) {
+            this.userID = res.getString("UserID");
+            this.managedBy = res.getString("ManagedBy");
+            this.forename = res.getString("Forename");
+            this.surname = res.getString("Surname");
+            this.email = res.getString("Email");
+            this.dob = res.getDate("DOB");
+            this.gender = res.getString("Gender");
+            this.type = switch (res.getString("Type")) {
+                case "Student" -> UserType.STUDENT;
+                case "Lecturer" -> UserType.LECTURER;
+                case "Manager" -> UserType.MANAGER;
+                default -> throw new SQLException("Unexpected user type: " + res.getString("Type"));
+            };
+            this.activated = res.getBoolean("Activated");
+        } else {
+            throw new SQLException("User " + userID + " does not exist!");
+        }
     }
 
     /**
@@ -72,7 +76,7 @@ public class User {
      * @return Whether the user is a manager, or false in the event of an error
      */
     public boolean isManager() {
-        try (CachedRowSet res = App.getDatabaseConnection().select(new String[]{"Users"}, new String[]{"COUNT(UserID) AS NumberOfUsers"}, new String[]{"ManagedBy = " + userID})) {
+        try (CachedRowSet res = App.getDatabaseConnection().select(new String[]{"Users"}, new String[]{"COUNT(UserID) AS NumberOfUsers"}, new String[]{"ManagedBy = '" + userID + "'"})) {
             return res.getInt("NumberOfUsers") > 0;
         } catch (SQLException e) {
             System.out.println("Failed to check if user " + userID + " is a manager!");
@@ -107,10 +111,9 @@ public class User {
     public boolean setActivated() {
         DatabaseConnection db = App.getDatabaseConnection();
         HashMap<String, String> values = new HashMap<>();
-        values.put("Activated", "true");
+        values.put("Activated", "TRUE");
         try {
-            db.update("Users", values, new String[]{"UserID = " + userID});
-            return activated = true;
+            return activated = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
         } catch (SQLException e) {
             System.out.println("Failed to set user " + userID + " to activated!");
             return false;
