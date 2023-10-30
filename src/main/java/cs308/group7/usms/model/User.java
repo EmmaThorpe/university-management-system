@@ -2,7 +2,6 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
-import org.jetbrains.annotations.Nullable;
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
@@ -18,6 +17,11 @@ public class User {
     private final String gender;
     private boolean activated;
 
+    /**
+     * Creates a new User object from the database
+     * @param userID The ID of the user to create
+     * @throws SQLException If the user does not exist
+     */
     public User(int userID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         CachedRowSet res = db.select(new String[]{"Users"}, null, new String[]{"UserID = " + userID});
@@ -30,6 +34,9 @@ public class User {
         this.activated = res.getBoolean("Activated");
     }
 
+    /**
+     * Creates a new User object from the given parameters without checking the database
+     */
     public User(int userID, int managerID, String forename, String surname, String email, String gender, boolean activated) {
         this.userID = userID;
         this.managedBy = managerID;
@@ -42,12 +49,23 @@ public class User {
 
     public int getUserID() { return userID; }
 
-    public boolean isManager() throws SQLException {
+    /**
+     * Checks if the user is a manager
+     * @return Whether the user is a manager, or false in the event of an error
+     */
+    public boolean isManager() {
         try (CachedRowSet res = App.getDatabaseConnection().select(new String[]{"Users"}, new String[]{"COUNT(UserID) AS NumberOfUsers"}, new String[]{"ManagedBy = " + userID})) {
             return res.getInt("NumberOfUsers") > 0;
+        } catch (SQLException e) {
+            System.out.println("Failed to check if user " + userID + " is a manager!");
+            return false;
         }
     }
 
+    /**
+     * Gets the manager of the user
+     * @throws SQLException If the manager does not exist
+     */
     public User getManager() throws SQLException { return new User(managedBy); }
 
     public String getForename() { return forename; }
@@ -60,6 +78,10 @@ public class User {
 
     public boolean getActivated() { return activated; }
 
+    /**
+     * Sets the user to activated
+     * @return Whether the operation was successful
+     */
     public boolean setActivated() {
         DatabaseConnection db = App.getDatabaseConnection();
         HashMap<String, String> values = new HashMap<>();
