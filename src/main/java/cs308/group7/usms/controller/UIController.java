@@ -9,22 +9,22 @@ public class UIController extends Application{
     Stage primaryStage;
     String css;
 
+    public UIController(){}
+
+    public UIController(Stage stage){
+        primaryStage = stage;
+        css = this.getClass().getResource("/css/style.css").toExternalForm();
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Stage currentStage = primaryStage;
-        String css = this.getClass().getResource("/css/style.css").toExternalForm();
-
-        PasswordManager passwordM = new PasswordManager(currentStage);
-
-
-    }
-
-    public UIController(Stage pri){
-        primaryStage =pri;
+        PasswordManager pass = new PasswordManager(currentStage);
     }
     public void displayScene(Scene scene) {
         //Scene scene = scenes.pop();
         scene.getStylesheets().add(css);
         primaryStage.setScene(scene);
+        primaryStage.show();
     }
 }

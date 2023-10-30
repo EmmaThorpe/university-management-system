@@ -20,9 +20,9 @@ public class PasswordManager extends UIController{
     public PasswordManager(Stage currentStage) {
         super(currentStage);
         loginUI = new LoginUI();
-        displayScene(loginUI.loginScene(()->goToSignUp()));
+        //displayScene(loginUI.loginScene(()->goToSignUp()));
+        displayScene(loginUI.signUpScene());
     }
-
 
     public EventHandler<ActionEvent> goToSignUp(){
         return (arg0 -> loginUI.signUpScene());

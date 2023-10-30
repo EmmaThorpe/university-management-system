@@ -1,5 +1,6 @@
 package cs308.group7.usms;
 
+import cs308.group7.usms.controller.PasswordManager;
 import cs308.group7.usms.controller.UIController;
 import cs308.group7.usms.database.DatabaseConnection;
 import javafx.application.Application;
@@ -11,11 +12,8 @@ import java.util.Stack;
 
 import static javafx.application.Application.launch;
 
-public class App{
+public class App {
     public static DatabaseConnection databaseConnection;
-
-
-
 
     public static void main(String[] args) {
         // Create database pool
@@ -27,7 +25,7 @@ public class App{
             System.exit(65);
         }
 
-        Application.launch(UIController.class);
+        Application.launch(UIController.class, args);
 
         // Application code (sample for demonstration)
         try (CachedRowSet res = databaseConnection.select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
@@ -41,7 +39,4 @@ public class App{
         // Close database pool
         databaseConnection.close();
     }
-
-
-
 }

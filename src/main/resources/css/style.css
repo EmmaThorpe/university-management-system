@@ -132,7 +132,12 @@
     -fx-background-color: -drop-shadow;
 }
 
-.card:pressed, .card:focused {
+.card:selected, .card:selected:focused {
     -fx-background-color: -drop-shadow;
     -fx-border-color: -color-light-grey;
+}
+
+.card-graphic {
+    -fx-icon-color: -color-dark-grey;
+    -fx-icon-size: 20;
 }
