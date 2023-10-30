@@ -42,15 +42,13 @@ public class User {
 
     public int getUserID() { return userID; }
 
-    @Nullable
-    public User getManager() {
-        try {
-            return new User(managedBy);
-        } catch (SQLException e) {
-            System.out.println("Failed to get manager for user " + userID + "!");
-            return null;
+    public boolean isManager() throws SQLException {
+        try (CachedRowSet res = App.getDatabaseConnection().select(new String[]{"Users"}, new String[]{"COUNT(UserID) AS NumberOfUsers"}, new String[]{"ManagedBy = " + userID})) {
+            return res.getInt("NumberOfUsers") > 0;
         }
     }
+
+    public User getManager() throws SQLException { return new User(managedBy); }
 
     public String getForename() { return forename; }
 
@@ -60,7 +58,7 @@ public class User {
 
     public String getGender() { return gender; }
 
-    public boolean isActivated() { return activated; }
+    public boolean getActivated() { return activated; }
 
     public boolean setActivated() {
         DatabaseConnection db = App.getDatabaseConnection();
