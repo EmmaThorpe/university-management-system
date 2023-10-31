@@ -12,6 +12,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PasswordManager extends UIController{
@@ -20,54 +21,47 @@ public class PasswordManager extends UIController{
     public PasswordManager(Stage currentStage) {
         super(currentStage);
         loginUI = new LoginUI();
-        //displayScene(loginUI.loginScene(()->goToSignUp()));
+        goToLogin();
+    }
+
+    public HashMap<String, String> response(){
+        return null;
+    }
+
+
+    public void goToSignUp(){
         displayScene(loginUI.signUpScene());
     }
 
-    public EventHandler<ActionEvent> goToSignUp(){
-        return (arg0 -> loginUI.signUpScene());
+
+    public void goToLogin() {
+        displayScene(loginUI.loginScene(()->goToSignUp(), ()->attemptLogin()));
     }
 
-    /*
-    public EventHandler<ActionEvent> goToLogin () {
-        return (arg0 -> loginScene());
+    public void goToUnactivated() {
+        displayScene(loginUI.unactivatedAccount(()->goToLogin()));
     }
 
-    public EventHandler<ActionEvent> logIn (TextField email, PasswordField password, Text validHandler){
-        return new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                Map<String, String> result = login(email.getText(), password.getText());
-                //System.out.println(result.toString());
-                if (result == null) {
-                    validHandler.setText("Incorrect Details");
-                }else if(result.get("activated").equals("True")){
-                    switch(result.get("role")){
-                        case("Student"):
-                            System.out.println("s");
-                            StudentUI stuUI = new StudentUI(result.get("userID"), currentStage);
-                            System.out.println("a");
-                            stuUI.home();
-                            goToLogin();
-                            break;
-                        case("Lecturer"):
-                            LecturerUI lecUI = new LecturerUI(result.get("userID"), currentStage);
-                            lecUI.home();
-                            goToLogin();
-                            break;
-                        case("Manager"):
-                            ManagerUI manUI = new ManagerUI(result.get("userID"), currentStage);
-                            manUI.home();
-                            goToLogin();
-                            break;
-                    }
-                }else{
-                    unactivatedAccount();
-                }
-            }
-        };
+    public Map<String, String> attemptLogin (){
+        List<TextField> textfields = loginUI.getCurrentTextFields();
+        List<Text> text = loginUI.getCurrentText();
+        TextField email = textfields.get(0);
+        TextField password =textfields.get(1);
+        Text validHandler = text.get(0);
 
-    }*/
+        Map<String, String> result = login(email.getText(), password.getText());
+        if (result == null) {
+            validHandler.setText("Incorrect Details");
+        }else if(result.get("activated").equals("True")){
+            return result;
+
+        }else{
+            goToUnactivated();
+        }
+        return null;
+    }
+
+
 
 
 

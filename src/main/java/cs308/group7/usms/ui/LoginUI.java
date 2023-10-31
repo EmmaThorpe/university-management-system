@@ -24,6 +24,8 @@ import javafx.scene.layout.HBox;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import javax.swing.event.ChangeEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -32,10 +34,26 @@ public class LoginUI{
     public LoginUI(){
     }
 
-    Stack<Scene> scenes;
-    PasswordManager pass;
+    List<TextField> currentTextFields;
 
-    public Scene loginScene(Runnable goToSignUp) {
+    List<Text> currentText;
+
+    public List<TextField> getCurrentTextFields(){
+        return currentTextFields;
+    }
+    public void setCurrentTextFields(ArrayList<TextField> curr){
+        currentTextFields = curr;
+    }
+
+
+    public List<Text> getCurrentText(){
+        return currentText;
+    }
+    public void setCurrentText(ArrayList<Text> curr){
+        currentText = curr;
+    }
+
+    public Scene loginScene(Runnable goToSignUp, Runnable Login) {
 
         VBox formContent = loginFields();
 
@@ -51,9 +69,14 @@ public class LoginUI{
         formBtns.setAlignment(Pos.BOTTOM_CENTER);
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
+
         Text validHandler = new Text();
+        ArrayList<Text> curr = new ArrayList<>();
+        curr.add(validHandler);
+        setCurrentText(curr);
 
         New.setOnAction(evt->goToSignUp.run());
+        Submit.setOnAction(evt->Login.run());
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
 
@@ -154,13 +177,17 @@ public class LoginUI{
 
         return new Scene(root);
     }
-    public Scene unactivatedAccount(){
+
+
+
+
+    public Scene unactivatedAccount(Runnable goToLogin){
         Text message = new Text();
         message.setText("Sorry your account has not been activated yet. Try again later.");
 
         Button Submit = new Button("Return to Login");
         HBox formBtns = new HBox(Submit);
-        //Submit.setOnAction(goToLogin());
+        Submit.setOnAction(evt->goToLogin.run());
 
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
@@ -182,6 +209,11 @@ public class LoginUI{
         Label password=new Label("PASSWORD");
         TextField emailTF=new TextField();
         TextField passwordTF=new TextField();
+
+        ArrayList<TextField> curr = new ArrayList<>();
+        curr.add(emailTF);
+        curr.add(passwordTF);
+        setCurrentTextFields(curr);
 
         VBox emailField = new VBox(email, emailTF);
         emailField.setPadding(new Insets(10));

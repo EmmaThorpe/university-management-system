@@ -5,6 +5,10 @@ import javafx.stage.Stage;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 public class UIController extends Application{
     Stage primaryStage;
     String css;
@@ -19,7 +23,12 @@ public class UIController extends Application{
     @Override
     public void start(Stage primaryStage) throws Exception {
         Stage currentStage = primaryStage;
-        PasswordManager pass = new PasswordManager(currentStage);
+        Map<String, String> output= new HashMap<>();
+        //while (output.containsKey("Exiting")){
+            PasswordManager pass = new PasswordManager(currentStage);
+            //output = pass.response();
+        //}
+
     }
     public void displayScene(Scene scene) {
         //Scene scene = scenes.pop();
