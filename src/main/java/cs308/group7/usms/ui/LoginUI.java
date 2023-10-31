@@ -93,23 +93,11 @@ public class LoginUI{
 
         ToggleGroup userSelected = new ToggleGroup();
 
-        FontIcon studentOpGraphic = new FontIcon(FontAwesomeSolid.USER);
-        studentOpGraphic.getStyleClass().add("card-graphic");
-        ToggleButton studentOp = new ToggleButton("STUDENT", studentOpGraphic);
-        studentOp.setToggleGroup(userSelected);
-        studentOp.setUserData("student");
-        studentOp.setSelected(true);
-        studentOp.setContentDisplay(ContentDisplay.TOP);
-        studentOp.getStyleClass().add("card");
+        ToggleButton studentOp = setToggleOption(userSelected, "student", new FontIcon(FontAwesomeSolid.USER));
+        ToggleButton lecturerOp = setToggleOption(userSelected, "lecturer", new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER));
 
-        FontIcon lecturerOpGraphic = new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
-        lecturerOpGraphic.getStyleClass().add("card-graphic");
-        ToggleButton lecturerOp = new ToggleButton("LECTURER", lecturerOpGraphic);
-        lecturerOp.setToggleGroup(userSelected);
-        lecturerOp.setUserData("lecturer");
-        lecturerOp.setContentDisplay(ContentDisplay.TOP);
-        lecturerOp.getStyleClass().add("card");
-
+        HBox.setHgrow(studentOp, Priority.ALWAYS);
+        HBox.setHgrow(lecturerOp, Priority.ALWAYS);
         HBox userOptions = new HBox(studentOp, lecturerOp);
         userOptions.setSpacing(20.0);
         userOptions.setAlignment(Pos.BASELINE_CENTER);
@@ -131,11 +119,20 @@ public class LoginUI{
         Label password = new Label("PASSWORD");
         TextField passwordTF = new TextField();
 
+        Label qualification = new Label("QUALIFICATION");
+        TextField qualificationTF = new TextField();
+
         VBox emailField = new VBox(email, emailTF, emailHandler);
         VBox forenameField = new VBox(forename, nameTF);
         VBox surnameField = new VBox(surname, surnameTF);
+
+
+        HBox.setHgrow(forenameField, Priority.ALWAYS);
+        HBox.setHgrow(surnameField, Priority.ALWAYS);
         HBox nameField = new HBox(forenameField, surnameField);
         nameField.setSpacing(10.0);
+
+        VBox qualificationField = new VBox(qualification, qualificationTF);
         VBox passwordField = new VBox(password, passwordTF);
 
         VBox formContent = new VBox(userField, emailField, nameField, passwordField);
@@ -161,10 +158,10 @@ public class LoginUI{
         userSelected.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> observableValue, Toggle currentToggle, Toggle newToggle) {
-                if (currentToggle.getUserData() == "lecturer") {
-                    //setup lecturer fields
+                if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
+                    formContent.getChildren().add(qualificationField);
                 } else {
-                    //remove lecturer fields from view
+                    formContent.getChildren().remove(qualificationField);
                 }
             }
         });
@@ -245,9 +242,18 @@ public class LoginUI{
         return title;
     }
 
-
-
-
+    private ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        FontIcon opGraphic = icon;
+        opGraphic.getStyleClass().add("card-graphic");
+        ToggleButton op = new ToggleButton(operatorNameDisplay, opGraphic);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName.toLowerCase());
+        op.setSelected(true);
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card");
+        return op;
+    }
 }
 
 
