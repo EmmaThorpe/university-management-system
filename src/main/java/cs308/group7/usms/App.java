@@ -3,6 +3,7 @@ package cs308.group7.usms;
 import cs308.group7.usms.controller.PasswordManager;
 import cs308.group7.usms.controller.UIController;
 import cs308.group7.usms.database.DatabaseConnection;
+import cs308.group7.usms.ui.LayoutUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -25,7 +26,7 @@ public class App {
             System.exit(65);
         }
 
-        Application.launch(UIController.class, args);
+        Application.launch(LayoutUI.class, args);
 
         // Application code (sample for demonstration)
         try (CachedRowSet res = databaseConnection.select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
