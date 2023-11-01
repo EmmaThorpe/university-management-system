@@ -1,18 +1,14 @@
 package cs308.group7.usms;
 
-import cs308.group7.usms.controller.PasswordManager;
-import cs308.group7.usms.controller.UIController;
+import cs308.group7.usms.controller.*;
 import cs308.group7.usms.database.DatabaseConnection;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import javax.sql.rowset.CachedRowSet;
+import java.util.Map;
 
-import java.util.Stack;
-
-import static javafx.application.Application.launch;
-
-public class App {
+public class App extends Application{
     public static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
@@ -25,7 +21,7 @@ public class App {
             System.exit(65);
         }
 
-        Application.launch(UIController.class, args);
+        Application.launch(args);
 
         // Application code (sample for demonstration)
         try (CachedRowSet res = databaseConnection.select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
@@ -38,5 +34,27 @@ public class App {
 
         // Close database pool
         databaseConnection.close();
+    }
+
+
+    @Override
+    public void start(Stage primaryStage) {
+        Map<String, String> user;
+        boolean exiting = false;
+        while (!exiting) {
+            PasswordManager pass = new PasswordManager();
+            user = pass.response();
+            switch (user.get("role")) {
+                case "Lecturer":
+                    UIController lec = new LecturerController(user.get("UserID"));
+                    break;
+                case "Student":
+                    UIController stu = new StudentController(user.get("UserID"));
+                    break;
+                case "Manager":
+                    UIController man = new ManagerController(user.get("UserID"));
+                    break;
+            }
+        }
     }
 }

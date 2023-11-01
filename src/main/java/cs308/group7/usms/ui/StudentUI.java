@@ -32,16 +32,15 @@ public class StudentUI{
         //displayScene(scene);
     }
 
-    public void home(){
+    public Scene home(){
         Label test=new Label("Hello Student");
         GridPane root=new GridPane();
         root.setHgap(20);
         root.setVgap(15);
         Scene scene = new Scene(root,500,300);
         root.addRow(0, test);
-        //displayScene(scene);
+        return scene;
 
-        System.out.println("b");
     }
 
 

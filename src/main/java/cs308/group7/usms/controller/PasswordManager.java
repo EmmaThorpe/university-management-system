@@ -1,12 +1,6 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.ui.LoginUI;
-import cs308.group7.usms.ui.ManagerUI;
-import cs308.group7.usms.ui.StudentUI;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -17,32 +11,50 @@ import java.util.Map;
 
 public class PasswordManager extends UIController{
     LoginUI loginUI;
+    Map<String, String> user;
 
-    public PasswordManager(Stage currentStage) {
-        super(currentStage);
+    /**
+     * Constructor
+     */
+    public PasswordManager() {
         loginUI = new LoginUI();
-        goToLogin();
+        displayFirstScene(loginUI.loginScene(this::goToSignUp, this::attemptLogin));
     }
 
-    public HashMap<String, String> response(){
-        return null;
+    /** responds to main with the user that has successfully been logged in
+     * @return Map containing user info
+     */
+    public Map<String, String> response(){
+        return user;
     }
 
 
+    /**
+     * Displays the signup page
+     */
     public void goToSignUp(){
         displayScene(loginUI.signUpScene());
     }
 
 
+    /**
+     * Displays the login page
+     */
     public void goToLogin() {
-        displayScene(loginUI.loginScene(()->goToSignUp(), ()->attemptLogin()));
+        displayScene(loginUI.loginScene(this::goToSignUp, this::attemptLogin));
     }
 
+    /**
+     * Displays the unactivated account page
+     */
     public void goToUnactivated() {
-        displayScene(loginUI.unactivatedAccount(()->goToLogin()));
+        displayScene(loginUI.unactivatedAccount(this::goToLogin));
     }
 
-    public Map<String, String> attemptLogin (){
+    /**
+     * Attempts to log in to system and moves page accordingly based on outcome
+     */
+    public void attemptLogin (){
         List<TextField> textfields = loginUI.getCurrentTextFields();
         List<Text> text = loginUI.getCurrentText();
         TextField email = textfields.get(0);
@@ -53,12 +65,12 @@ public class PasswordManager extends UIController{
         if (result == null) {
             validHandler.setText("Incorrect Details");
         }else if(result.get("activated").equals("True")){
-            return result;
+            hideStage();
+            user=result;
 
         }else{
             goToUnactivated();
         }
-        return null;
     }
 
 
@@ -71,30 +83,29 @@ public class PasswordManager extends UIController{
      * @return A Map representing if the sign in was successful. Null is returned on details not being right and a map containing the userID, the role and if the user is activated or not is returned if the details are correct.
      */
     public Map<String,String> login(String email, String password){
-        Map<String,String> user= new HashMap<>();
-        user.put("userID", "idk2?");
+        Map<String,String> potentialUser= new HashMap<>();
+        potentialUser.put("UserID", "idk2?");
         if(email.equals("student") && password.equals("a")){
-            user.put("role", "Student");
-            user.put("activated", "True");
+            potentialUser.put("role", "Student");
+            potentialUser.put("activated", "True");
 
         }else if(email.equals("lecturer") && password.equals("a")){
-            user.put("role", "Lecturer");
-            user.put("activated", "True");
+            potentialUser.put("role", "Lecturer");
+            potentialUser.put("activated", "True");
 
         }else if(email.equals("manager") && password.equals("a")){
-            user.put("role", "Manager");
-            user.put("activated", "True");
+            potentialUser.put("role", "Manager");
+            potentialUser.put("activated", "True");
 
         }else if(email.equals("unactivated") && password.equals("a")){
-            user.put("role", "Student");
-            user.put("activated", "False");
+            potentialUser.put("role", "Student");
+            potentialUser.put("activated", "False");
 
         }else{
             return null;
         }
-        System.out.println(user.toString());
 
-        return user;
+        return potentialUser;
     }
 
 

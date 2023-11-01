@@ -31,28 +31,48 @@ import java.util.Stack;
 
 public class LoginUI{
 
-    public LoginUI(){
-    }
 
     List<TextField> currentTextFields;
 
     List<Text> currentText;
 
+    /**gets the text fields currently shown on the page being shown
+     * @return List of text fields
+     */
     public List<TextField> getCurrentTextFields(){
         return currentTextFields;
     }
+
+
+    /** Sets the current text fields currently being shown on the page
+     * @param curr -List of current text fields being shown
+     */
     public void setCurrentTextFields(ArrayList<TextField> curr){
         currentTextFields = curr;
     }
 
 
+    /** Gets the current text being shown on the stage currently
+     * @return Current text displayed on scene
+     */
     public List<Text> getCurrentText(){
         return currentText;
     }
+
+
+    /**Sets the current text being shown on stage
+     * @param curr Current text displayed on scene
+     */
     public void setCurrentText(ArrayList<Text> curr){
         currentText = curr;
     }
 
+
+    /** Returns the login scene so it can then be displayed
+     * @param goToSignUp - method to go to signup page
+     * @param Login - method to attempt to login
+     * @return login scene
+     */
     public Scene loginScene(Runnable goToSignUp, Runnable Login) {
 
         VBox formContent = loginFields();
@@ -88,6 +108,10 @@ public class LoginUI{
 
         return new Scene(root);
     }
+
+
+
+
     public Scene signUpScene() {
         VBox title = setTitle("SIGN UP");
 
@@ -141,7 +165,7 @@ public class LoginUI{
 
         Button Submit = new Button("Submit");
         HBox formBtns = new HBox(Submit);
-        //Submit.setOnAction(goToLogin());
+
         Submit.setDisable(true);
         formBtns.setPadding(new Insets(20, 0, 0, 0));
 
@@ -176,8 +200,10 @@ public class LoginUI{
     }
 
 
-
-
+    /** Retrun the unactivated account scene
+     * @param goToLogin - method to go to login page
+     * @return unactivated account scene
+     */
     public Scene unactivatedAccount(Runnable goToLogin){
         Text message = new Text();
         message.setText("Sorry your account has not been activated yet. Try again later.");
@@ -200,6 +226,8 @@ public class LoginUI{
 
         return new Scene(root);
     }
+
+
 
     private VBox loginFields() {
         Label email=new Label("E-MAIL");
@@ -254,6 +282,8 @@ public class LoginUI{
         op.getStyleClass().add("card");
         return op;
     }
+
+
 }
 
 
