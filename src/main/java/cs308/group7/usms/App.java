@@ -37,6 +37,7 @@ public class App {
         }
 
         // Close database pool
+
         databaseConnection.close();
     }
 }
