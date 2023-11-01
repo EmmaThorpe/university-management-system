@@ -186,7 +186,6 @@ public class LoginUI{
         HBox formBtns = new HBox(Submit);
         Submit.setOnAction(evt->goToLogin.run());
 
-
         formBtns.setPadding(new Insets(20, 0, 0, 0));
 
         GridPane root = new GridPane();

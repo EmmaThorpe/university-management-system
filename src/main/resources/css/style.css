@@ -111,6 +111,28 @@
     -fx-fill: -color-pri;
 }
 
+.toolbar-title {
+    -fx-fill: -color-white;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 30;
+    -fx-padding: 0.2em 0px;
+}
+
+.toolbar-bar {
+    -fx-background-color: -gradient;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+}
+
+.toolbar-graphic {
+    -fx-icon-color: -gradient;
+    -fx-icon-size: 30;
+}
+
+.toolbar-back {
+    -fx-fill: -color-white;
+}
+
 .card {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
