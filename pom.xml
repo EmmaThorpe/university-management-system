@@ -94,7 +94,6 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>cs308.group7.usms.App</mainClass>
-                    <executable>/Users/fiona/.jdks/corretto-17.0.9/bin/java</executable>
                 </configuration>
             </plugin>
 

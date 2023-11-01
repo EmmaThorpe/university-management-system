@@ -1,12 +1,5 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.controller.PasswordManager;
-import cs308.group7.usms.controller.UIController;
-import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,32 +7,26 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.fontawesome5.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import javax.swing.event.ChangeEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoginUI{
 
 
-    List<TextField> currentTextFields;
+    Map<String, TextField> currentTextFields;
 
-    List<Text> currentText;
+    Map<String, Text> currentText;
 
     /**gets the text fields currently shown on the page being shown
-     * @return List of text fields
+     * @return Map of text fields
      */
-    public List<TextField> getCurrentTextFields(){
+    public Map<String, TextField> getCurrentTextFields(){
         return currentTextFields;
     }
 
@@ -47,7 +34,7 @@ public class LoginUI{
     /** Sets the current text fields currently being shown on the page
      * @param curr -List of current text fields being shown
      */
-    public void setCurrentTextFields(ArrayList<TextField> curr){
+    public void setCurrentTextFields(Map<String, TextField> curr){
         currentTextFields = curr;
     }
 
@@ -55,7 +42,7 @@ public class LoginUI{
     /** Gets the current text being shown on the stage currently
      * @return Current text displayed on scene
      */
-    public List<Text> getCurrentText(){
+    public Map<String, Text> getCurrentText(){
         return currentText;
     }
 
@@ -63,7 +50,7 @@ public class LoginUI{
     /**Sets the current text being shown on stage
      * @param curr Current text displayed on scene
      */
-    public void setCurrentText(ArrayList<Text> curr){
+    public void setCurrentText(Map<String, Text> curr){
         currentText = curr;
     }
 
@@ -91,8 +78,8 @@ public class LoginUI{
         formBtns.setPadding(new Insets(20, 0, 0, 0));
 
         Text validHandler = new Text();
-        ArrayList<Text> curr = new ArrayList<>();
-        curr.add(validHandler);
+        Map<String,Text> curr = new HashMap<>();
+        curr.put("output", validHandler);
         setCurrentText(curr);
 
         New.setOnAction(evt->goToSignUp.run());
@@ -109,7 +96,7 @@ public class LoginUI{
         return new Scene(root);
     }
 
-    public Scene signUpScene(Runnable goToCreated, Runnable goToLogin) {
+    public Scene signUpScene(Runnable signUp, Runnable goToLogin) {
         VBox title = setTitle("SIGN UP");
 
         ToggleGroup userSelected = new ToggleGroup();
@@ -134,34 +121,44 @@ public class LoginUI{
 
         Label forename = new Label("FORENAME");
         TextField nameTF = new TextField();
+        Text nameHandler = new Text();
 
         Label surname = new Label("SURNAME");
         TextField surnameTF = new TextField();
+        Text surnameHandler = new Text();
 
         Label password = new Label("PASSWORD");
         TextField passwordTF = new TextField();
+        Text passwordHandler = new Text();
+
+        Label confirmPassword = new Label("CONFIRM PASSWORD");
+        TextField confirmPasswordTF = new TextField();
+        Text confirmPasswordHandler = new Text();
 
         Label qualification = new Label("QUALIFICATION");
         TextField qualificationTF = new TextField();
+        Text qualificationHandler = new Text();
 
         VBox emailField = new VBox(email, emailTF, emailHandler);
-        VBox forenameField = new VBox(forename, nameTF);
-        VBox surnameField = new VBox(surname, surnameTF);
+        VBox forenameField = new VBox(forename, nameTF, nameHandler);
+        VBox surnameField = new VBox(surname, surnameTF, surnameHandler);
 
         HBox.setHgrow(forenameField, Priority.ALWAYS);
         HBox.setHgrow(surnameField, Priority.ALWAYS);
         HBox nameField = new HBox(forenameField, surnameField);
         nameField.setSpacing(10.0);
 
-        VBox qualificationField = new VBox(qualification, qualificationTF);
-        VBox passwordField = new VBox(password, passwordTF);
+        VBox qualificationField = new VBox(qualification, qualificationTF, qualificationHandler);
+        VBox passwordField = new VBox(password, passwordTF, passwordHandler);
+        VBox confirmPasswordField = new VBox(confirmPassword, confirmPasswordTF, confirmPasswordHandler);
 
-        VBox formContent = new VBox(userField, emailField, nameField, passwordField);
+        VBox formContent = new VBox(userField, emailField, nameField, passwordField, confirmPasswordField);
         formContent.setPadding(new Insets(5));
         formContent.setSpacing(5);
 
         Button Submit = new Button("SUBMIT");
         Submit.setDisable(true);
+        Submit.setOnAction(evt->signUp.run());
 
         Button returnBtn = new Button("RETURN TO LOGIN");
         returnBtn.getStyleClass().add("outline-button");
@@ -172,27 +169,126 @@ public class LoginUI{
 
         formBtns.setPadding(new Insets(20, 0, 0, 0));
 
+        //Event handlers checking if valid details are entered
+        AtomicBoolean validEmail = new AtomicBoolean(false);
+        AtomicBoolean validName = new AtomicBoolean(false);
+        AtomicBoolean validSurname = new AtomicBoolean(false);
+        AtomicBoolean validPassword = new AtomicBoolean(false);
+        AtomicBoolean validCheckedPassword = new AtomicBoolean(false);
+        AtomicBoolean validQual = new AtomicBoolean(false);
+        AtomicBoolean student = new AtomicBoolean(true);
+
+        //email handler
         returnBtn.setOnAction(evt->goToLogin.run());
-        Submit.setOnAction(evt->goToCreated.run());
 
         emailTF.textProperty().addListener((obs, oldText, newText) -> {
             if (!EmailValidator.getInstance().isValid(newText)) {
                 emailHandler.setText("Not Valid Email Format");
                 Submit.setDisable(true);
-            } else {
+            } else if(newText.length()>20) {
+                emailHandler.setText("Emails must be less than or equal to 20 character");
+                validEmail.set(false);
+                Submit.setDisable(true);
+            }else {
                 emailHandler.setText("");
-                Submit.setDisable(false);
+                validEmail.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() &&(validQual.get() || student.get())){
+                    Submit.setDisable(false);
+                }
+            }
+
+        });
+
+        //forename handler
+        nameTF.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.isEmpty() || newText.length()>20) {
+                nameHandler.setText("Names must be between 1 and 20 characters");
+                validName.set(false);
+                Submit.setDisable(true);
+            } else {
+                nameHandler.setText("");
+                validName.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() &&(validQual.get() ||student.get())){
+                    Submit.setDisable(false);
+                }
             }
         });
 
-        userSelected.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observableValue, Toggle currentToggle, Toggle newToggle) {
-                if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
-                    formContent.getChildren().add(qualificationField);
-                } else {
-                    formContent.getChildren().remove(qualificationField);
+        //surname handler
+        surnameTF.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.isEmpty() || newText.length()>20) {
+                surnameHandler.setText("Surnames must be between 1 and 20 characters");
+                validSurname.set(false);
+                Submit.setDisable(true);
+            } else {
+                surnameHandler.setText("");
+                validSurname.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() &&(validQual.get() ||student.get())){
+                    Submit.setDisable(false);
                 }
+            }
+        });
+
+        //password handler
+        passwordTF.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.length() <8 || newText.length()>20) {
+                passwordHandler.setText("Passwords must be between 8 and 20 characters long");
+                validPassword.set(false);
+                Submit.setDisable(true);
+            } else if (!validPassword(newText, passwordHandler)) {
+                Submit.setDisable(true);
+            }else{
+                passwordHandler.setText("");
+                validPassword.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() &&(validQual.get() ||student.get())){
+                    Submit.setDisable(false);
+                }
+            }
+        });
+
+        //confirm password handler
+        confirmPasswordTF.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.equals(passwordTF.getText())) {
+                confirmPasswordHandler.setText("Passwords must match");
+                validCheckedPassword.set(false);
+                Submit.setDisable(true);
+            } else {
+                confirmPasswordHandler.setText("");
+                validCheckedPassword.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() &&(validQual.get() ||student.get())){
+                    Submit.setDisable(false);
+                }
+            }
+        });
+
+
+        //qualification handler
+        qualificationTF.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.isEmpty() || newText.length()>20) {
+                qualificationHandler.setText("Qualifications must be between 1 and 20 characters");
+                validQual.set(false);
+                Submit.setDisable(true);
+            } else {
+                qualificationHandler.setText("");
+                validQual.set(true);
+                if(validEmail.get() && validName.get() && validSurname.get() && validPassword.get() && validCheckedPassword.get() && validQual.get()){
+                    Submit.setDisable(false);
+                }
+            }
+        });
+
+
+        userSelected.selectedToggleProperty().addListener((observableValue, currentToggle, newToggle) -> {
+            if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
+                formContent.getChildren().add(qualificationField);
+                student.set(false);
+
+                Submit.setDisable(!validEmail.get() || !validName.get() || !validSurname.get() || !validPassword.get() || !validCheckedPassword.get() || !validQual.get());
+            } else {
+                student.set(true);
+                formContent.getChildren().remove(qualificationField);
+
+                Submit.setDisable(!validEmail.get() || !validName.get() || !validSurname.get() || !validPassword.get() || !validCheckedPassword.get());
             }
         });
 
@@ -206,7 +302,51 @@ public class LoginUI{
     }
 
 
-    /** Retrun the unactivated account scene
+    public boolean validPassword(String password, Text output){
+        String specialChars = "@!#$%&/()=?@£{}.-;<>_,";
+        boolean upperCharacter = false;
+        boolean lowerCharacter = false;
+        boolean number = false;
+        boolean specialCharacter = false;
+
+        for (int i = 0; i < password.length(); i++){
+            char curr = password.charAt(i);
+
+            if(Character.isUpperCase(curr)){
+                upperCharacter = true;
+            }else if(Character.isLowerCase(curr)){
+                lowerCharacter = true;
+            }else if(Character.isDigit(curr)){
+                number = true;
+            }else if(specialChars.contains(Character.toString(curr))){
+                specialCharacter = true;
+            }else{
+                output.setText("Contains character not allowed in passwords");
+                return false;
+            }
+        }
+
+        if(!upperCharacter){
+            output.setText("Password must contain an uppercase letter");
+            return false;
+        }else if(!lowerCharacter){
+            output.setText("Password must contain a lowercase letter");
+            return false;
+        }else if(!number){
+            output.setText("Password must contain a number");
+            return false;
+        }else if(!specialCharacter){
+            output.setText("Password must contain a special letter");
+            return false;
+        }
+        return true;
+    }
+
+
+
+
+
+    /** Return the unactivated account scene
      * @param goToLogin - method to go to login page
      * @return unactivated account scene
      */
@@ -260,9 +400,9 @@ public class LoginUI{
         TextField emailTF=new TextField();
         TextField passwordTF=new TextField();
 
-        ArrayList<TextField> curr = new ArrayList<>();
-        curr.add(emailTF);
-        curr.add(passwordTF);
+        Map<String, TextField> curr = new HashMap<>();
+        curr.put("email", emailTF);
+        curr.put("password", passwordTF);
         setCurrentTextFields(curr);
 
         VBox emailField = new VBox(email, emailTF);
@@ -295,7 +435,7 @@ public class LoginUI{
         return title;
     }
 
-    private HBox setNotficationCard (String msg) {
+    private HBox setNotficationCard(String msg) {
         FontIcon notfiGraphic = new FontIcon(FontAwesomeSolid.EXCLAMATION_CIRCLE);
         notfiGraphic.getStyleClass().add("notfi-graphic");
 

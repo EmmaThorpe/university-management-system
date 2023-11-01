@@ -33,7 +33,7 @@ public class PasswordManager extends UIController{
      * Displays the signup page
      */
     public void goToSignUp(){
-        displayScene(loginUI.signUpScene(this::goToCreated, this::goToLogin));
+        displayScene(loginUI.signUpScene(this::attemptSignUp, this::goToLogin));
     }
 
 
@@ -58,15 +58,16 @@ public class PasswordManager extends UIController{
         displayScene(loginUI.createdAccount(this::goToLogin));
     }
 
+
     /**
      * Attempts to log in to system and moves page accordingly based on outcome
      */
     public void attemptLogin (){
-        List<TextField> textfields = loginUI.getCurrentTextFields();
-        List<Text> text = loginUI.getCurrentText();
-        TextField email = textfields.get(0);
-        TextField password =textfields.get(1);
-        Text validHandler = text.get(0);
+        Map<String, TextField> textfields = loginUI.getCurrentTextFields();
+        Map<String, Text> text = loginUI.getCurrentText();
+        TextField email = textfields.get("email");
+        TextField password =textfields.get("password");
+        Text validHandler = text.get("output");
 
         Map<String, String> result = login(email.getText(), password.getText());
         if (result == null) {
@@ -81,7 +82,19 @@ public class PasswordManager extends UIController{
     }
 
 
+    /**
+     * Attempts to sign in to system and moves page accordingly based on outcome
+     */
+    public void attemptSignUp(){
+        Map<String, TextField> textFields = loginUI.getCurrentTextFields();
+        Map<String, Text> text = loginUI.getCurrentText();
 
+        if(signup(textFields)){
+            goToCreated();
+        }else{
+            text.get("output").setText("A user with this email already exists");
+        }
+    }
 
 
     /** Uses the database to check if a sign in is successful or not
@@ -113,6 +126,14 @@ public class PasswordManager extends UIController{
         }
 
         return potentialUser;
+    }
+
+    /** Attempts to sign up user
+     * @param Details Map containing the users' entered textfields along with key of what they represent
+     * @return boolean indicating if signup is successful
+     */
+    public boolean signup(Map<String, TextField> Details){
+        return true;
     }
 
 
