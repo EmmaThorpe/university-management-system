@@ -1,4 +1,5 @@
 package cs308.group7.usms.controller;
+import com.sun.javafx.css.StyleManager;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.application.Application;
@@ -13,7 +14,7 @@ public class UIController{
      * @param scene - First scene to be displayed
      */
     public void displayFirstScene(Scene scene) {
-        scene.getStylesheets().add(css);
+        Application.setUserAgentStylesheet(css);
         currentStage.setScene(scene);
         currentStage.showAndWait();
 
@@ -24,7 +25,6 @@ public class UIController{
      * @param scene -scene to be displayed
      */
     public void displayScene(Scene scene) {
-        scene.getStylesheets().add(css);
         currentStage.setScene(scene);
 
     }
