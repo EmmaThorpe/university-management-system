@@ -109,7 +109,7 @@ public class LoginUI{
         return new Scene(root);
     }
 
-    public Scene signUpScene() {
+    public Scene signUpScene(Runnable goToCreated, Runnable goToLogin) {
         VBox title = setTitle("SIGN UP");
 
         ToggleGroup userSelected = new ToggleGroup();
@@ -160,11 +160,20 @@ public class LoginUI{
         formContent.setPadding(new Insets(5));
         formContent.setSpacing(5);
 
-        Button Submit = new Button("Submit");
-        HBox formBtns = new HBox(Submit);
-
+        Button Submit = new Button("SUBMIT");
         Submit.setDisable(true);
+
+        Button returnBtn = new Button("RETURN TO LOGIN");
+        returnBtn.getStyleClass().add("outline-button");
+
+        HBox formBtns = new HBox(Submit, returnBtn);
+        formBtns.setSpacing(20.0);
+        formBtns.setAlignment(Pos.BOTTOM_CENTER);
+
         formBtns.setPadding(new Insets(20, 0, 0, 0));
+
+        returnBtn.setOnAction(evt->goToLogin.run());
+        Submit.setOnAction(evt->goToCreated.run());
 
         emailTF.textProperty().addListener((obs, oldText, newText) -> {
             if (!EmailValidator.getInstance().isValid(newText)) {
@@ -205,6 +214,28 @@ public class LoginUI{
         VBox title = setTitle("NOTICE");
 
         HBox unactivatedNotfi = setNotficationCard("Sorry your account has not been activated yet.\r\nTry again later.");
+        unactivatedNotfi.setFillHeight(false);
+
+        Button returnBtn = new Button("RETURN TO LOGIN");
+        returnBtn.setOnAction(evt->goToLogin.run());
+
+        HBox btnContain = new HBox(returnBtn);
+        btnContain.setPadding(new Insets(20, 0, 0, 0));
+        btnContain.setAlignment(Pos.BOTTOM_CENTER);
+
+        BorderPane root = new BorderPane(unactivatedNotfi);
+        root.setBottom(btnContain);
+        root.setTop(title);
+
+        root.setPadding(new Insets(10));
+
+        return new Scene(root);
+    }
+
+    public Scene createdAccount (Runnable goToLogin){
+        VBox title = setTitle("NOTICE");
+
+        HBox unactivatedNotfi = setNotficationSuccessCard("Your account has successfully been created.\r\nContact the manager to get it activated.");
         unactivatedNotfi.setFillHeight(false);
 
         Button returnBtn = new Button("Return to Login");
@@ -267,6 +298,23 @@ public class LoginUI{
     private HBox setNotficationCard (String msg) {
         FontIcon notfiGraphic = new FontIcon(FontAwesomeSolid.EXCLAMATION_CIRCLE);
         notfiGraphic.getStyleClass().add("notfi-graphic");
+
+        Label notfiMsg = new Label(msg, notfiGraphic);
+        notfiMsg.setPadding(new Insets(10));
+        notfiMsg.setWrapText(true);
+        notfiMsg.setMaxWidth(250.0);
+        notfiMsg.setGraphicTextGap(20.0);
+
+        HBox notfiCard = new HBox(notfiMsg);
+        notfiCard.setPadding(new Insets(20));
+        notfiCard.getStyleClass().add("card");
+
+        return notfiCard;
+    }
+
+    private HBox setNotficationSuccessCard (String msg) {
+        FontIcon notfiGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
+        notfiGraphic.getStyleClass().add("success-graphic");
 
         Label notfiMsg = new Label(msg, notfiGraphic);
         notfiMsg.setPadding(new Insets(10));

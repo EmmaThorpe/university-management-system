@@ -33,7 +33,7 @@ public class PasswordManager extends UIController{
      * Displays the signup page
      */
     public void goToSignUp(){
-        displayScene(loginUI.signUpScene());
+        displayScene(loginUI.signUpScene(this::goToCreated, this::goToLogin));
     }
 
 
@@ -49,6 +49,13 @@ public class PasswordManager extends UIController{
      */
     public void goToUnactivated() {
         displayScene(loginUI.unactivatedAccount(this::goToLogin));
+    }
+
+    /**
+     * Displays that an account has been created after successful sign up
+     */
+    public void goToCreated() {
+        displayScene(loginUI.createdAccount(this::goToLogin));
     }
 
     /**

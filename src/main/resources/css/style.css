@@ -151,6 +151,11 @@
     -fx-icon-size: 20;
 }
 
+.success-graphic {
+    -fx-icon-color: -color-sec;
+    -fx-icon-size: 20;
+}
+
 .notfi-text {
     -fx-fill: -color-dark-grey;
     -fx-text
