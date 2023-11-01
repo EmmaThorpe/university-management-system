@@ -109,9 +109,6 @@ public class LoginUI{
         return new Scene(root);
     }
 
-
-
-
     public Scene signUpScene() {
         VBox title = setTitle("SIGN UP");
 
@@ -119,6 +116,7 @@ public class LoginUI{
 
         ToggleButton studentOp = setToggleOption(userSelected, "student", new FontIcon(FontAwesomeSolid.USER));
         ToggleButton lecturerOp = setToggleOption(userSelected, "lecturer", new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER));
+        studentOp.setSelected(true);
 
         HBox.setHgrow(studentOp, Priority.ALWAYS);
         HBox.setHgrow(lecturerOp, Priority.ALWAYS);
@@ -149,7 +147,6 @@ public class LoginUI{
         VBox emailField = new VBox(email, emailTF, emailHandler);
         VBox forenameField = new VBox(forename, nameTF);
         VBox surnameField = new VBox(surname, surnameTF);
-
 
         HBox.setHgrow(forenameField, Priority.ALWAYS);
         HBox.setHgrow(surnameField, Priority.ALWAYS);
@@ -205,29 +202,26 @@ public class LoginUI{
      * @return unactivated account scene
      */
     public Scene unactivatedAccount(Runnable goToLogin){
-        Text message = new Text();
-        message.setText("Sorry your account has not been activated yet. Try again later.");
+        VBox title = setTitle("NOTICE");
 
-        Button Submit = new Button("Return to Login");
-        HBox formBtns = new HBox(Submit);
-        Submit.setOnAction(evt->goToLogin.run());
+        HBox unactivatedNotfi = setNotficationCard("Sorry your account has not been activated yet.\r\nTry again later.");
+        unactivatedNotfi.setFillHeight(false);
 
+        Button returnBtn = new Button("Return to Login");
+        returnBtn.setOnAction(evt->goToLogin.run());
 
-        formBtns.setPadding(new Insets(20, 0, 0, 0));
+        HBox btnContain = new HBox(returnBtn);
+        btnContain.setPadding(new Insets(20, 0, 0, 0));
+        btnContain.setAlignment(Pos.BOTTOM_CENTER);
 
-        GridPane root = new GridPane();
-        root.setHgap(20);
-        root.setVgap(20);
-
-        root.addRow(1, message);
-        root.addRow(2, formBtns);
+        BorderPane root = new BorderPane(unactivatedNotfi);
+        root.setBottom(btnContain);
+        root.setTop(title);
 
         root.setPadding(new Insets(10));
 
         return new Scene(root);
     }
-
-
 
     private VBox loginFields() {
         Label email=new Label("E-MAIL");
@@ -270,6 +264,23 @@ public class LoginUI{
         return title;
     }
 
+    private HBox setNotficationCard (String msg) {
+        FontIcon notfiGraphic = new FontIcon(FontAwesomeSolid.EXCLAMATION_CIRCLE);
+        notfiGraphic.getStyleClass().add("notfi-graphic");
+
+        Label notfiMsg = new Label(msg, notfiGraphic);
+        notfiMsg.setPadding(new Insets(10));
+        notfiMsg.setWrapText(true);
+        notfiMsg.setMaxWidth(250.0);
+        notfiMsg.setGraphicTextGap(20.0);
+
+        HBox notfiCard = new HBox(notfiMsg);
+        notfiCard.setPadding(new Insets(20));
+        notfiCard.getStyleClass().add("card");
+
+        return notfiCard;
+    }
+
     private ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
         String operatorNameDisplay = operatorName.toUpperCase();
         FontIcon opGraphic = icon;
@@ -277,13 +288,10 @@ public class LoginUI{
         ToggleButton op = new ToggleButton(operatorNameDisplay, opGraphic);
         op.setToggleGroup(group);
         op.setUserData(operatorName.toLowerCase());
-        op.setSelected(true);
         op.setContentDisplay(ContentDisplay.TOP);
-        op.getStyleClass().add("card");
+        op.getStyleClass().add("card-toggle");
         return op;
     }
-
-
 }
 
 

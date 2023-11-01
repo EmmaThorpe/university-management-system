@@ -28,6 +28,7 @@
     -fx-font-family: "Noto Sans JP";
     -fx-background-color: -color-white;
     -fx-focus-color: -color-sec;
+    -fx-text-background-color: -color-black;
 }
 
 .button
@@ -47,7 +48,7 @@
     -fx-border-width: 2px;
 }
 
-.button:pressed, .button:focused {
+.button:pressed {
     -fx-background-color: -color-pri;
     -fx-border-color: -color-pri;
 }
@@ -111,28 +112,31 @@
     -fx-fill: -color-pri;
 }
 
-.card {
+.card-toggle, .card {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
     -fx-background-radius: 10;
     -fx-border-width: 1;
     -fx-border-color: -color-light-grey;
-    -fx-min-height: 70;
-    -fx-min-width: 50;
     -fx-padding: 5;
     -fx-text-fill: -color-dark-grey;
     -fx-font-family: "Poppins";
     -fx-font-weight: normal;
 }
 
-.card:hover {
+.card-toggle {
+    -fx-min-height: 70;
+    -fx-min-width: 50;
+}
+
+.card-toggle:hover {
     -fx-translate-y: -2;
     -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
     -fx-background-color: -drop-shadow;
 }
 
-.card:selected, .card:selected:focused {
+.card-toggle:selected, .card-toggle:selected:focused {
     -fx-background-color: -drop-shadow;
     -fx-border-color: -color-light-grey;
 }
@@ -140,4 +144,14 @@
 .card-graphic {
     -fx-icon-color: -color-dark-grey;
     -fx-icon-size: 20;
+}
+
+.notfi-graphic {
+    -fx-icon-color: -color-ter;
+    -fx-icon-size: 20;
+}
+
+.notfi-text {
+    -fx-fill: -color-dark-grey;
+    -fx-text
 }
