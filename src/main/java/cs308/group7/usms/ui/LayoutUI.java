@@ -29,8 +29,15 @@ public class LayoutUI extends Application {
     public Scene dashboard(Stage stage) {
         HBox toolbar = makeToolbar();
 
-        BorderPane root = new BorderPane(new Text("hello"));
+        Button[] btns = new Button[2];
+        btns[0] = new Button("Hello");
+        btns[1] = new Button("world");
+
+        VBox buttonPanel = makeContainer(btns);
+
+        BorderPane root = new BorderPane();
         root.setTop(toolbar);
+        root.setLeft(buttonPanel);
 
         root.setPadding(new Insets(10, 0, 10, 0));
 
@@ -64,8 +71,16 @@ public class LayoutUI extends Application {
         HBox container = new HBox(titleContainer, breadcrumbContainer);
         container.setPadding(new Insets(15, 10, 15, 10));
         container.setSpacing(40);
+
         container.getStyleClass().add("toolbar-bar");
 
         return container;
+    }
+
+    private VBox makeContainer(Button[] btns) {
+        VBox con = new VBox(btns);
+        con.setPadding(new Insets(10));
+        con.setSpacing(10);
+        return con;
     }
 }
