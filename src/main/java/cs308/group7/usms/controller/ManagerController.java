@@ -1,10 +1,23 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.ui.ManagerUI;
+import cs308.group7.usms.ui.StudentUI;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.Map;
 
-public class ManagerController {
+public class ManagerController extends UIController{
     String userID;
+
+    ManagerUI manUI;
+
+    public ManagerController(String id){
+        currentStage = new Stage();
+        userID = id;
+        manUI = new ManagerUI();
+        displayFirstScene(manUI.home());
+    }
 
     /**Changes the password for a user.
      * @param oldPass

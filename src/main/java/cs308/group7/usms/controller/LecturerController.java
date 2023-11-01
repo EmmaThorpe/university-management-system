@@ -1,10 +1,21 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.ui.LecturerUI;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.Map;
 
-public class LecturerController {
+public class LecturerController extends UIController{
     String userID;
+    LecturerUI lecUI;
+
+    public LecturerController(String id){
+        currentStage = new Stage();
+        userID = id;
+        lecUI = new LecturerUI();
+        displayFirstScene(lecUI.home());
+    }
 
     /**Changes the password for a user.
      * @param oldPass

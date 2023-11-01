@@ -1,9 +1,18 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.ui.StudentUI;
+
 import java.util.Map;
 
-public class StudentController {
+public class StudentController extends UIController{
     String userID;
+    StudentUI stuUI;
+
+    public StudentController(String id){
+        userID = id;
+        stuUI = new StudentUI();
+        displayFirstScene(stuUI.home());
+    }
 
     /**Changes the password for a user.
      * @param oldPass
