@@ -64,6 +64,7 @@ public class LayoutUI extends Application {
         HBox container = new HBox(titleContainer, breadcrumbContainer);
         container.setPadding(new Insets(15, 10, 15, 10));
         container.setSpacing(40);
+
         container.getStyleClass().add("toolbar-bar");
 
         return container;
