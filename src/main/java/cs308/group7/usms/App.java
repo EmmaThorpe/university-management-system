@@ -12,19 +12,13 @@ public class App extends Application{
     public static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
-        // Create database pool
-        try {
-            //databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
-
-        } catch (Exception e) {
-            System.out.println("There was an error creating database pool!: " + e);
-            System.exit(65);
-        }
+        // Create database pool (no longer necessary, is created as needed)
+        // DatabaseConnection db = getDatabaseConnection();
 
         Application.launch(args);
 
         // Application code (sample for demonstration)
-        try (CachedRowSet res = databaseConnection.select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
+        try (CachedRowSet res = getDatabaseConnection().select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
             while (res.next()) {
                 System.out.println(res.getString("Name") + ": " + res.getString("Description"));
             }
@@ -33,8 +27,26 @@ public class App extends Application{
         }
 
         // Close database pool
+        closeDatabaseConnection();
+    }
 
-        databaseConnection.close();
+    public static DatabaseConnection getDatabaseConnection() {
+        if (databaseConnection == null) {
+            try {
+                databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
+            } catch (Exception e) {
+                System.out.println("There was an error creating database pool!: " + e);
+                System.exit(65);
+            }
+        }
+        return databaseConnection;
+    }
+
+    public static void closeDatabaseConnection() {
+        if (databaseConnection != null) {
+            databaseConnection.close();
+        }
+        databaseConnection = null;
     }
 
 

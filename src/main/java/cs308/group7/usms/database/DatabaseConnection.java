@@ -58,36 +58,40 @@ public class DatabaseConnection implements Closeable {
         final String tablesString = String.join(", ", tables);
         final String whereString = (NO_WHERE) ? "" : " WHERE " + String.join(" AND ", whereConditions);
 
-        return query("SELECT " + columnsString +
-                " FROM " + tablesString +
-                whereString + ";");
+        return executeQuery(
+            "SELECT " + columnsString +
+            " FROM " + tablesString +
+            whereString + ";"
+        );
     }
 
     /**
-     * Performs an INSERT query on the database
+     * Performs an INSERT statement on the database
      * @param table The table to insert into
      * @param columnValueMap The map of column names to values to insert
-     * @return The result of the query
+     * @return The number of affected rows
      * @throws SQLException If the query fails / times out
      */
-    public CachedRowSet insert(@NotNull String table, @NotNull Map<String, String> columnValueMap) throws SQLException {
+    public int insert(@NotNull String table, @NotNull Map<String, String> columnValueMap) throws SQLException {
         final String columnsString = String.join(", ", columnValueMap.keySet());
         final String valuesString = String.join(", ", columnValueMap.values());
 
-        return query("INSERT INTO " + table +
-                " (" + columnsString + ")" +
-                " VALUES (" + valuesString + ")" + ";");
+        return executeUpdate(
+            "INSERT INTO " + table +
+            " (" + columnsString + ")" +
+            " VALUES (" + valuesString + ")" + ";"
+        );
     }
 
     /**
-     * Performs an UPDATE query on the database
+     * Performs an UPDATE statement on the database
      * @param table The table to update
      * @param columnValueMap The map of column names to values to update
      * @param whereConditions The conditions to filter the query by (null/[] for none)
-     * @return The result of the query
+     * @return The number of affected rows
      * @throws SQLException If the query fails / times out
      */
-    public CachedRowSet update(@NotNull String table, @NotNull Map<String, String> columnValueMap, String[] whereConditions) throws SQLException {
+    public int update(@NotNull String table, @NotNull Map<String, String> columnValueMap, String[] whereConditions) throws SQLException {
         final boolean NO_WHERE = (whereConditions == null) || (whereConditions.length == 0); // No WHERE conditions if none are specified
 
         StringBuilder updateString = new StringBuilder();
@@ -97,25 +101,29 @@ public class DatabaseConnection implements Closeable {
 
         final String whereString = (NO_WHERE) ? "" : " WHERE " + String.join(" AND ", whereConditions);
 
-        return query("UPDATE " + table +
-                " SET " + updateString +
-                whereString + ";");
+        return executeUpdate(
+            "UPDATE " + table +
+            " SET " + updateString +
+            whereString + ";"
+        );
     }
 
     /**
-     * Performs a DELETE query on the database
+     * Performs a DELETE statement on the database
      * @param table The table to delete from
      * @param whereConditions The conditions to filter the query by (null/[] for none)
-     * @return The result of the query
+     * @return The number of affected rows
      * @throws SQLException If the query fails / times out
      */
-    public CachedRowSet delete(@NotNull String table, String[] whereConditions) throws SQLException {
+    public int delete(@NotNull String table, String[] whereConditions) throws SQLException {
         final boolean NO_WHERE = (whereConditions == null) || (whereConditions.length == 0); // No WHERE conditions if none are specified
 
         final String whereString = (NO_WHERE) ? "" : " WHERE " + String.join(" AND ", whereConditions);
 
-        return query("DELETE FROM " + table +
-                whereString + ";");
+        return executeUpdate(
+            "DELETE FROM " + table +
+             whereString + ";"
+        );
     }
 
     /**
@@ -124,7 +132,7 @@ public class DatabaseConnection implements Closeable {
      * @return The result of the query
      * @throws SQLException If the query fails / times out
      */
-    public CachedRowSet query(@NotNull String query) throws SQLException {
+    public CachedRowSet executeQuery(@NotNull String query) throws SQLException {
         CachedRowSet crs;
         try (Connection conn = dataSource.getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -132,6 +140,21 @@ public class DatabaseConnection implements Closeable {
             crs.populate(pstmt.executeQuery());
         }
         return crs;
+    }
+
+    /**
+     * Performs an update on the database
+     * @param statement The statement to perform
+     * @return The number of affected rows
+     * @throws SQLException If the update fails / times out
+     */
+    public int executeUpdate(@NotNull String statement) throws SQLException {
+        int result;
+        try (Connection conn = dataSource.getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(statement);
+            result = pstmt.executeUpdate();
+        }
+        return result;
     }
 
     /**
