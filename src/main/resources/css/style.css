@@ -134,19 +134,27 @@
     -fx-fill: -color-white;
 }
 
-.card {
+.card, .card-toggle, .panel {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
     -fx-background-radius: 10;
     -fx-border-width: 1;
     -fx-border-color: -color-light-grey;
-    -fx-min-height: 70;
-    -fx-min-width: 50;
     -fx-padding: 5;
     -fx-text-fill: -color-dark-grey;
+}
+
+.card, .card-toggle {
+    -fx-min-height: 70;
+    -fx-min-width: 50;
     -fx-font-family: "Poppins";
     -fx-font-weight: normal;
+}
+
+.panel {
+    -fx-min-width: 400;
+    -fx-min-height: 200;
 }
 
 .card-toggle {

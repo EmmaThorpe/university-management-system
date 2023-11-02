@@ -1,6 +1,8 @@
 package cs308.group7.usms.ui;
 
 import cs308.group7.usms.model.Student;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -24,10 +26,20 @@ public class ManagerUI {
     public Scene dashboard() {
         HBox toolbar = makeToolbar();
 
-        BorderPane root = new BorderPane(new Text("hello"));
-        root.setTop(toolbar);
+        VBox mainActionPanel = makePanel(new Text[]{new Text("hi\nhello\ngoodbye!")});
+        VBox subActionPanel = makePanel(new Text[]{new Text("hi\nhello\ngoodbye!")});
 
-        root.setPadding(new Insets(10, 0, 10, 0));
+        HBox actionPanel = new HBox(mainActionPanel, subActionPanel);
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
 
         return new Scene(root);
     }
@@ -64,8 +76,11 @@ public class ManagerUI {
         return container;
     }
 
+    private VBox makePanel(Node[] content) {
+        VBox panel = new VBox(content);
+        panel.setPadding(new Insets(20));
+        panel.getStyleClass().add("panel");
 
-
-
-
+        return panel;
+    }
 }
