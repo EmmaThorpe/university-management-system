@@ -1,6 +1,6 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.Student;
+import cs308.group7.usms.model.Student;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -23,7 +23,7 @@ public class ManagerUI {
     }*/
 
     public void greeting(){
-        Label test=new Label("Hello " + current.getName());
+        Label test=new Label("Hello " + current.getForename());
         GridPane root=new GridPane();
         root.setHgap(20);
         root.setVgap(15);

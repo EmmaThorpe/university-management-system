@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoginUI{
 
-
     Map<String, TextField> currentTextFields;
 
     Map<String, Text> currentText;
