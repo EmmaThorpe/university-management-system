@@ -64,10 +64,54 @@
     -fx-border-color: -color-sec;
 }
 
-.outline-button:hover, .outline-button:pressed, .outline-button:focused {
+.outline-button:hover, .outline-button:pressed {
     -fx-background-color: -color-white;
     -fx-text-fill: -color-sec-dark;
     -fx-border-color: -color-sec-dark;
+}
+
+.panel .button {
+    -fx-padding: 10px 30px;
+    -fx-font-size: 18;
+}
+
+.panel-button-1 {
+    -fx-background-color: -color-pri;
+    -fx-border-color: -color-pri;
+}
+
+.panel-button-1:hover, .panel-button-1:pressed, .panel-button-1:selected {
+    -fx-background-color: -color-pri-dark;
+    -fx-border-color: -color-pri-dark;
+}
+
+.panel-button-2 {
+    -fx-background-color: -color-sec;
+    -fx-border-color: -color-sec;
+}
+
+.panel-button-2:hover, .panel-button-2:pressed, .panel-button-2:selected {
+    -fx-background-color: -color-sec-dark;
+    -fx-border-color: -color-sec-dark;
+}
+
+
+.logout-btn {
+    -fx-background-color: -color-white;
+    -fx-opacity: 0.9;
+    -fx-text-fill: -color-pri;
+    -fx-border-color: -color-white;
+}
+
+.logout-btn:pressed, .logout-btn:hover, .logout-btn:focused {
+    -fx-opacity: 1;
+    -fx-effect: none;
+    -fx-translate-y: 0;
+}
+
+.logout-btn:pressed, .logout-btn:focused {
+    -fx-background-color: -drop-shadow;
+    -fx-border-color: -drop-shadow;
 }
 
 .text-field {
@@ -75,6 +119,7 @@
     -fx-background-insets: 0, 0 0 1 0;
     -fx-border-color: -drop-shadow;
     -fx-border-radius: 3;
+    -fx-padding: 5;
 }
 
 .text-field:focused {
@@ -154,7 +199,6 @@
 
 .panel {
     -fx-min-width: 400;
-    -fx-min-height: 200;
 }
 
 .card-toggle {
@@ -195,14 +239,16 @@
 bread-crumb-bar {
     -fx-background-color: transparent;
 }
+
 .bread-crumb-bar .button {
-    -fx-padding: 10;
-    -fx-border-color: null;
-    -fx-border-insets: 0;
+    -fx-padding: 10 15;
     -fx-content-display: left;
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-shape: null;
+    -fx-background-position: left center;
+    -fx-background-image: url("../img/sep.png");
+    -fx-background-color: transparent;
+    -fx-border-color: null;
+    -fx-border-insets: 0;
 }
 
 .crumb {
@@ -218,3 +264,4 @@ bread-crumb-bar {
     -fx-translate-y: 0;
     -fx-opacity: 1;
 }
+
