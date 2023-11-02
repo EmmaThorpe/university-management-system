@@ -5,41 +5,67 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
+import org.controlsfx.control.BreadCrumbBar;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class ManagerUI {
-    static Student current;
 
-    //public ManagerUI(String name, Stage stage) {
-        //currentStage = stage;
-        //css = this.getClass().getResource("/css/style.css").toExternalForm();
-    //}
+    public Scene dashboard() {
+        HBox toolbar = makeToolbar();
 
+        BorderPane root = new BorderPane(new Text("hello"));
+        root.setTop(toolbar);
 
-    /*@Override
-    public void start(Stage primaryStage) throws Exception {
+        root.setPadding(new Insets(10, 0, 10, 0));
 
-        primaryStage.setScene(greeting());
-        primaryStage.show();
-    }*/
-
-    public void greeting(){
-        Label test=new Label("Hello " + current.getForename());
-        GridPane root=new GridPane();
-        root.setHgap(20);
-        root.setVgap(15);
-        Scene scene = new Scene(root,500,300);
-        root.addRow(0, test);
-        //displayScene(scene);
+        return new Scene(root);
     }
 
-    public Scene home(){
-        Label test=new Label("Hello Manager");
-        GridPane root=new GridPane();
-        root.setHgap(20);
-        root.setVgap(15);
-        Scene scene = new Scene(root,500,300);
-        root.addRow(0, test);
-        return scene;
+    private HBox makeToolbar() {
+        StackPane iconStack = new StackPane();
+        Circle appGraphicBack = new Circle(25);
+        appGraphicBack.getStyleClass().add("toolbar-back");
+        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
+        appGraphic.getStyleClass().add("toolbar-graphic");
+
+        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+
+        Text title = new Text("TITLE");
+        title.setTranslateY(5.0);
+        title.getStyleClass().add("toolbar-title");
+
+        HBox titleContainer = new HBox(iconStack, title);
+        titleContainer.setPadding(new Insets(10));
+        titleContainer.setSpacing(10);
+
+        BreadCrumbBar<String> breadcrumbBar = new BreadCrumbBar<>();
+
+        TreeItem<String> breadcrumbBarOptions = BreadCrumbBar.buildTreeModel("Hello", "World", "This", "is", "cool");
+        breadcrumbBar.setSelectedCrumb(breadcrumbBarOptions);
+
+        VBox breadcrumbContainer = new VBox(breadcrumbBar);
+
+        HBox container = new HBox(titleContainer, breadcrumbContainer);
+        container.setPadding(new Insets(15, 10, 15, 10));
+        container.setSpacing(40);
+        container.getStyleClass().add("toolbar-bar");
+
+        return container;
     }
+
+
+
+
 
 }

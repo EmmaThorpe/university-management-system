@@ -16,7 +16,7 @@ public class ManagerController extends UIController{
         currentStage = new Stage();
         userID = id;
         manUI = new ManagerUI();
-        displayFirstScene(manUI.home());
+        displayFirstScene(manUI.dashboard());
     }
 
     /**Changes the password for a user.
