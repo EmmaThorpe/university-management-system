@@ -76,18 +76,7 @@ public class User {
 
     public String getUserID() { return userID; }
 
-    /**
-     * Checks if the user is a manager
-     * @return Whether the user is a manager, or false in the event of an error
-     */
-    public boolean isManager() {
-        try (CachedRowSet res = App.getDatabaseConnection().select(new String[]{"Users"}, new String[]{"COUNT(UserID) AS NumberOfUsers"}, new String[]{"ManagedBy = '" + userID + "'"})) {
-            return res.getInt("NumberOfUsers") > 0;
-        } catch (SQLException e) {
-            System.out.println("Failed to check if user " + userID + " is a manager!");
-            return false;
-        }
-    }
+    public boolean isManager() { return type == UserType.MANAGER; }
 
     /**
      * Gets the manager of the user
