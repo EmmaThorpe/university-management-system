@@ -61,7 +61,7 @@ public class ManagerUI {
         Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn};
         mngBtns = stylePanelActions(mngBtns);
 
-        VBox mainActionPanel = makePanel(mngBtns);
+        VBox mainActionPanel = makePanel(new VBox(mngBtns));
         mainActionPanel.setAlignment(Pos.CENTER);
 
         HBox actionPanel = new HBox(mainActionPanel);
@@ -80,8 +80,9 @@ public class ManagerUI {
     }
 
     private VBox makePanel(VBox content) {
+        content.setPadding(new Insets(20));
+        content.setSpacing(20.0);
         VBox panel = new VBox(content);
-        panel.setPadding(new Insets(20));
         panel.getStyleClass().add("panel");
 
         return panel;
@@ -97,7 +98,11 @@ public class ManagerUI {
         Button activatedBtn = new Button("ACTIVATED");
         Button deactivatedBtn = new Button("DEACTIVATED");
 
-        VBox rightActionPanel = makePanel(new VBox(accountText, studentDecisionBtn, passResetBtn, activatedBtn, deactivatedBtn));
+        Button[] accountBtns = {studentDecisionBtn, passResetBtn, activatedBtn, deactivatedBtn};
+        accountBtns = stylePanelActions(accountBtns);
+
+        VBox rightActionPanel = makePanel(new VBox(accountBtns));
+        rightActionPanel.getChildren().add(0, accountText);
         rightActionPanel.setVisible(false);
 
         VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText, activatedBtn, deactivatedBtn);
@@ -126,9 +131,9 @@ public class ManagerUI {
             tempUser =accountList.get(i);
             tempButton = new Button(tempUser.getUserID()+"- "+tempUser.getActivated());
             tempButton.setOnAction(pickUser(tempUser, rightPanel, accText, activated, deactivated));
+            tempButton.getStyleClass().add("list-button");
             panel.getChildren().add(tempButton);
         }
-
 
         return makePanel(panel);
     }
@@ -138,13 +143,12 @@ public class ManagerUI {
             @Override
             public void handle(Event event) {
                 accText.setText(tempUser.getUserID());
-                if(tempUser.getActivated()){
-                   activated.setVisible(false);
-                   deactivated.setVisible(true);
-                }else{
-                    activated.setVisible(true);
-                    deactivated.setVisible(false);
-
+                if (tempUser.getActivated()) {
+                   activated.setDisable(true);
+                   deactivated.setDisable(false);
+                } else {
+                    activated.setDisable(false);
+                    deactivated.setDisable(true);
                 }
                 rightPanel.setVisible(true);
             }
@@ -197,14 +201,6 @@ public class ManagerUI {
         return container;
     }
 
-    private VBox makePanel(Node[] content) {
-        VBox panel = new VBox(content);
-        panel.setPadding(new Insets(20));
-        panel.setSpacing(20.0);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
 
     private Button[] stylePanelActions (Button[] btns) {
         int i = 0;

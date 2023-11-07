@@ -19,7 +19,7 @@ public class ManagerController extends UIController{
         currentStage = new Stage();
         userID = id;
         manUI = new ManagerUI();
-        displayFirstScene(manUI.dashboard());
+        displayFirstScene(manUI.accounts(getUsers()));
     }
 
     public void goToAccountScene(){

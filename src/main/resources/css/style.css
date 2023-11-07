@@ -80,6 +80,11 @@
     -fx-border-color: -color-pri;
 }
 
+.panel-button-1:disabled, .panel-button-2:disabled {
+    -fx-opacity: 0.5;
+}
+
+
 .panel-button-1:hover, .panel-button-1:pressed, .panel-button-1:selected {
     -fx-background-color: -color-pri-dark;
     -fx-border-color: -color-pri-dark;
@@ -179,7 +184,7 @@
     -fx-fill: -color-white;
 }
 
-.card, .card-toggle, .panel {
+.card, .card-toggle, .panel, .list-button {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
@@ -191,10 +196,17 @@
 }
 
 .card, .card-toggle {
-    -fx-min-height: 70;
     -fx-min-width: 50;
+}
+
+.card, .card-toggle, .list-button {
+    -fx-min-height: 70;
     -fx-font-family: "Poppins";
     -fx-font-weight: normal;
+}
+
+.list-button {
+    -fx-min-width: 350;
 }
 
 .panel {
@@ -206,13 +218,14 @@
     -fx-min-width: 50;
 }
 
-.card-toggle:hover {
+.card-toggle:hover, .list-button:hover {
     -fx-translate-y: -2;
     -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
     -fx-background-color: -drop-shadow;
 }
 
-.card-toggle:selected, .card-toggle:selected:focused {
+.card-toggle:selected, .card-toggle:selected:focused
+,.list-button:selected, .list-button:selected:focused {
     -fx-background-color: -drop-shadow;
     -fx-border-color: -color-light-grey;
 }
