@@ -48,7 +48,11 @@ public class Student extends User {
         this.decision = decision;
     }
 
-    // TODO: public Course getCourse() throws SQLException { return new Course(courseID); }
+    /**
+     * Gets the course of the student
+     * @throws SQLException If the course does not exist
+     */
+    public Course getCourse() throws SQLException { return new Course(courseID); }
 
     /**
      * Sets the course of the student
