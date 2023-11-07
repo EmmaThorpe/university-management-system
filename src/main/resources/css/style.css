@@ -206,7 +206,7 @@
 }
 
 .list-button {
-    -fx-min-width: 350;
+    -fx-min-width: 300;
 }
 
 .panel {
@@ -234,6 +234,46 @@
     -fx-icon-color: -color-dark-grey;
     -fx-icon-size: 20;
 }
+
+.list-graphic {
+    -fx-icon-color: -color-white;
+    -fx-icon-size: 20;
+}
+
+.list-back {
+    -fx-fill: -color-light-grey;
+}
+
+.list-active, .list-inactive {
+    -fx-padding: 2px 15px;
+    -fx-text-alignment: center;
+    -fx-background-insets: 0, 0, -1, 0;
+    -fx-min-width: 50;
+    -fx-border-radius: 100em;
+    -fx-background-radius: 100em;
+    -fx-font-family: "Noto Sans";
+    -fx-border-width: 2px;
+    -fx-text-fill: -color-dark-grey;
+}
+
+.list-active {
+    -fx-background-color: -color-sec-light;
+    -fx-border-color: -color-sec-light;
+}
+
+.list-inactive {
+    -fx-background-color: -color-ter-light;
+    -fx-border-color: -color-ter-light;
+}
+
+.list-id {
+    -fx-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+    -fx-padding: 0.2em 0px;
+}
+
 
 .notfi-graphic {
     -fx-icon-color: -color-ter;

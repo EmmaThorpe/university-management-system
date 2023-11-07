@@ -88,6 +88,15 @@ public class ManagerUI {
         return panel;
     }
 
+    private VBox makeScrollablePanel(ScrollPane content) {
+        content.setPadding(new Insets(20));
+        content.fitToHeightProperty().set(true);
+        content.fitToWidthProperty().set(true);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
 
     public Scene accounts(List<User> accountList) {
         HBox toolbar = makeToolbar();
@@ -123,19 +132,66 @@ public class ManagerUI {
         return new Scene(root);
     }
 
-    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText, Button activated, Button deactivated){
+    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText, Button activated,
+                            Button deactivated){
         VBox panel = new VBox();
         User tempUser;
-        Button tempButton;
+        HBox tempButton;
         for(int i=0;i<accountList.size();i++){
             tempUser =accountList.get(i);
-            tempButton = new Button(tempUser.getUserID()+"- "+tempUser.getActivated());
-            tempButton.setOnAction(pickUser(tempUser, rightPanel, accText, activated, deactivated));
-            tempButton.getStyleClass().add("list-button");
+            tempButton = makeUserListButton(tempUser.getUserID(), tempUser.getForename(), tempUser.getSurname(),
+                    tempUser.getType(), tempUser.getActivated());
+            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, accText, activated, deactivated));
             panel.getChildren().add(tempButton);
         }
 
-        return makePanel(panel);
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane accountListPanel =  new ScrollPane(panel);
+        return makeScrollablePanel(accountListPanel);
+    }
+
+    private HBox makeUserListButton(String userID, String fname, String lname, User.UserType userType,
+                                  boolean activated) {
+            Text nameDisplay = new Text(fname.concat(" ".concat(lname)));
+
+            StackPane iconStack = new StackPane();
+            Circle appGraphicBack = new Circle(25);
+            appGraphicBack.getStyleClass().add("list-back");
+            FontIcon appGraphic;
+            if (userType.equals(User.UserType.STUDENT)) {
+                appGraphic =  new FontIcon(FontAwesomeSolid.USER);
+            } else {
+                appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
+            }
+            appGraphic.getStyleClass().add("list-graphic");
+
+            iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+
+            Text IDdisplay = new Text(userID);
+            IDdisplay.getStyleClass().add("list-id");
+
+            HBox activatedDisplay = new HBox();
+            if (activated) {
+                activatedDisplay.getChildren().add(new Text("ACTIVATED"));
+                activatedDisplay.getStyleClass().add("list-active");
+            } else {
+                activatedDisplay.getChildren().add(new Text("DEACTIVATED"));
+                activatedDisplay.getStyleClass().add("list-inactive");
+            }
+
+            VBox userDetails = new VBox(nameDisplay, activatedDisplay);
+            userDetails.setSpacing(5.0);
+
+            HBox listButton = new HBox(IDdisplay, iconStack, userDetails);
+            listButton.setAlignment(Pos.CENTER);
+            listButton.setSpacing(20.0);
+            listButton.setPadding(new Insets(10));
+            listButton.getStyleClass().add("list-button");
+
+            HBox.setHgrow(userDetails, Priority.ALWAYS);
+            return listButton;
     }
 
     private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText, Button activated, Button deactivated){
@@ -154,8 +210,6 @@ public class ManagerUI {
             }
         };
     }
-
-
 
     private HBox makeToolbar() {
         StackPane iconStack = new StackPane();
