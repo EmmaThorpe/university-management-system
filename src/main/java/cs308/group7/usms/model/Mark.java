@@ -12,11 +12,8 @@ public class Mark {
     private final String userID;
     private final String moduleID;
     private final int attemptNo;
-    private int labMark;
-    private int examMark;
-
-    // Where part of update and select queries is the same so added variable to store it
-    private final String queryWhere;
+    private double labMark;
+    private double examMark;
 
     /**
      * Creates a new Mark object from the database
@@ -29,14 +26,14 @@ public class Mark {
         this.userID = userID;
         this.moduleID = moduleID;
         this.attemptNo = attemptNo;
-        queryWhere = "UserID = '" + userID + "' AND ModuleID = '" + moduleID + "' AND AttNo = '" + attemptNo +"'";
+
         DatabaseConnection db = App.getDatabaseConnection();
         CachedRowSet res = db.select(new String[]{"Mark"},
                 null,
-                new String[]{queryWhere});
-        if (res.next()) {
-            this.labMark = res.getInt("Lab");
-            this.examMark = res.getInt("Exam");
+                new String[]{"ModuleID = '"+ moduleID +"' AND UserID = '"+ userID +"' AND AttNo = '"+ attemptNo +"'"});
+        if (res.first()) {
+            this.labMark = res.getFloat("Lab");
+            this.examMark = res.getFloat("Exam");
         } else {
             throw new SQLException("There is no mark for the student " + userID +
                     " for the attempt number " + attemptNo + " for the module " + moduleID);
@@ -44,21 +41,30 @@ public class Mark {
     }
 
     /**
-     * Gets the lab mark of the student for that module and attempt number
-     * @throws SQLException If the mark does not exist
+     * Creates a new Mark object from the given parameters without checking the database
      */
-    public int getLabMark() throws SQLException { return labMark; }
+    public Mark(String userID, String moduleID, int attemptNo, int labMark, int examMark) {
+        this.userID = userID;
+        this.moduleID = moduleID;
+        this.attemptNo = attemptNo;
+        this.labMark = labMark;
+        this.examMark = examMark;
+    }
+
+
+    public double getLabMark() { return labMark; }
+
 
     /**
      * Sets the lab mark of the student for this module and attempt
      * @return Whether the lab mark was set successfully
      */
-    public boolean setLabMark(int lab) {
+    public boolean setLabMark(double lab) {
         Map<String, String> values = new HashMap<>();
         values.put("Lab", "'" + lab + "'");
 
         try {
-            int res = App.getDatabaseConnection().update("Mark", values, new String[]{queryWhere});
+            int res = App.getDatabaseConnection().update("Mark", values, new String[]{"ModuleID = '"+ moduleID +"' AND UserID = '"+ userID +"' AND AttNo = '"+ attemptNo +"'"});
             if (res > 0) {
                 this.labMark = lab;
                 return true;
@@ -72,22 +78,20 @@ public class Mark {
         }
     }
 
-    /**
-     * Gets the exam mark of the student for that module and attempt number
-     * @throws SQLException If the mark does not exist
-     */
-    public int getExamMark() throws SQLException { return examMark; }
+
+    public double getExamMark() { return examMark; }
+
 
     /**
      * Sets the exam mark of the student for this module and attempt
      * @return Whether the exam mark was set successfully
      */
-    public boolean setExamMark(int exam) {
+    public boolean setExamMark(double exam) {
         Map<String, String> values = new HashMap<>();
         values.put("Exam", "'" + exam + "'");
 
         try {
-            int res = App.getDatabaseConnection().update("Mark", values, new String[]{queryWhere});
+            int res = App.getDatabaseConnection().update("Mark", values, new String[]{"ModuleID = '"+ moduleID +"' AND UserID = '"+ userID +"' AND AttNo = '"+ attemptNo +"'"});
             if (res > 0) {
                 this.examMark = exam;
                 return true;
@@ -101,9 +105,6 @@ public class Mark {
         }
     }
 
-    /**
-     * Gets the attempt number of the student for this module
-     * @throws SQLException If the attempt number does not exist
-     */
-    public int getAttemptNo() throws SQLException { return attemptNo; }
+
+    public int getAttemptNo()  { return attemptNo; }
 }
