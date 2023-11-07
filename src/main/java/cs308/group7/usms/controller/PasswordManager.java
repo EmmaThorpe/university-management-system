@@ -18,6 +18,7 @@ public class PasswordManager extends UIController{
      */
     public PasswordManager() {
         loginUI = new LoginUI();
+        loginUI.addObserver(this);
         displayFirstScene(loginUI.loginScene(this::goToSignUp, this::attemptLogin));
     }
 

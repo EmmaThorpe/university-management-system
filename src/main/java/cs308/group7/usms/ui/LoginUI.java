@@ -1,5 +1,7 @@
 package cs308.group7.usms.ui;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,11 +18,13 @@ import org.apache.commons.validator.routines.EmailValidator;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LoginUI{
+public class LoginUI extends Observable{
 
     Map<String, TextField> currentTextFields;
 
     Map<String, Text> currentText;
+
+    String event;
 
     /**gets the text fields currently shown on the page being shown
      * @return Map of text fields
@@ -53,6 +57,16 @@ public class LoginUI{
         currentText = curr;
     }
 
+    public String getEvent() {
+        return event;
+    }
+
+    public EventHandler<ActionEvent> setEvent(String eve){
+        event=eve;
+        setChanged();
+        notifyObservers();
+        return null;
+    }
 
     /** Returns the login scene so it can then be displayed
      * @param goToSignUp - method to go to signup page
@@ -157,7 +171,8 @@ public class LoginUI{
 
         Button Submit = new Button("SUBMIT");
         Submit.setDisable(true);
-        Submit.setOnAction(evt->signUp.run());
+        //Submit.setOnAction(evt->signUp.run());
+        Submit.setOnAction(setEvent("signup"));
 
         Button returnBtn = new Button("RETURN TO LOGIN");
         returnBtn.getStyleClass().add("outline-button");

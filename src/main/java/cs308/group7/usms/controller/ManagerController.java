@@ -1,10 +1,13 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.model.User;
 import cs308.group7.usms.ui.ManagerUI;
 import cs308.group7.usms.ui.StudentUI;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.sql.Date;
+import java.util.List;
 import java.util.Map;
 
 public class ManagerController extends UIController{
@@ -19,6 +22,10 @@ public class ManagerController extends UIController{
         displayFirstScene(manUI.dashboard());
     }
 
+    public void goToAccountScene(){
+        displayScene(manUI.accounts(getUsers()));
+    }
+
     /**Changes the password for a user.
      * @param oldPass
      * @param newPass
@@ -28,11 +35,18 @@ public class ManagerController extends UIController{
         return true;
     }
 
-    /**Gets the userIDs of all users
+    /**Gets all the users
      * @return An ArrayList of userIDs
      */
-    public ArrayList<String> getUsers(){
-        return null;
+    public List<User> getUsers(){
+        List<User> accounts = new ArrayList<>();
+        accounts.add(new User("abc1","def1", "a","b", "a.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
+        accounts.add(new User("abc2","def2", "b","c", "b.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
+        accounts.add(new User("abc3","def3", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
+        accounts.add(new User("abc4","def4", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
+        accounts.add(new User("abc5","def5", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
+
+        return accounts;
     }
 
     /**Gets the userIDs of all students

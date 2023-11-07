@@ -1,11 +1,15 @@
 package cs308.group7.usms.controller;
 import com.sun.javafx.css.StyleManager;
+import cs308.group7.usms.ui.LoginUI;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.application.Application;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
-public class UIController{
+public class UIController  implements Observer {
     Stage currentStage = new Stage();
     String css = this.getClass().getResource("/css/style.css").toExternalForm();
 
@@ -35,5 +39,14 @@ public class UIController{
     public void hideStage() {
         currentStage.close();
 
+    }
+
+    public void observe(Observable o) {
+        o.addObserver(this);
+    }
+    @Override
+    public void update(Observable o, Object arg) {
+        String someVariable = ((LoginUI) o).getEvent();
+        System.out.println(someVariable);
     }
 }

@@ -1,6 +1,9 @@
 package cs308.group7.usms.ui;
 
 import cs308.group7.usms.model.Student;
+import cs308.group7.usms.model.User;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -22,9 +25,29 @@ import org.controlsfx.control.BreadCrumbBar;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.util.List;
+import java.util.Map;
+
 import static java.awt.ComponentOrientation.RIGHT_TO_LEFT;
 
 public class ManagerUI {
+
+    Map<String, String> currentInfo;
+
+    /** Gets the current info on the stage currently
+     * @return Current info from page
+     */
+    public Map<String, String> getCurrentInfo(){
+        return currentInfo;
+    }
+
+
+    /**Sets the current info being shown on stage
+     * @param curr Current info from page
+     */
+    public void setCurrentInfo(Map<String, String> curr){
+        currentInfo = curr;
+    }
 
     public Scene dashboard() {
         HBox toolbar = makeToolbar();
@@ -55,6 +78,80 @@ public class ManagerUI {
 
         return new Scene(root);
     }
+
+    private VBox makePanel(VBox content) {
+        VBox panel = new VBox(content);
+        panel.setPadding(new Insets(20));
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
+
+    public Scene accounts(List<User> accountList) {
+        HBox toolbar = makeToolbar();
+
+        Text accountText = new Text();
+        Button studentDecisionBtn = new Button("ISSUE STUDENT DECISION");
+        Button passResetBtn = new Button("PASSWORD RESET");
+        Button activatedBtn = new Button("ACTIVATED");
+        Button deactivatedBtn = new Button("DEACTIVATED");
+
+        VBox rightActionPanel = makePanel(new VBox(accountText, studentDecisionBtn, passResetBtn, activatedBtn, deactivatedBtn));
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText, activatedBtn, deactivatedBtn);
+
+        HBox actionPanel = new HBox(leftActionPanel, rightActionPanel);
+
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        return new Scene(root);
+    }
+
+    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText, Button activated, Button deactivated){
+        VBox panel = new VBox();
+        User tempUser;
+        Button tempButton;
+        for(int i=0;i<accountList.size();i++){
+            tempUser =accountList.get(i);
+            tempButton = new Button(tempUser.getUserID()+"- "+tempUser.getActivated());
+            tempButton.setOnAction(pickUser(tempUser, rightPanel, accText, activated, deactivated));
+            panel.getChildren().add(tempButton);
+        }
+
+
+        return makePanel(panel);
+    }
+
+    private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText, Button activated, Button deactivated){
+        return new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                accText.setText(tempUser.getUserID());
+                if(tempUser.getActivated()){
+                   activated.setVisible(false);
+                   deactivated.setVisible(true);
+                }else{
+                    activated.setVisible(true);
+                    deactivated.setVisible(false);
+
+                }
+                rightPanel.setVisible(true);
+            }
+        };
+    }
+
+
 
     private HBox makeToolbar() {
         StackPane iconStack = new StackPane();
