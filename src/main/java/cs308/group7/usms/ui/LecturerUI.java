@@ -6,31 +6,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-public class LecturerUI  {
-    static Student current;
-
-   // public LecturerUI(String name, Stage stage) {
-       // currentStage = stage;
-        //css = this.getClass().getResource("/css/style.css").toExternalForm();
-    //}
+public class LecturerUI extends MainUI{
 
 
-    /*@Override
-    public void start(Stage primaryStage) throws Exception {
-
-        primaryStage.setScene(greeting());
-        primaryStage.show();
-    }*/
-
-    public void greeting(){
-        Label test=new Label("Hello " + current.getForename());
-        GridPane root=new GridPane();
-        root.setHgap(20);
-        root.setVgap(15);
-        Scene scene = new Scene(root,500,300);
-        root.addRow(0, test);
-        //displayScene(scene);
-    }
 
     public Scene home(){
         Label test=new Label("Hello Lecturer");
