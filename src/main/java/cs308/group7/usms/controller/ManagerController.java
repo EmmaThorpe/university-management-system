@@ -1,8 +1,9 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.model.User;
+import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.ManagerUI;
-import cs308.group7.usms.ui.StudentUI;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -10,21 +11,44 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ManagerController extends UIController{
+public class ManagerController{
     String userID;
 
     ManagerUI manUI;
 
     public ManagerController(String id){
-        currentStage = new Stage();
         userID = id;
         manUI = new ManagerUI();
-        displayFirstScene(manUI.accounts(getUsers()));
+        pageSetter("DASHBOARD",true);
     }
 
-    public void goToAccountScene(){
-        displayScene(manUI.accounts(getUsers()));
+    public void pageSetter(String page, Boolean initial){
+        Map<String, Button> buttons;
+        switch (page){
+            case "DASHBOARD":
+                manUI.dashboard();
+                buttons =manUI.getCurrentButtons();
+                buttons.get("MANAGE MODULES").setOnAction((event)->pageSetter("MANAGE MODULES", false));
+                buttons.get("MANAGE COURSES").setOnAction((event)->pageSetter("MANAGE COURSES", false));
+                buttons.get("MANAGE SIGN-UP WORKFLOW").setOnAction((event)->pageSetter("MANAGE SIGN-UP WORKFLOW", false));
+                buttons.get("MANAGE ACCOUNTS").setOnAction((event)->pageSetter("MANAGE ACCOUNTS", false));
+                buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
+                break;
+            case "MANAGE ACCOUNTS":
+                manUI.accounts(getUsers());
+                buttons =manUI.getCurrentButtons();
+                break;
+        }
+
+        if(initial){
+            manUI.displayFirstScene();
+        }else{
+            manUI.displayScene();
+        }
+
     }
+
+
 
     /**Changes the password for a user.
      * @param oldPass

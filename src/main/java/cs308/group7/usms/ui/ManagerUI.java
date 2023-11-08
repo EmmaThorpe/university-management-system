@@ -1,6 +1,6 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.model.Student;
+
 import cs308.group7.usms.model.User;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -31,33 +31,17 @@ import java.util.Map;
 
 import static java.awt.ComponentOrientation.RIGHT_TO_LEFT;
 
-public class ManagerUI {
+public class ManagerUI extends MainUI{
 
-    Map<String, String> currentInfo;
-
-    /** Gets the current info on the stage currently
-     * @return Current info from page
-     */
-    public Map<String, String> getCurrentInfo(){
-        return currentInfo;
-    }
-
-
-    /**Sets the current info being shown on stage
-     * @param curr Current info from page
-     */
-    public void setCurrentInfo(Map<String, String> curr){
-        currentInfo = curr;
-    }
-
-    public Scene dashboard() {
+    public void dashboard() {
+        resetCurrentValues();
         HBox toolbar = makeToolbar();
 
-        Button mngModuleBtn = new Button("MANAGE MODULES");
-        Button mngCourseBtn = new Button("MANAGE COURSES");
-        Button mngSignupBtn = new Button("MANAGE SIGN-UP WORKFLOW");
-        Button mngAccountsBtn = new Button("MANAGE ACCOUNTS");
-        Button mngRulesBtn = new Button("ADD BUSINESS RULES");
+        Button mngModuleBtn = inputButton("MANAGE MODULES");
+        Button mngCourseBtn = inputButton("MANAGE COURSES");
+        Button mngSignupBtn = inputButton("MANAGE SIGN-UP WORKFLOW");
+        Button mngAccountsBtn = inputButton("MANAGE ACCOUNTS");
+        Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
 
         Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn};
         mngBtns = stylePanelActions(mngBtns);
@@ -77,7 +61,7 @@ public class ManagerUI {
 
         root.setPadding(new Insets(10));
 
-        return new Scene(root);
+        currScene = new Scene(root);
     }
 
     private VBox makePanel(VBox content) {
@@ -99,7 +83,8 @@ public class ManagerUI {
         return panel;
     }
 
-    public Scene accounts(List<User> accountList) {
+    public void accounts(List<User> accountList) {
+        resetCurrentValues();
         HBox toolbar = makeToolbar();
 
         Text accountText = new Text();
@@ -123,7 +108,7 @@ public class ManagerUI {
 
         root.setPadding(new Insets(10));
 
-        return new Scene(root);
+        currScene = new Scene(root);
     }
 
     private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText){

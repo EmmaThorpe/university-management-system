@@ -1,15 +1,14 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.ui.LoginUI;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class PasswordManager extends UIController{
+public class PasswordManager {
     LoginUI loginUI;
     Map<String, String> user;
 
@@ -18,8 +17,7 @@ public class PasswordManager extends UIController{
      */
     public PasswordManager() {
         loginUI = new LoginUI();
-        loginUI.addObserver(this);
-        displayFirstScene(loginUI.loginScene(this::goToSignUp, this::attemptLogin));
+        pageSetter("LOGIN", true);
     }
 
     /** responds to main with the user that has successfully been logged in
@@ -30,33 +28,28 @@ public class PasswordManager extends UIController{
     }
 
 
-    /**
-     * Displays the signup page
-     */
-    public void goToSignUp(){
-        displayScene(loginUI.signUpScene(this::attemptSignUp, this::goToLogin));
-    }
+    public void pageSetter(String page, Boolean initial){
+        Map<String, Button> buttons;
+        switch (page){
+            case "LOGIN":
+                loginUI.loginScene();
+                buttons =loginUI.getCurrentButtons();
+                buttons.get("SUBMIT").setOnAction((event)->attemptLogin());
+                buttons.get("NEW USER").setOnAction((event)->pageSetter("SIGN UP", false));
+                break;
+            case "SIGN UP":
+                loginUI.signUpScene();
+                buttons =loginUI.getCurrentButtons();
+                buttons.get("SUBMIT").setOnAction((event)->attemptSignUp());
+                buttons.get("RETURN TO LOGIN").setOnAction((event)->pageSetter("LOGIN", false));
+                break;
+        }
+        if(initial){
+            loginUI.displayFirstScene();
+        }else{
+            loginUI.displayScene();
+        }
 
-
-    /**
-     * Displays the login page
-     */
-    public void goToLogin() {
-        displayScene(loginUI.loginScene(this::goToSignUp, this::attemptLogin));
-    }
-
-    /**
-     * Displays the unactivated account page
-     */
-    public void goToUnactivated() {
-        displayScene(loginUI.unactivatedAccount(this::goToLogin));
-    }
-
-    /**
-     * Displays that an account has been created after successful sign up
-     */
-    public void goToCreated() {
-        displayScene(loginUI.createdAccount(this::goToLogin));
     }
 
 
@@ -66,21 +59,25 @@ public class PasswordManager extends UIController{
     public void attemptLogin (){
         Map<String, TextField> textfields = loginUI.getCurrentTextFields();
         Map<String, Text> text = loginUI.getCurrentText();
-        TextField email = textfields.get("email");
-        TextField password =textfields.get("password");
-        Text validHandler = text.get("output");
+        TextField email = textfields.get("EMAIL");
+        TextField password =textfields.get("PASSWORD");
+        Text validHandler = text.get("OUTPUT");
 
         Map<String, String> result = login(email.getText(), password.getText());
         if (result == null) {
             validHandler.setText("Incorrect Details");
         }else if(result.get("activated").equals("True")){
-            hideStage();
+            loginUI.hideStage();
             user=result;
 
         }else{
-            goToUnactivated();
+            loginUI.notificationScene("Sorry your account has not been activated yet.\r\nTry again later.","RETURN TO LOGIN", false);
+            Map<String, Button> buttons =loginUI.getCurrentButtons();
+            buttons.get("RETURN TO LOGIN").setOnAction((event)->pageSetter("LOGIN", false));
+            loginUI.displayScene();
         }
     }
+
 
 
     /**
@@ -91,7 +88,11 @@ public class PasswordManager extends UIController{
         Map<String, Text> text = loginUI.getCurrentText();
 
         if(signup(textFields)){
-            goToCreated();
+            loginUI.notificationScene("\"Your account has successfully been created.\r\nContact the manager to get it activated.","RETURN TO LOGIN", true);
+            Map<String, Button> buttons =loginUI.getCurrentButtons();
+            buttons.get("RETURN TO LOGIN").setOnAction((event)->pageSetter("LOGIN", false));
+            loginUI.displayScene();
+
         }else{
             text.get("output").setText("A user with this email already exists");
         }
