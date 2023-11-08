@@ -1,6 +1,5 @@
 package cs308.group7.usms.ui;
 
-
 import cs308.group7.usms.model.User;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -64,27 +63,24 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
-    private VBox makePanel(VBox content) {
-        content.setPadding(new Insets(20));
-        content.setSpacing(20.0);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
-
-    private VBox makeScrollablePanel(ScrollPane content) {
-        content.setPadding(new Insets(20));
-        content.fitToHeightProperty().set(true);
-        content.fitToWidthProperty().set(true);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
-
     public void accounts(List<User> accountList) {
         resetCurrentValues();
+
+        Dialog modalTest = new Dialog();
+
+        ArrayList<String> options = new ArrayList<String>();
+        options.add("option 1");
+        options.add("option 2");
+        options.add("option 3");
+
+        modalTest.setDialogPane(makeChoiceModal("hello", "world",
+                options));
+
+        Button button = new Button("Show Dialog");
+        button.setOnAction(e -> {
+            modalTest.showAndWait();
+        });
+
         HBox toolbar = makeToolbar();
 
         Text accountText = new Text();
@@ -105,8 +101,7 @@ public class ManagerUI extends MainUI{
         root.setTop(toolbar);
         BorderPane.setMargin(toolbar, new Insets(15));
         BorderPane.setMargin(actionPanel, new Insets(15));
-        root.setLeft(makeModal());
-
+        root.setBottom(button);
 
         root.setPadding(new Insets(10));
 
@@ -173,7 +168,6 @@ public class ManagerUI extends MainUI{
             HBox.setHgrow(userDetails, Priority.ALWAYS);
             return listButton;
     }
-
     private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
         return new EventHandler() {
             @Override
@@ -225,79 +219,5 @@ public class ManagerUI extends MainUI{
         };
     }
 
-    private HBox makeToolbar() {
-        StackPane iconStack = new StackPane();
-        Circle appGraphicBack = new Circle(25);
-        appGraphicBack.getStyleClass().add("toolbar-back");
-        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        appGraphic.getStyleClass().add("toolbar-graphic");
 
-        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
-
-        Text title = new Text("TITLE");
-        title.setTranslateY(5.0);
-        title.getStyleClass().add("toolbar-title");
-
-        HBox titleContainer = new HBox(iconStack, title);
-        titleContainer.setPadding(new Insets(10));
-        titleContainer.setSpacing(10);
-
-        Button logoutBtn = new Button("LOG OUT");
-        logoutBtn.getStyleClass().add("logout-btn");
-        //logoutBtn.setOnAction(hide);
-        HBox.setMargin(logoutBtn, new Insets(10));
-
-        HBox logoutContainer = new HBox(logoutBtn);
-        logoutContainer.setAlignment(Pos.CENTER);
-
-        Region region = new Region();
-        HBox.setHgrow(region, Priority.ALWAYS);
-
-        HBox container = new HBox(titleContainer, region, logoutContainer);
-        container.setPadding(new Insets(15));
-        container.setSpacing(50);
-        container.getStyleClass().add("toolbar-bar");
-
-        return container;
-    }
-    private Button[] stylePanelActions (Button[] btns) {
-        int i = 0;
-        for (Button btn: btns) {
-            if (i % 2 == 0) {
-                btn.getStyleClass().add("panel-button-1");
-            } else {
-                btn.getStyleClass().add("panel-button-2");
-            }
-            i++;
-        }
-        return btns;
-    }
-
-    private DialogPane makeModal() {
-        DialogPane modal = new DialogPane();
-
-        modal.getStyleClass().add("modal");
-
-        Text headerTitle = new Text("hi");
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox(headerTitle);
-        header.getStyleClass().add("modal-header");
-
-        modal.setHeader(header);
-
-        Text contentItems = new Text("hello world");
-        VBox content = new VBox(contentItems);
-        content.setAlignment(Pos.BASELINE_CENTER);
-        content.setPadding(new Insets(20));
-
-        ButtonType ok = ButtonType.OK;
-        ButtonType cancel = ButtonType.CLOSE;
-
-        ButtonBar modalActions = new ButtonBar();
-
-        modal.setContent(contentItems);
-
-        return modal;
-
-    }
 }

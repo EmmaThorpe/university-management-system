@@ -1,7 +1,10 @@
 package cs308.group7.usms.ui;
 
+import cs308.group7.usms.model.User;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +18,7 @@ import org.kordamp.ikonli.fontawesome5.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
+import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +88,9 @@ public class MainUI {
 
     public Map<String, Button> getCurrentButtons(){return currentButtons;}
 
+    /**
+     * Global components to be used across multiple UIs
+     **/
 
     private VBox setTitle(String titleText) {
         StackPane iconStack = new StackPane();
@@ -102,6 +109,178 @@ public class MainUI {
         title.setAlignment(Pos.TOP_CENTER);
         return title;
     }
+    protected HBox makeToolbar() {
+        StackPane iconStack = new StackPane();
+        Circle appGraphicBack = new Circle(25);
+        appGraphicBack.getStyleClass().add("toolbar-back");
+        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
+        appGraphic.getStyleClass().add("toolbar-graphic");
+
+        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+
+        Text title = new Text("TITLE");
+        title.setTranslateY(5.0);
+        title.getStyleClass().add("toolbar-title");
+
+        HBox titleContainer = new HBox(iconStack, title);
+        titleContainer.setPadding(new Insets(10));
+        titleContainer.setSpacing(10);
+
+        Button logoutBtn = new Button("LOG OUT");
+        logoutBtn.getStyleClass().add("logout-btn");
+        //logoutBtn.setOnAction(hide);
+        HBox.setMargin(logoutBtn, new Insets(10));
+
+        HBox logoutContainer = new HBox(logoutBtn);
+        logoutContainer.setAlignment(Pos.CENTER);
+
+        Region region = new Region();
+        HBox.setHgrow(region, Priority.ALWAYS);
+
+        HBox container = new HBox(titleContainer, region, logoutContainer);
+        container.setPadding(new Insets(15));
+        container.setSpacing(50);
+        container.getStyleClass().add("toolbar-bar");
+
+        return container;
+    }
+    protected VBox makePanel(VBox content) {
+        content.setPadding(new Insets(20));
+        content.setSpacing(20.0);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+    protected VBox makeScrollablePanel(ScrollPane content) {
+        content.setPadding(new Insets(20));
+        content.fitToHeightProperty().set(true);
+        content.fitToWidthProperty().set(true);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+    protected Button[] stylePanelActions (Button[] btns) {
+        int i = 0;
+        for (Button btn: btns) {
+            if (i % 2 == 0) {
+                btn.getStyleClass().add("panel-button-1");
+            } else {
+                btn.getStyleClass().add("panel-button-2");
+            }
+            i++;
+        }
+        return btns;
+    }
+
+    /**
+     * Modal components
+     **/
+    protected DialogPane makeDefaultModal(String headTxt, String contentTxt) {
+        DialogPane modal = new DialogPane();
+
+        modal.getStyleClass().add("modal");
+
+        Text headerTitle = new Text(headTxt.toUpperCase());
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox(headerTitle);
+        header.getStyleClass().add("modal-header");
+
+        Text contentItems = new Text(contentTxt);
+        VBox content = new VBox(contentItems);
+        content.setPadding(new Insets(10));
+        content.setAlignment(Pos.CENTER);
+
+        modal.setHeader(header);
+        modal.setContent(content);
+
+        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        modal.getButtonTypes().addAll(okButton, cancelButton);
+        modal.lookupButton(cancelButton).getStyleClass().add("outline-button");
+
+        return modal;
+    }
+
+    protected DialogPane makeChoiceModal(String headTxt, String contentTxt, ArrayList<String> choices) {
+        DialogPane modal = new DialogPane();
+
+        modal.getStyleClass().add("modal");
+
+        Text headerTitle = new Text(headTxt.toUpperCase());
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox(headerTitle);
+        header.getStyleClass().add("modal-header");
+
+        Text contentItems = new Text(contentTxt);
+
+        ComboBox choiceDropdown = new ComboBox();
+        for (String choice : choices) {
+            choiceDropdown.getItems().add(choice);
+        }
+        choiceDropdown.getSelectionModel().select(0);
+        VBox content = new VBox(contentItems, choiceDropdown);
+        content.setPadding(new Insets(10));
+        content.setAlignment(Pos.CENTER);
+
+        modal.setHeader(header);
+        modal.setContent(content);
+
+        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        modal.getButtonTypes().addAll(okButton, cancelButton);
+        modal.lookupButton(cancelButton).getStyleClass().add("outline-button");
+
+        return modal;
+    }
+    protected DialogPane makeSuccessModal(String contentTxt) {
+        DialogPane modal = new DialogPane();
+
+        modal.getStyleClass().add("modal");
+
+        Text headerTitle = new Text("SUCCESS");
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox(headerTitle);
+        header.getStyleClass().add("modal-header-suc");
+
+        Text contentItems = new Text(contentTxt);
+        VBox content = new VBox(contentItems);
+        content.setPadding(new Insets(10));
+
+        modal.setHeader(header);
+        modal.setContent(content);
+
+        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
+        modal.getButtonTypes().addAll(okButton);
+
+        return modal;
+    }
+    protected DialogPane makeErrorModal(String contentTxt) {
+        DialogPane modal = new DialogPane();
+
+        modal.getStyleClass().add("modal");
+
+        Text headerTitle = new Text("ERROR");
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox(headerTitle);
+        header.getStyleClass().add("modal-header-err");
+
+        Text contentItems = new Text(contentTxt);
+        VBox content = new VBox(contentItems);
+        content.setPadding(new Insets(10));
+
+        modal.setHeader(header);
+        modal.setContent(content);
+
+        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
+        modal.getButtonTypes().addAll(okButton);
+
+        return modal;
+    }
+
 
 
     public void createScene(String top, Pane mainContent, Pane bottom){
