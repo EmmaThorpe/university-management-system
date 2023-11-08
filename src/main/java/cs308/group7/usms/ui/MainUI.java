@@ -100,6 +100,9 @@ public class MainUI {
         title.setAlignment(Pos.TOP_CENTER);
         return title;
     }
+
+
+
     protected HBox makeToolbar(String role) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
@@ -165,12 +168,12 @@ public class MainUI {
         }
         return btns;
     }
-    protected DialogPane makeModal(String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
+    protected void makeModal(Button trigger, String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
 
 
-        DialogPane modal = new DialogPane();
+        DialogPane modalDialog = new DialogPane();
 
-        modal.getStyleClass().add("modal");
+        modalContent.getStyleClass().add("modal");
 
         Text headerTitle = new Text(headTxt.toUpperCase());
         headerTitle.getStyleClass().add("modal-header-text");
@@ -198,16 +201,20 @@ public class MainUI {
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 
-        modal.setHeader(header);
-        modal.setContent(content);
+        modalDialog.setHeader(header);
+        modalDialog.setContent(content);
 
         ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        modal.getButtonTypes().addAll(okButton, cancelButton);
-        modal.lookupButton(cancelButton).getStyleClass().add("outline-button");
+        modalDialog.getButtonTypes().addAll(okButton, cancelButton);
+        modalDialog.lookupButton(cancelButton).getStyleClass().add("outline-button");
 
-        return modal;
+        Dialog modal = new Dialog();
+        modal.setDialogPane(modalDialog);
+        trigger.setOnAction(e -> {
+            modal.showAndWait();
+        });
     }
     protected ComboBox makeDropdown(ArrayList<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
@@ -316,5 +323,6 @@ public class MainUI {
 
         return notfiCard;
     }
+
 
 }

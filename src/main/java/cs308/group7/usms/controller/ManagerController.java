@@ -35,7 +35,7 @@ public class ManagerController{
                 buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
                 break;
             case "MANAGE ACCOUNTS":
-                manUI.accounts(getUsers());
+                manUI.accounts(getUsers(), null, null);
                 buttons =manUI.getCurrentButtons();
                 buttons.get("ACTIVATE").setOnAction((event)-> {
                     pageSetter("MANAGE ACCOUNTS", false);

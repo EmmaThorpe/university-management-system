@@ -1,34 +1,20 @@
 package cs308.group7.usms.ui;
 
 import cs308.group7.usms.model.User;
-import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
-import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import org.controlsfx.control.BreadCrumbBar;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static java.awt.ComponentOrientation.RIGHT_TO_LEFT;
 
 public class ManagerUI extends MainUI{
 
@@ -71,17 +57,20 @@ public class ManagerUI extends MainUI{
 
 
 
-    public void accounts(List<User> accountList) {
+    public void accounts(List<User> accountList, List<String> coursesList, List<String> moduleList) {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Manager");
 
-
         inputButton("ISSUE STUDENT DECISION");
-        inputButton("ASSIGN LECTURER TO MODULE");
-        inputButton("RESET PASSWORD");
+        Button assign = inputButton("ASSIGN LECTURER TO MODULE");
+        Button reset = inputButton("RESET PASSWORD");
         inputButton("ACTIVATE");
         inputButton("DEACTIVATE");
-        inputButton("ENROL STUDENT INTO COURSE");
+        Button enrol = inputButton("ENROL STUDENT INTO COURSE");
+
+        makeModal(assign, "hello", new VBox(), false, false);
+        makeModal(assign, "reset", new VBox(), false, false);
+        makeModal(assign, "enrol", new VBox(), false, false);
 
 
 
@@ -113,8 +102,8 @@ public class ManagerUI extends MainUI{
         VBox panel = new VBox();
         User tempUser;
         HBox tempButton;
-        for(int i=0;i<accountList.size();i++){
-            tempUser =accountList.get(i);
+        for (User user : accountList) {
+            tempUser = user;
             tempButton = makeUserListButton(tempUser.getUserID(), tempUser.getForename(), tempUser.getSurname(),
                     tempUser.getType(), tempUser.getActivated());
             tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, accText));
@@ -169,47 +158,44 @@ public class ManagerUI extends MainUI{
 
 
     private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
-        return new EventHandler() {
-            @Override
-            public void handle(Event event) {
-                accText.setText(tempUser.getUserID());
+        return event -> {
+            accText.setText(tempUser.getUserID());
 
-                ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+            ArrayList<Button> accountBtnsList = new ArrayList<>();
 
-                if (tempUser.getType().equals(User.UserType.STUDENT)) {
-                    accountBtnsList.add(currentButtons.get("ISSUE STUDENT DECISION"));
-                    accountBtnsList.add(currentButtons.get("ENROL STUDENT INTO COURSE"));
-                }
-                if (tempUser.getType().equals(User.UserType.LECTURER)) {
-                    accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
-                }
-
-
-                accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
-                accountBtnsList.add(currentButtons.get("ACTIVATE"));
-                accountBtnsList.add(currentButtons.get("DEACTIVATE"));
-
-                Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
-                accountBtns = stylePanelActions(accountBtns);
-
-                if (tempUser.getActivated()) {
-                    currentButtons.get("ACTIVATE").setDisable(true);
-                    currentButtons.get("DEACTIVATE").setDisable(false);
-                } else {
-                    currentButtons.get("ACTIVATE").setDisable(false);
-                    currentButtons.get("DEACTIVATE").setDisable(true);
-                }
-
-                VBox accountBtnView = new VBox(accountBtns);
-
-                accountBtnView.setAlignment(Pos.CENTER);
-                accountBtnView.setSpacing(20.0);
-                accountBtnView.setPadding(new Insets(10));
-
-                rightPanel.getChildren().set(0, accText);
-                rightPanel.getChildren().set(1, accountBtnView);
-                rightPanel.setVisible(true);
+            if (tempUser.getType().equals(User.UserType.STUDENT)) {
+                accountBtnsList.add(currentButtons.get("ISSUE STUDENT DECISION"));
+                accountBtnsList.add(currentButtons.get("ENROL STUDENT INTO COURSE"));
             }
+            if (tempUser.getType().equals(User.UserType.LECTURER)) {
+                accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
+            }
+
+
+            accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
+            accountBtnsList.add(currentButtons.get("ACTIVATE"));
+            accountBtnsList.add(currentButtons.get("DEACTIVATE"));
+
+            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
+            accountBtns = stylePanelActions(accountBtns);
+
+            if (tempUser.getActivated()) {
+                currentButtons.get("ACTIVATE").setDisable(true);
+                currentButtons.get("DEACTIVATE").setDisable(false);
+            } else {
+                currentButtons.get("ACTIVATE").setDisable(false);
+                currentButtons.get("DEACTIVATE").setDisable(true);
+            }
+
+            VBox accountBtnView = new VBox(accountBtns);
+
+            accountBtnView.setAlignment(Pos.CENTER);
+            accountBtnView.setSpacing(20.0);
+            accountBtnView.setPadding(new Insets(10));
+
+            rightPanel.getChildren().set(0, accText);
+            rightPanel.getChildren().set(1, accountBtnView);
+            rightPanel.setVisible(true);
         };
     }
 
