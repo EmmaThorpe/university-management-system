@@ -22,7 +22,7 @@ public class LoginUI extends MainUI{
         TextField field=new TextField();
         Text inputText = new Text();
 
-        currentTextFields.put(text, field);
+        currentFields.put(text, field);
         currentText.put(text, inputText);
 
         field.textProperty().addListener(listener);
@@ -173,7 +173,7 @@ public class LoginUI extends MainUI{
 
     protected ChangeListener<String> confirmPasswordCheck(){
         return (obs, oldText, newText) -> {
-            if (!newText.equals(currentTextFields.get("PASSWORD").getText())) {
+            if (!newText.equals(currentFields.get("PASSWORD").getAccessibleText())) {
                 currentText.get("CONFIRM PASSWORD").setText("Passwords must match");
                 checkValidFields("CONFIRM PASSWORD", false);
             } else {
@@ -255,5 +255,7 @@ public class LoginUI extends MainUI{
         return op;
     }
 }
+
+
 
 

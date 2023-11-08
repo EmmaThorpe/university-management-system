@@ -101,14 +101,14 @@
 }
 
 
-.logout-btn {
+.toolbar-btn {
     -fx-background-color: -color-white;
     -fx-opacity: 0.9;
     -fx-text-fill: -color-pri;
     -fx-border-color: -color-white;
 }
 
-.logout-btn:pressed, .logout-btn:hover, .logout-btn:focused {
+.toolbar-btn:pressed, .toolbar-btn:hover, .toolbar-btn:focused {
     -fx-opacity: 1;
     -fx-effect: none;
     -fx-translate-y: 0;
@@ -225,8 +225,9 @@
     -fx-text-fill: -color-dark-grey;
     -fx-max-width: 650;
     -fx-min-width: 500;
-    -fx-padding: 5;
+    -fx-padding: 5 5 20 5;
 }
+
 
 .modal-header-text {
     -fx-fill: -color-white;

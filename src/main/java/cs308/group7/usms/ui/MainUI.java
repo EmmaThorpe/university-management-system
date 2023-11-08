@@ -7,6 +7,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -25,7 +26,7 @@ public class MainUI {
     String css = this.getClass().getResource("/css/style.css").toExternalForm();
     Scene currScene;
 
-    Map<String, TextField> currentTextFields;
+    Map<String, Node> currentFields;
 
     Map<String, Text> currentText;
 
@@ -59,7 +60,7 @@ public class MainUI {
 
 
     public void resetCurrentValues(){
-        currentTextFields = new HashMap<>();
+        currentFields = new HashMap<>();
         currentText = new HashMap<>();
         currentButtons = new HashMap<>();
 
@@ -69,8 +70,8 @@ public class MainUI {
     /**gets the text fields currently shown on the page being shown
      * @return Map of text fields
      */
-    public Map<String, TextField> getCurrentTextFields(){
-        return currentTextFields;
+    public Map<String, Node> getCurrentFields(){
+        return currentFields;
     }
 
 
@@ -101,8 +102,6 @@ public class MainUI {
         return title;
     }
 
-
-
     protected HBox makeToolbar(String role) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
@@ -116,8 +115,9 @@ public class MainUI {
         titleContainer.setSpacing(10);
 
         Button homeBtn = inputButton("HOME");
+        homeBtn.getStyleClass().add("toolbar-btn");
         Button logoutBtn = inputButton("LOG OUT");
-        logoutBtn.getStyleClass().add("logout-btn");
+        logoutBtn.getStyleClass().add("toolbar-btn");
         HBox.setMargin(logoutBtn, new Insets(10));
 
         HBox logoutContainer = new HBox(homeBtn, logoutBtn);
@@ -133,8 +133,6 @@ public class MainUI {
 
         return container;
     }
-
-
     protected VBox makePanel(VBox content) {
         content.setPadding(new Insets(20));
         content.setSpacing(20.0);
@@ -143,7 +141,6 @@ public class MainUI {
 
         return panel;
     }
-
 
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
@@ -154,7 +151,6 @@ public class MainUI {
 
         return panel;
     }
-
 
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
@@ -169,11 +165,9 @@ public class MainUI {
         return btns;
     }
     protected void makeModal(Button trigger, String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
-
-
         DialogPane modalDialog = new DialogPane();
 
-        modalContent.getStyleClass().add("modal");
+        modalDialog.getStyleClass().add("modal");
 
         Text headerTitle = new Text(headTxt.toUpperCase());
         headerTitle.getStyleClass().add("modal-header-text");
@@ -216,7 +210,7 @@ public class MainUI {
             modal.showAndWait();
         });
     }
-    protected ComboBox makeDropdown(ArrayList<String> choices) {
+    public ComboBox makeDropdown(ArrayList<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
         for (String choice : choices) {
             choiceDropdown.getItems().add(choice);
@@ -257,7 +251,19 @@ public class MainUI {
             field=new TextField();
         }
 
-        currentTextFields.put(text, field);
+        currentFields.put(text, field);
+
+        VBox inputField = new VBox(label, field);
+        inputField.setPadding(new Insets(10));
+
+        return inputField;
+    }
+
+    protected VBox dropdownField(String text, ArrayList<String> choices){
+        Label label=new Label(text);
+        ComboBox field = makeDropdown(choices);
+
+        currentFields.put(text, field);
 
         VBox inputField = new VBox(label, field);
         inputField.setPadding(new Insets(10));

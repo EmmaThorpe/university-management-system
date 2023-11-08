@@ -55,8 +55,6 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
-
-
     public void accounts(List<User> accountList, List<String> coursesList, List<String> moduleList) {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Manager");
@@ -68,11 +66,9 @@ public class ManagerUI extends MainUI{
         inputButton("DEACTIVATE");
         Button enrol = inputButton("ENROL STUDENT INTO COURSE");
 
-        makeModal(assign, "hello", new VBox(), false, false);
-        makeModal(assign, "reset", new VBox(), false, false);
-        makeModal(assign, "enrol", new VBox(), false, false);
-
-
+        makeModal(assign, "assign to module", new VBox(), false, false);
+        makeModal(reset, "reset password", resetPass(), false, false);
+        makeModal(enrol, "enrol to course", new VBox(), false, false);
 
         Text accountText = new Text();
 
@@ -156,7 +152,6 @@ public class ManagerUI extends MainUI{
             return listButton;
     }
 
-
     private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
         return event -> {
             accText.setText(tempUser.getUserID());
@@ -170,7 +165,6 @@ public class ManagerUI extends MainUI{
             if (tempUser.getType().equals(User.UserType.LECTURER)) {
                 accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
             }
-
 
             accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
             accountBtnsList.add(currentButtons.get("ACTIVATE"));
@@ -199,5 +193,19 @@ public class ManagerUI extends MainUI{
         };
     }
 
+    private VBox resetPass() {
+        VBox setPass = inputField("New password", false);
+        VBox confirmPass = inputField("Confirm new password", false);
 
+        VBox container = new VBox(setPass, confirmPass);
+        return container;
+    }
+
+    private VBox enrolCourse() {
+        VBox setPass = inputField("New password", false);
+        VBox confirmPass = inputField("Confirm new password", false);
+
+        VBox container = new VBox(setPass, confirmPass);
+        return container;
+    }
 }

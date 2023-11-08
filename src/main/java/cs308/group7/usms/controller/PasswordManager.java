@@ -1,6 +1,7 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.ui.LoginUI;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -57,10 +58,10 @@ public class PasswordManager {
      * Attempts to log in to system and moves page accordingly based on outcome
      */
     public void attemptLogin (){
-        Map<String, TextField> textfields = loginUI.getCurrentTextFields();
+        Map<String, Node> textfields = loginUI.getCurrentFields();
         Map<String, Text> text = loginUI.getCurrentText();
-        TextField email = textfields.get("EMAIL");
-        TextField password =textfields.get("PASSWORD");
+        TextField email = (TextField) textfields.get("EMAIL");
+        TextField password = (TextField) textfields.get("PASSWORD");
         Text validHandler = text.get("OUTPUT");
 
         Map<String, String> result = login(email.getText(), password.getText());
@@ -84,7 +85,7 @@ public class PasswordManager {
      * Attempts to sign in to system and moves page accordingly based on outcome
      */
     public void attemptSignUp(){
-        Map<String, TextField> textFields = loginUI.getCurrentTextFields();
+        Map<String, Node> textFields = loginUI.getCurrentFields();
         Map<String, Text> text = loginUI.getCurrentText();
 
         if(signup(textFields)){
@@ -134,7 +135,7 @@ public class PasswordManager {
      * @param Details Map containing the users' entered textfields along with key of what they represent
      * @return boolean indicating if signup is successful
      */
-    public boolean signup(Map<String, TextField> Details){
+    public boolean signup(Map<String, Node> Details){
         return true;
     }
 
