@@ -25,6 +25,7 @@ import org.controlsfx.control.BreadCrumbBar;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -102,19 +103,12 @@ public class ManagerUI {
         HBox toolbar = makeToolbar();
 
         Text accountText = new Text();
-        Button studentDecisionBtn = new Button("ISSUE STUDENT DECISION");
-        Button passResetBtn = new Button("PASSWORD RESET");
-        Button activatedBtn = new Button("ACTIVATED");
-        Button deactivatedBtn = new Button("DEACTIVATED");
 
-        Button[] accountBtns = {studentDecisionBtn, passResetBtn, activatedBtn, deactivatedBtn};
-        accountBtns = stylePanelActions(accountBtns);
-
-        VBox rightActionPanel = makePanel(new VBox(accountBtns));
+        VBox rightActionPanel = makePanel(new VBox());
         rightActionPanel.getChildren().add(0, accountText);
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText, activatedBtn, deactivatedBtn);
+        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText);
 
         HBox actionPanel = new HBox(leftActionPanel, rightActionPanel);
 
@@ -132,8 +126,7 @@ public class ManagerUI {
         return new Scene(root);
     }
 
-    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText, Button activated,
-                            Button deactivated){
+    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText){
         VBox panel = new VBox();
         User tempUser;
         HBox tempButton;
@@ -141,14 +134,14 @@ public class ManagerUI {
             tempUser =accountList.get(i);
             tempButton = makeUserListButton(tempUser.getUserID(), tempUser.getForename(), tempUser.getSurname(),
                     tempUser.getType(), tempUser.getActivated());
-            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, accText, activated, deactivated));
+            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, accText));
             panel.getChildren().add(tempButton);
         }
 
         panel.setSpacing(20.0);
         panel.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane accountListPanel =  new ScrollPane(panel);
+        ScrollPane accountListPanel = new ScrollPane(panel);
         return makeScrollablePanel(accountListPanel);
     }
 
@@ -194,18 +187,50 @@ public class ManagerUI {
             return listButton;
     }
 
-    private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText, Button activated, Button deactivated){
+    private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
         return new EventHandler() {
             @Override
             public void handle(Event event) {
                 accText.setText(tempUser.getUserID());
-                if (tempUser.getActivated()) {
-                   activated.setDisable(true);
-                   deactivated.setDisable(false);
-                } else {
-                    activated.setDisable(false);
-                    deactivated.setDisable(true);
+
+                ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+
+                if (tempUser.getType().equals(User.UserType.STUDENT)) {
+                    Button studentDecisionBtn = new Button("ISSUE STUDENT DECISION");
+                    accountBtnsList.add(studentDecisionBtn);
+                    Button enrolBtn = new Button("ENROL STUDENT INTO COURSE");
+                    accountBtnsList.add(enrolBtn);
                 }
+                if (tempUser.getType().equals(User.UserType.LECTURER)) {
+                    Button assignModuleBtn = new Button("ASSIGN LECTURER TO MODULE");
+                    accountBtnsList.add(assignModuleBtn);
+                }
+
+                Button passResetBtn = new Button("PASSWORD RESET");
+                Button activatedBtn = new Button("ACTIVATED");
+                Button deactivatedBtn = new Button("DEACTIVATED");
+
+                accountBtnsList.add(passResetBtn);
+                accountBtnsList.add(activatedBtn);
+                accountBtnsList.add(deactivatedBtn);
+
+                Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
+                accountBtns = stylePanelActions(accountBtns);
+
+                if (tempUser.getActivated()) {
+                    activatedBtn.setDisable(true);
+                    deactivatedBtn.setDisable(false);
+                } else {
+                    activatedBtn.setDisable(false);
+                    deactivatedBtn.setDisable(true);
+                }
+
+                VBox accountBtnView = new VBox(accountBtns);
+                accountBtnView.setSpacing(10.0);
+                accountBtnView.setPadding(new Insets(10.0));
+
+                rightPanel.getChildren().set(0, accText);
+                rightPanel.getChildren().set(1, accountBtnView);
                 rightPanel.setVisible(true);
             }
         };
@@ -228,14 +253,6 @@ public class ManagerUI {
         titleContainer.setPadding(new Insets(10));
         titleContainer.setSpacing(10);
 
-        BreadCrumbBar<String> breadcrumbBar = new BreadCrumbBar<>();
-
-        TreeItem<String> breadcrumbBarOptions = BreadCrumbBar.buildTreeModel("Hello", "World", "This", "is", "cool");
-        breadcrumbBar.setSelectedCrumb(breadcrumbBarOptions);
-
-        VBox breadcrumbContainer = new VBox(breadcrumbBar);
-        breadcrumbContainer.setAlignment(Pos.BASELINE_CENTER);
-
         Button logoutBtn = new Button("LOG OUT");
         logoutBtn.getStyleClass().add("logout-btn");
         //logoutBtn.setOnAction(hide);
@@ -247,7 +264,7 @@ public class ManagerUI {
         Region region = new Region();
         HBox.setHgrow(region, Priority.ALWAYS);
 
-        HBox container = new HBox(titleContainer, breadcrumbContainer, region, logoutContainer);
+        HBox container = new HBox(titleContainer, region, logoutContainer);
         container.setPadding(new Insets(15));
         container.setSpacing(50);
         container.getStyleClass().add("toolbar-bar");
