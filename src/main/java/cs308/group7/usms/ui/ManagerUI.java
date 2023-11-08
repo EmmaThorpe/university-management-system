@@ -32,9 +32,15 @@ import static java.awt.ComponentOrientation.RIGHT_TO_LEFT;
 
 public class ManagerUI extends MainUI{
 
+    String selectedVal;
+
+    public String getSelectedVal(){
+        return selectedVal;
+    }
+
     public void dashboard() {
         resetCurrentValues();
-        HBox toolbar = makeToolbar();
+        HBox toolbar = makeToolbar("Manager");
 
         Button mngModuleBtn = inputButton("MANAGE MODULES");
         Button mngCourseBtn = inputButton("MANAGE COURSES");
@@ -63,9 +69,21 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
+
+
     public void accounts(List<User> accountList) {
         resetCurrentValues();
-        HBox toolbar = makeToolbar();
+        HBox toolbar = makeToolbar("Manager");
+
+
+        inputButton("ISSUE STUDENT DECISION");
+        inputButton("ASSIGN LECTURER TO MODULE");
+        inputButton("RESET PASSWORD");
+        inputButton("ACTIVATE");
+        inputButton("DEACTIVATE");
+        inputButton("ENROL STUDENT INTO COURSE");
+
+
 
         Text accountText = new Text();
 
@@ -148,6 +166,8 @@ public class ManagerUI extends MainUI{
             HBox.setHgrow(userDetails, Priority.ALWAYS);
             return listButton;
     }
+
+
     private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
         return new EventHandler() {
             @Override
@@ -157,33 +177,27 @@ public class ManagerUI extends MainUI{
                 ArrayList<Button> accountBtnsList = new ArrayList<Button>();
 
                 if (tempUser.getType().equals(User.UserType.STUDENT)) {
-                    Button studentDecisionBtn = new Button("ISSUE STUDENT DECISION");
-                    accountBtnsList.add(studentDecisionBtn);
-                    Button enrolBtn = new Button("ENROL STUDENT INTO COURSE");
-                    accountBtnsList.add(enrolBtn);
+                    accountBtnsList.add(currentButtons.get("ISSUE STUDENT DECISION"));
+                    accountBtnsList.add(currentButtons.get("ENROL STUDENT INTO COURSE"));
                 }
                 if (tempUser.getType().equals(User.UserType.LECTURER)) {
-                    Button assignModuleBtn = new Button("ASSIGN LECTURER TO MODULE");
-                    accountBtnsList.add(assignModuleBtn);
+                    accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
                 }
 
-                Button passResetBtn = new Button("PASSWORD RESET");
-                Button activatedBtn = new Button("ACTIVATE");
-                Button deactivatedBtn = new Button("DEACTIVATE");
 
-                accountBtnsList.add(passResetBtn);
-                accountBtnsList.add(activatedBtn);
-                accountBtnsList.add(deactivatedBtn);
+                accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
+                accountBtnsList.add(currentButtons.get("ACTIVATE"));
+                accountBtnsList.add(currentButtons.get("DEACTIVATE"));
 
                 Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
                 accountBtns = stylePanelActions(accountBtns);
 
                 if (tempUser.getActivated()) {
-                    activatedBtn.setDisable(true);
-                    deactivatedBtn.setDisable(false);
+                    currentButtons.get("ACTIVATE").setDisable(true);
+                    currentButtons.get("DEACTIVATE").setDisable(false);
                 } else {
-                    activatedBtn.setDisable(false);
-                    deactivatedBtn.setDisable(true);
+                    currentButtons.get("ACTIVATE").setDisable(false);
+                    currentButtons.get("DEACTIVATE").setDisable(true);
                 }
 
                 VBox accountBtnView = new VBox(accountBtns);

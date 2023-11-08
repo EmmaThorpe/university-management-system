@@ -23,7 +23,7 @@ public class ManagerController{
     }
 
     public void pageSetter(String page, Boolean initial){
-        Map<String, Button> buttons;
+        Map<String, Button> buttons = null;
         switch (page){
             case "DASHBOARD":
                 manUI.dashboard();
@@ -37,8 +37,29 @@ public class ManagerController{
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers());
                 buttons =manUI.getCurrentButtons();
+                buttons.get("ACTIVATE").setOnAction((event)-> {
+                    pageSetter("MANAGE ACCOUNTS", false);
+                    if(activateUser(manUI.getSelectedVal())){
+
+                    }else{
+
+                    }});
+                buttons.get("DEACTIVATE").setOnAction((event)-> {
+                    pageSetter("MANAGE ACCOUNTS", false);
+                    if(activateUser(manUI.getSelectedVal())){
+
+                    }else{
+
+                    }});
+                buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
+                break;
+            case "STUDENT DECISION":
+               // manUI.studentDecision(getMarks(manUI.getSelectedVal()));
+                buttons =manUI.getCurrentButtons();
                 break;
         }
+        buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
+        buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
 
         if(initial){
             manUI.displayFirstScene();
@@ -90,8 +111,8 @@ public class ManagerController{
     /**Takes in a userID and activates the user
      * @param userID
      */
-    public void activateUser(String userID){
-
+    public boolean activateUser(String userID){
+        return true;
     }
 
     /**Takes in a userID and deactivates the user

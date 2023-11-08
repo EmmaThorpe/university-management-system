@@ -100,11 +100,11 @@ public class MainUI {
         title.setAlignment(Pos.TOP_CENTER);
         return title;
     }
-    protected HBox makeToolbar() {
+    protected HBox makeToolbar(String role) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
 
-        Text title = new Text("TITLE");
+        Text title = new Text(role);
         title.setTranslateY(5.0);
         title.getStyleClass().add("toolbar-title");
 
@@ -112,12 +112,12 @@ public class MainUI {
         titleContainer.setPadding(new Insets(10));
         titleContainer.setSpacing(10);
 
-        Button logoutBtn = new Button("LOG OUT");
+        Button homeBtn = inputButton("HOME");
+        Button logoutBtn = inputButton("LOG OUT");
         logoutBtn.getStyleClass().add("logout-btn");
-        //logoutBtn.setOnAction(hide);
         HBox.setMargin(logoutBtn, new Insets(10));
 
-        HBox logoutContainer = new HBox(logoutBtn);
+        HBox logoutContainer = new HBox(homeBtn, logoutBtn);
         logoutContainer.setAlignment(Pos.CENTER);
 
         Region region = new Region();
@@ -130,6 +130,8 @@ public class MainUI {
 
         return container;
     }
+
+
     protected VBox makePanel(VBox content) {
         content.setPadding(new Insets(20));
         content.setSpacing(20.0);
@@ -138,6 +140,8 @@ public class MainUI {
 
         return panel;
     }
+
+
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -147,6 +151,8 @@ public class MainUI {
 
         return panel;
     }
+
+
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
@@ -160,6 +166,7 @@ public class MainUI {
         return btns;
     }
     protected DialogPane makeModal(String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
+
 
         DialogPane modal = new DialogPane();
 
