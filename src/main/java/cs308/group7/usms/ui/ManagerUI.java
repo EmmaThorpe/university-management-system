@@ -57,7 +57,6 @@ public class ManagerUI extends MainUI{
 
     public void accounts(List<User> accountList, List<String> coursesList, List<String> moduleList) {
         resetCurrentValues();
-        HBox toolbar = makeToolbar("Manager");
 
         inputButton("ISSUE STUDENT DECISION");
         Button assign = inputButton("ASSIGN LECTURER TO MODULE");
@@ -77,21 +76,7 @@ public class ManagerUI extends MainUI{
         rightActionPanel.setVisible(false);
 
         VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText);
-
-        HBox actionPanel = new HBox(leftActionPanel, rightActionPanel);
-
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
     }
 
     private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText){
@@ -180,6 +165,85 @@ public class ManagerUI extends MainUI{
                 currentButtons.get("ACTIVATE").setDisable(false);
                 currentButtons.get("DEACTIVATE").setDisable(true);
             }
+
+            VBox accountBtnView = new VBox(accountBtns);
+
+            accountBtnView.setAlignment(Pos.CENTER);
+            accountBtnView.setSpacing(20.0);
+            accountBtnView.setPadding(new Insets(10));
+
+            rightPanel.getChildren().set(0, accText);
+            rightPanel.getChildren().set(1, accountBtnView);
+            rightPanel.setVisible(true);
+        };
+    }
+
+
+
+    public void courses(List<String> courseList, List<String> moduleList) {
+        resetCurrentValues();
+
+        Button add = inputButton("ADD COURSE");
+        Button edit = inputButton("EDIT COURSE");
+        Button assign = inputButton("ASSIGN MODULE TO COURSE");
+
+        makeModal(add, "add", new VBox(), false, false);
+        makeModal(edit, "edit", new VBox(), false, false);
+        makeModal(assign, "assign", new VBox(), false, false);
+
+
+        Text courseText = new Text();
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, courseText);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = courseButtons(courseList, rightActionPanel, courseText);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
+    }
+
+    private VBox courseButtons(List<String> accountList, VBox rightPanel, Text accText){
+        VBox panel = new VBox();
+        String tempCourse;
+        HBox tempButton;
+        for (String course : accountList) {
+            tempCourse = course;
+            tempButton = makeCourseListButton(tempCourse);
+            tempButton.setOnMouseClicked(pickCourse(tempCourse, rightPanel, accText));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane accountListPanel = new ScrollPane(panel);
+        return makeScrollablePanel(accountListPanel);
+    }
+
+    private HBox makeCourseListButton(String courseID) {
+        Text IDdisplay = new Text(courseID);
+        IDdisplay.getStyleClass().add("list-id");
+
+        HBox listButton = new HBox(IDdisplay);
+        listButton.setAlignment(Pos.CENTER);
+        listButton.setSpacing(20.0);
+        listButton.setPadding(new Insets(10));
+        listButton.getStyleClass().add("list-button");
+
+        return listButton;
+    }
+
+
+    private EventHandler pickCourse(String tempCourse, VBox rightPanel, Text accText){
+        return event -> {
+
+            ArrayList<Button> accountBtnsList = new ArrayList<>();
+
+            accountBtnsList.add(currentButtons.get("EDIT COURSE"));
+            accountBtnsList.add(currentButtons.get("ASSIGN MODULE TO COURSE"));
+
+            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
+            accountBtns = stylePanelActions(accountBtns);
 
             VBox accountBtnView = new VBox(accountBtns);
 

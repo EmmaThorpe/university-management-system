@@ -57,6 +57,13 @@ public class ManagerController{
                // manUI.studentDecision(getMarks(manUI.getSelectedVal()));
                 buttons =manUI.getCurrentButtons();
                 break;
+            case "MANAGE COURSES":
+                List a = new ArrayList<>();
+                a.add("b");
+                a.add("c");
+                a.add("d");
+                manUI.courses(a, null);
+                buttons =manUI.getCurrentButtons();
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));

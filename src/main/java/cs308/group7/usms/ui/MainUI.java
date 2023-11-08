@@ -330,5 +330,25 @@ public class MainUI {
         return notfiCard;
     }
 
+    protected void twoPanelLayout(VBox left, VBox right, String title){
+
+        HBox toolbar = makeToolbar(title);
+
+        HBox actionPanel = new HBox(left, right);
+
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
 
 }
