@@ -72,7 +72,6 @@ public class LoginUI extends MainUI{
         VBox userField = new VBox(userFieldLabel, userOptions);
         userField.setPadding(new Insets(5));
 
-
         VBox emailField = textAndField("EMAIL", emailCheck());
         VBox forenameField = textAndField("FORENAME", lengthCheck("FORENAME"));
         VBox surnameField = textAndField("SURNAME", lengthCheck("SURNAME"));
@@ -80,17 +79,18 @@ public class LoginUI extends MainUI{
         VBox confirmPasswordField = textAndField("CONFIRM PASSWORD", confirmPasswordCheck());
         VBox qualificationField = textAndField("QUALIFICATION", lengthCheck("QUALIFICATION"));
 
-
         HBox.setHgrow(forenameField, Priority.ALWAYS);
         HBox.setHgrow(surnameField, Priority.ALWAYS);
         HBox nameField = new HBox(forenameField, surnameField);
         nameField.setSpacing(10.0);
 
-        VBox formContent = new VBox(userField, emailField, nameField, passwordField, confirmPasswordField);
-        formContent.setPadding(new Insets(5));
-        formContent.setSpacing(5);
+        VBox formFields = new VBox(userField, emailField, nameField, passwordField, confirmPasswordField);
+        formFields.setPadding(new Insets(5));
+        formFields.setSpacing(5);
 
-        userSelected.selectedToggleProperty().addListener(toggleUser(userSelected, formContent, qualificationField));
+        ScrollPane fieldScroll = new ScrollPane(formFields);
+
+        userSelected.selectedToggleProperty().addListener(toggleUser(userSelected, fieldScroll, qualificationField));
 
         Button Submit = inputButton("SUBMIT");
 
@@ -100,6 +100,8 @@ public class LoginUI extends MainUI{
         Button returnBtn = inputButton("RETURN TO LOGIN");
         returnBtn.getStyleClass().add("outline-button");
 
+        VBox formContent = new VBox(fieldScroll);
+        formContent.setAlignment(Pos.BASELINE_CENTER);
         HBox formBtns = bottomButtons(new HBox(Submit, returnBtn));
 
         createScene("SIGN UP", formContent, formBtns);
@@ -224,13 +226,17 @@ public class LoginUI extends MainUI{
     }
 
 
-    protected ChangeListener<Toggle> toggleUser(ToggleGroup userSelected, VBox formContent, VBox qualificationField){
+    protected ChangeListener<Toggle> toggleUser(ToggleGroup userSelected, ScrollPane formContent, VBox qualificationField){
         return (observableValue, currentToggle, newToggle) -> {
             if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
-                formContent.getChildren().add(qualificationField);
+                VBox fields = (VBox) formContent.getContent();
+                fields.getChildren().add(qualificationField);
+                formContent.contentProperty().set(fields);
                 checkValidFields("STUDENT", false);
             } else {
-                formContent.getChildren().remove(qualificationField);
+                VBox fields = (VBox) formContent.getContent();
+                fields.getChildren().remove(qualificationField);
+                formContent.contentProperty().set(fields);
                 checkValidFields("STUDENT", true);
 
             }

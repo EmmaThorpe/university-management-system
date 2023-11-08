@@ -65,22 +65,6 @@ public class ManagerUI extends MainUI{
 
     public void accounts(List<User> accountList) {
         resetCurrentValues();
-
-        Dialog modalTest = new Dialog();
-
-        ArrayList<String> options = new ArrayList<String>();
-        options.add("option 1");
-        options.add("option 2");
-        options.add("option 3");
-
-        modalTest.setDialogPane(makeChoiceModal("hello", "world",
-                options));
-
-        Button button = new Button("Show Dialog");
-        button.setOnAction(e -> {
-            modalTest.showAndWait();
-        });
-
         HBox toolbar = makeToolbar();
 
         Text accountText = new Text();
@@ -101,7 +85,6 @@ public class ManagerUI extends MainUI{
         root.setTop(toolbar);
         BorderPane.setMargin(toolbar, new Insets(15));
         BorderPane.setMargin(actionPanel, new Insets(15));
-        root.setBottom(button);
 
         root.setPadding(new Insets(10));
 
@@ -131,18 +114,15 @@ public class ManagerUI extends MainUI{
                                   boolean activated) {
             Text nameDisplay = new Text(fname.concat(" ".concat(lname)));
 
-            StackPane iconStack = new StackPane();
-            Circle appGraphicBack = new Circle(25);
-            appGraphicBack.getStyleClass().add("list-back");
             FontIcon appGraphic;
             if (userType.equals(User.UserType.STUDENT)) {
                 appGraphic =  new FontIcon(FontAwesomeSolid.USER);
-            } else {
+            } else if (userType.equals(User.UserType.LECTURER)) {
                 appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
+            } else {
+                appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
             }
-            appGraphic.getStyleClass().add("list-graphic");
-
-            iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+            StackPane iconStack = makeCircleIcon(25, "list-back" ,appGraphic, "list-graphic");
 
             Text IDdisplay = new Text(userID);
             IDdisplay.getStyleClass().add("list-id");

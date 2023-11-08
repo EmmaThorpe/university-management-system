@@ -18,10 +18,7 @@ import org.kordamp.ikonli.fontawesome5.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
-import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MainUI {
     Stage currentStage = new Stage();
@@ -93,14 +90,8 @@ public class MainUI {
      **/
 
     private VBox setTitle(String titleText) {
-        StackPane iconStack = new StackPane();
-        Circle appGraphicBack = new Circle(35);
-        appGraphicBack.getStyleClass().add("login-back");
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        appGraphic.getStyleClass().add("login-graphic");
-
-        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
-
+        StackPane iconStack = makeCircleIcon(35, "login-back" ,appGraphic, "login-graphic");
 
         Text titleName = new Text(titleText);
         titleName.getStyleClass().add("login-title");
@@ -110,13 +101,8 @@ public class MainUI {
         return title;
     }
     protected HBox makeToolbar() {
-        StackPane iconStack = new StackPane();
-        Circle appGraphicBack = new Circle(25);
-        appGraphicBack.getStyleClass().add("toolbar-back");
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        appGraphic.getStyleClass().add("toolbar-graphic");
-
-        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+        StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
 
         Text title = new Text("TITLE");
         title.setTranslateY(5.0);
@@ -173,22 +159,35 @@ public class MainUI {
         }
         return btns;
     }
+    protected DialogPane makeModal(String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
 
-    /**
-     * Modal components
-     **/
-    protected DialogPane makeDefaultModal(String headTxt, String contentTxt) {
         DialogPane modal = new DialogPane();
 
         modal.getStyleClass().add("modal");
 
         Text headerTitle = new Text(headTxt.toUpperCase());
         headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox(headerTitle);
-        header.getStyleClass().add("modal-header");
+        HBox header = new HBox();
 
-        Text contentItems = new Text(contentTxt);
-        VBox content = new VBox(contentItems);
+        FontIcon modalGraphic;
+        if (isSuccess) {
+            header.getStyleClass().add("modal-header-suc");
+            modalGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
+            modalGraphic.getStyleClass().add("modal-graphic");
+            header.getChildren().add(modalGraphic);
+        } else if (isError) {
+            header.getStyleClass().add("modal-header-err");
+            modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
+            modalGraphic.getStyleClass().add("modal-graphic");
+            header.getChildren().add(modalGraphic);
+        } else {
+            header.getStyleClass().add("modal-header");
+        }
+
+        header.getChildren().add(headerTitle);
+        header.setSpacing(10);
+
+        VBox content = new VBox(modalContent);
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 
@@ -203,85 +202,24 @@ public class MainUI {
 
         return modal;
     }
-
-    protected DialogPane makeChoiceModal(String headTxt, String contentTxt, ArrayList<String> choices) {
-        DialogPane modal = new DialogPane();
-
-        modal.getStyleClass().add("modal");
-
-        Text headerTitle = new Text(headTxt.toUpperCase());
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox(headerTitle);
-        header.getStyleClass().add("modal-header");
-
-        Text contentItems = new Text(contentTxt);
-
+    protected ComboBox makeDropdown(ArrayList<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
         for (String choice : choices) {
             choiceDropdown.getItems().add(choice);
         }
         choiceDropdown.getSelectionModel().select(0);
-        VBox content = new VBox(contentItems, choiceDropdown);
-        content.setPadding(new Insets(10));
-        content.setAlignment(Pos.CENTER);
-
-        modal.setHeader(header);
-        modal.setContent(content);
-
-        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        modal.getButtonTypes().addAll(okButton, cancelButton);
-        modal.lookupButton(cancelButton).getStyleClass().add("outline-button");
-
-        return modal;
-    }
-    protected DialogPane makeSuccessModal(String contentTxt) {
-        DialogPane modal = new DialogPane();
-
-        modal.getStyleClass().add("modal");
-
-        Text headerTitle = new Text("SUCCESS");
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox(headerTitle);
-        header.getStyleClass().add("modal-header-suc");
-
-        Text contentItems = new Text(contentTxt);
-        VBox content = new VBox(contentItems);
-        content.setPadding(new Insets(10));
-
-        modal.setHeader(header);
-        modal.setContent(content);
-
-        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
-        modal.getButtonTypes().addAll(okButton);
-
-        return modal;
-    }
-    protected DialogPane makeErrorModal(String contentTxt) {
-        DialogPane modal = new DialogPane();
-
-        modal.getStyleClass().add("modal");
-
-        Text headerTitle = new Text("ERROR");
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox(headerTitle);
-        header.getStyleClass().add("modal-header-err");
-
-        Text contentItems = new Text(contentTxt);
-        VBox content = new VBox(contentItems);
-        content.setPadding(new Insets(10));
-
-        modal.setHeader(header);
-        modal.setContent(content);
-
-        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
-        modal.getButtonTypes().addAll(okButton);
-
-        return modal;
+        return choiceDropdown;
     }
 
-
+    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
+        StackPane iconStack = new StackPane();
+        Circle appGraphicBack = new Circle(radius);
+        appGraphicBack.getStyleClass().add(backgroundStyle);
+        FontIcon appGraphic = icon;
+        appGraphic.getStyleClass().add(graphicStyle);
+        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+        return iconStack;
+    }
 
     public void createScene(String top, Pane mainContent, Pane bottom){
         VBox title = setTitle(top);
@@ -305,7 +243,6 @@ public class MainUI {
             field=new TextField();
         }
 
-
         currentTextFields.put(text, field);
 
         VBox inputField = new VBox(label, field);
@@ -313,8 +250,6 @@ public class MainUI {
 
         return inputField;
     }
-
-
 
     protected Text inputText(String text){
         Text inputText = new Text();
