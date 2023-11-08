@@ -120,6 +120,8 @@ public class ManagerUI {
         root.setTop(toolbar);
         BorderPane.setMargin(toolbar, new Insets(15));
         BorderPane.setMargin(actionPanel, new Insets(15));
+        root.setLeft(makeModal());
+
 
         root.setPadding(new Insets(10));
 
@@ -207,8 +209,8 @@ public class ManagerUI {
                 }
 
                 Button passResetBtn = new Button("PASSWORD RESET");
-                Button activatedBtn = new Button("ACTIVATED");
-                Button deactivatedBtn = new Button("DEACTIVATED");
+                Button activatedBtn = new Button("ACTIVATE");
+                Button deactivatedBtn = new Button("DEACTIVATE");
 
                 accountBtnsList.add(passResetBtn);
                 accountBtnsList.add(activatedBtn);
@@ -226,8 +228,10 @@ public class ManagerUI {
                 }
 
                 VBox accountBtnView = new VBox(accountBtns);
-                accountBtnView.setSpacing(10.0);
-                accountBtnView.setPadding(new Insets(10.0));
+
+                accountBtnView.setAlignment(Pos.CENTER);
+                accountBtnView.setSpacing(20.0);
+                accountBtnView.setPadding(new Insets(10));
 
                 rightPanel.getChildren().set(0, accText);
                 rightPanel.getChildren().set(1, accountBtnView);
@@ -271,8 +275,6 @@ public class ManagerUI {
 
         return container;
     }
-
-
     private Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
@@ -284,5 +286,33 @@ public class ManagerUI {
             i++;
         }
         return btns;
+    }
+
+    private DialogPane makeModal() {
+        DialogPane modal = new DialogPane();
+
+        modal.getStyleClass().add("modal");
+
+        Text headerTitle = new Text("hi");
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox(headerTitle);
+        header.getStyleClass().add("modal-header");
+
+        modal.setHeader(header);
+
+        Text contentItems = new Text("hello world");
+        VBox content = new VBox(contentItems);
+        content.setAlignment(Pos.BASELINE_CENTER);
+        content.setPadding(new Insets(20));
+
+        ButtonType ok = ButtonType.OK;
+        ButtonType cancel = ButtonType.CLOSE;
+
+        ButtonBar modalActions = new ButtonBar();
+
+        modal.setContent(contentItems);
+
+        return modal;
+
     }
 }

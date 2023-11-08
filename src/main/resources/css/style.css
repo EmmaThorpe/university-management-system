@@ -184,6 +184,34 @@
     -fx-fill: -color-white;
 }
 
+.modal {
+    -fx-background-color: -drop-shadow;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-border-color: -color-light-grey;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-text-fill: -color-dark-grey;
+    -fx-max-width: 650;
+    -fx-min-width: 500;
+    -fx-padding: 0 10;
+}
+
+.modal-header-text {
+    -fx-fill: -color-white;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 15;
+    -fx-padding: 10;
+}
+
+.modal-header {
+    -fx-background-color: -color-pri;
+    -fx-border-color: -color-pri;
+    -fx-min-width: 50;
+    -fx-padding: 10;
+}
+
 .card, .card-toggle, .panel, .list-button {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
@@ -288,33 +316,3 @@
 .notfi-text {
     -fx-fill: -color-dark-grey;
 }
-
-bread-crumb-bar {
-    -fx-background-color: transparent;
-}
-
-.bread-crumb-bar .button {
-    -fx-padding: 10 15;
-    -fx-content-display: left;
-    -fx-background-color: transparent;
-    -fx-background-position: left center;
-    -fx-background-image: url("../img/sep.png");
-    -fx-background-color: transparent;
-    -fx-border-color: null;
-    -fx-border-insets: 0;
-}
-
-.crumb {
-    -fx-text-fill: -color-white;
-    -fx-opacity: 0.9;
-}
-.crumb:hover, .crumb:selected, .crumb:focused
-{
-    -fx-background-color: transparent;
-    -fx-border-color: null;
-    -fx-text-fill: -color-white;
-    -fx-effect: none;
-    -fx-translate-y: 0;
-    -fx-opacity: 1;
-}
-
