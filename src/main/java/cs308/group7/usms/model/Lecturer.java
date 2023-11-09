@@ -4,7 +4,6 @@ import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +43,15 @@ public class Lecturer extends User {
 
     public String getQualification() { return qualification; }
 
-
-    public String getModuleID() { return moduleID; }
-
+    public Module getModule() throws SQLException {
+        try {
+            return new Module(moduleID);
+        }
+        catch (SQLException e) {
+            System.out.println("Failed to find module " + moduleID + ".");
+            throw new SQLException(e.getMessage() + " - " + this.getUserID() + "'s getModule failed");
+        }
+    }
 
     /**
      * Assigns the lecturer to a module
