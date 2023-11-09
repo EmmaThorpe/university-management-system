@@ -163,12 +163,12 @@ public class MainUI {
         }
         return btns;
     }
-    protected void makeModal(Button trigger, String headTxt, VBox modalContent, boolean isSuccess, boolean isError) {
+    protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean isSuccess, boolean isError) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
 
-        Text headerTitle = new Text(headTxt.toUpperCase());
+        Text headerTitle = new Text(btnTxt.toUpperCase());
         headerTitle.getStyleClass().add("modal-header-text");
         HBox header = new HBox();
 
@@ -190,18 +190,20 @@ public class MainUI {
         header.getChildren().add(headerTitle);
         header.setSpacing(10);
 
-        VBox content = new VBox(modalContent);
+        modalDialog.setHeader(header);
+
+
+        Button okButton = inputButton(btnTxt);
+        Button cancelButton = inputButton("CANCEL");
+
+        HBox btnContainer = new HBox(okButton, cancelButton);
+
+        VBox content = new VBox(modalContent, btnContainer);
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 
-        modalDialog.setHeader(header);
         modalDialog.setContent(content);
-
-        ButtonType okButton = new ButtonType("CONFIRM", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        modalDialog.getButtonTypes().addAll(okButton, cancelButton);
-        modalDialog.lookupButton(cancelButton).getStyleClass().add("outline-button");
+        cancelButton.getStyleClass().add("outline-button");
 
         Dialog modal = new Dialog();
         modal.setDialogPane(modalDialog);
@@ -209,6 +211,8 @@ public class MainUI {
             modal.showAndWait();
         });
     }
+
+
     public ComboBox makeDropdown(List<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
         for (String choice : choices) {
