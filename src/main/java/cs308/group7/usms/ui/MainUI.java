@@ -307,6 +307,7 @@ public class MainUI {
     }
 
 
+
     private HBox setNotficationCard(String msg, Boolean tick) {
         FontIcon notfiGraphic;
         if(tick){
