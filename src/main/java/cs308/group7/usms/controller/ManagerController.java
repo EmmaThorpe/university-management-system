@@ -35,7 +35,7 @@ public class ManagerController{
                 buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
                 break;
             case "MANAGE ACCOUNTS":
-                manUI.accounts(getUsers(), null, null);
+                manUI.accounts(getUsers(), getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
                 buttons.get("ACTIVATE").setOnAction((event)-> {
                     pageSetter("MANAGE ACCOUNTS", false);
@@ -58,11 +58,7 @@ public class ManagerController{
                 buttons =manUI.getCurrentButtons();
                 break;
             case "MANAGE COURSES":
-                List a = new ArrayList<>();
-                a.add("b");
-                a.add("c");
-                a.add("d");
-                manUI.courses(a, null);
+                manUI.courses(getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
@@ -137,13 +133,29 @@ public class ManagerController{
 
     }
 
-    /**Gets a list of all modules
-     * @return ArrayList containing the id of all modules
+    /**Gets a list of all courses
+     * @return List containing the id of all modules
      */
-    public ArrayList<String> getModules(){
-        return null;
+    public List<String> getCourses(){
+        //test values for view
+        List<String> courses = new ArrayList<>();
+        courses.add("Computer & Electronic Systems");
+        courses.add("Computer Science");
+        courses.add("Software Engineering");
+        return courses;
     }
 
+    /**Gets a list of all modules
+     * @return List containing the id of all modules
+     */
+    public List<String> getModules(){
+        //test values for view
+        List<String> modules = new ArrayList<>();
+        modules.add("CS308: Building Software Systems");
+        modules.add("CS312: Web Applications Development");
+        modules.add("CS316: Functional Programming");
+        return modules;
+    }
 
     /**Gets info of the curriculum the student is in
      * @param moduleID
