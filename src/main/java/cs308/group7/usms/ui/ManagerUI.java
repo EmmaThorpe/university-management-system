@@ -1,6 +1,6 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.model.User;
+import cs308.group7.usms.model.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -55,7 +55,7 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
-    public void accounts(List<User> accountList, List<String> coursesList, List<String> moduleList) {
+    public void accounts(List<User> accountList, List<Course> coursesList, List<String> moduleList) {
         resetCurrentValues();
 
         inputButton("ISSUE STUDENT DECISION");
@@ -65,9 +65,9 @@ public class ManagerUI extends MainUI{
         inputButton("DEACTIVATE");
         Button enrol = inputButton("ENROL STUDENT INTO COURSE");
 
-        makeModal(assign, "assign to module", new VBox(), false, false);
+        makeModal(assign, "assign to module", assignModule(moduleList), false, false);
         makeModal(reset, "reset password", resetPass(), false, false);
-        makeModal(enrol, "enrol to course", new VBox(), false, false);
+        makeModal(enrol, "enrol to course", enrolCourse(coursesList), false, false);
 
         Text accountText = new Text();
 
@@ -102,6 +102,11 @@ public class ManagerUI extends MainUI{
                                   boolean activated) {
             Text nameDisplay = new Text(fname.concat(" ".concat(lname)));
 
+            HBox activatedDisplay = activeDetail(
+                    (activated ? "ACTIVATED" : "DEACTIVATED"),
+                    activated
+            );
+
             FontIcon appGraphic;
             if (userType.equals(User.UserType.STUDENT)) {
                 appGraphic =  new FontIcon(FontAwesomeSolid.USER);
@@ -110,30 +115,11 @@ public class ManagerUI extends MainUI{
             } else {
                 appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
             }
-            StackPane iconStack = makeCircleIcon(25, "list-back" ,appGraphic, "list-graphic");
 
-            Text IDdisplay = new Text(userID);
-            IDdisplay.getStyleClass().add("list-id");
-
-            HBox activatedDisplay = new HBox();
-            if (activated) {
-                activatedDisplay.getChildren().add(new Text("ACTIVATED"));
-                activatedDisplay.getStyleClass().add("list-active");
-            } else {
-                activatedDisplay.getChildren().add(new Text("DEACTIVATED"));
-                activatedDisplay.getStyleClass().add("list-inactive");
-            }
-
-            VBox userDetails = new VBox(nameDisplay, activatedDisplay);
+        VBox userDetails = new VBox(nameDisplay, activatedDisplay);
             userDetails.setSpacing(5.0);
 
-            HBox listButton = new HBox(IDdisplay, iconStack, userDetails);
-            listButton.setAlignment(Pos.CENTER);
-            listButton.setSpacing(20.0);
-            listButton.setPadding(new Insets(10));
-            listButton.getStyleClass().add("list-button");
-
-            HBox.setHgrow(userDetails, Priority.ALWAYS);
+            HBox listButton = makeListButton(userID, appGraphic, userDetails);
             return listButton;
     }
 
@@ -178,9 +164,7 @@ public class ManagerUI extends MainUI{
         };
     }
 
-
-
-    public void courses(List<String> courseList, List<String> moduleList) {
+    public void courses(List<Course> courseList, List<String> moduleList) {
         resetCurrentValues();
 
         Button add = inputButton("ADD COURSE");
@@ -202,13 +186,17 @@ public class ManagerUI extends MainUI{
         twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
     }
 
-    private VBox courseButtons(List<String> accountList, VBox rightPanel, Text accText){
+    private VBox courseButtons(List<Course> courseList, VBox rightPanel, Text accText){
         VBox panel = new VBox();
-        String tempCourse;
+        Course tempCourse;
         HBox tempButton;
-        for (String course : accountList) {
+        for (Course course : courseList) {
             tempCourse = course;
-            tempButton = makeCourseListButton(tempCourse);
+            tempButton = makeCourseListButton(
+                    tempCourse.getName(),
+                    tempCourse.getLevel(),
+                    tempCourse.getLength()
+            );
             tempButton.setOnMouseClicked(pickCourse(tempCourse, rightPanel, accText));
             panel.getChildren().add(tempButton);
         }
@@ -220,21 +208,17 @@ public class ManagerUI extends MainUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-    private HBox makeCourseListButton(String courseID) {
-        Text IDdisplay = new Text(courseID);
-        IDdisplay.getStyleClass().add("list-id");
+    private HBox makeCourseListButton(String name, String level, Integer years) {
+        HBox yearsDisplay = listDetail("YEARS" , years.toString());
+        HBox levelDisplay = listDetail("LEVEL" , level);
 
-        HBox listButton = new HBox(IDdisplay);
-        listButton.setAlignment(Pos.CENTER);
-        listButton.setSpacing(20.0);
-        listButton.setPadding(new Insets(10));
-        listButton.getStyleClass().add("list-button");
-
+        VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
+        courseDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
         return listButton;
     }
 
-
-    private EventHandler pickCourse(String tempCourse, VBox rightPanel, Text accText){
+    private EventHandler pickCourse(Course tempCourse, VBox rightPanel, Text accText){
         return event -> {
 
             ArrayList<Button> accountBtnsList = new ArrayList<>();
@@ -265,11 +249,35 @@ public class ManagerUI extends MainUI{
         return container;
     }
 
-    private VBox enrolCourse() {
-        VBox setPass = inputField("New password", false);
-        VBox confirmPass = inputField("Confirm new password", false);
+    private VBox enrolCourse(List<Course> courses) {
+        List<String> courseNames = new ArrayList<String>();
 
-        VBox container = new VBox(setPass, confirmPass);
+        for (Course c : courses) {
+            courseNames.add(c.getName());
+        }
+        VBox setCourse = dropdownField("Course to enrol to",
+                courseNames);
+
+        VBox container = new VBox(setCourse);
         return container;
     }
+
+    private VBox assignModule(List<String> modules) {
+        VBox setModule = dropdownField("Module to assign to",
+                modules);
+        VBox container = new VBox(setModule);
+        return container;
+    }
+
+    private VBox editCourse(Course currentCourse) {
+        Integer curYears = currentCourse.getLength();
+
+        VBox setDesc = inputFieldSetValue("Edit Description", currentCourse.getDescription());
+        VBox setLevel = inputFieldSetValue("Edit Level", currentCourse.getLevel());
+        VBox setYear = inputFieldSetValue("Edit Length", curYears.toString());
+
+        VBox container = new VBox(setDesc, setLevel, setYear);
+        return container;
+    }
+
 }

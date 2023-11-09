@@ -141,7 +141,6 @@ public class MainUI {
 
         return panel;
     }
-
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -210,7 +209,7 @@ public class MainUI {
             modal.showAndWait();
         });
     }
-    public ComboBox makeDropdown(ArrayList<String> choices) {
+    public ComboBox makeDropdown(List<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
         for (String choice : choices) {
             choiceDropdown.getItems().add(choice);
@@ -227,6 +226,48 @@ public class MainUI {
         appGraphic.getStyleClass().add(graphicStyle);
         iconStack.getChildren().addAll(appGraphicBack, appGraphic);
         return iconStack;
+    }
+
+    protected HBox makeListButton(String id, FontIcon listGraphic, VBox listContent) {
+        Label nameDisplay = new Label(id);
+        nameDisplay.getStyleClass().add("list-id");
+
+        StackPane iconStack = makeCircleIcon(25, "list-back" ,listGraphic, "list-graphic");
+
+        listContent.setSpacing(5.0);
+
+        HBox listButton = new HBox(nameDisplay, iconStack, listContent);
+        listButton.setAlignment(Pos.CENTER);
+        listButton.setSpacing(20.0);
+        listButton.setPadding(new Insets(10));
+        listButton.getStyleClass().add("list-button");
+
+        HBox.setHgrow(listContent, Priority.ALWAYS);
+        return listButton;
+    }
+    protected HBox listDetail(String title, String content){
+        HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
+        titleDisplay.getStyleClass().add("list-detail");
+
+        Text contentDisplay =new Text(content);
+
+        HBox detail = new HBox(titleDisplay, contentDisplay);
+        detail.setPadding(new Insets(10));
+        detail.setSpacing(10);
+
+        return detail;
+    }
+
+    protected HBox activeDetail(String text, Boolean isActive){
+        HBox activatedDisplay = new HBox();
+        if (isActive) {
+            activatedDisplay.getChildren().add(new Text(text));
+            activatedDisplay.getStyleClass().add("list-active");
+        } else {
+            activatedDisplay.getChildren().add(new Text(text));
+            activatedDisplay.getStyleClass().add("list-inactive");
+        }
+        return activatedDisplay;
     }
 
     public void createScene(String top, Pane mainContent, Pane bottom){
@@ -259,7 +300,19 @@ public class MainUI {
         return inputField;
     }
 
-    protected VBox dropdownField(String text, ArrayList<String> choices){
+    protected VBox inputFieldSetValue(String text, String value){
+        Label label=new Label(text);
+        TextField field = new TextField(value);
+
+        currentFields.put(text, field);
+
+        VBox inputField = new VBox(label, field);
+        inputField.setPadding(new Insets(10));
+
+        return inputField;
+    }
+
+    protected VBox dropdownField(String text, List<String> choices){
         Label label=new Label(text);
         ComboBox field = makeDropdown(choices);
 

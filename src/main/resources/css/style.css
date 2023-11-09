@@ -317,7 +317,7 @@
     -fx-fill: -color-light-grey;
 }
 
-.list-active, .list-inactive {
+.list-active, .list-inactive, .list-detail {
     -fx-padding: 2px 15px;
     -fx-text-alignment: center;
     -fx-background-insets: 0, 0, -1, 0;
@@ -339,15 +339,20 @@
     -fx-border-color: -color-ter-light;
 }
 
+.list-detail {
+    -fx-background-color: -color-pri-light;
+    -fx-border-color: -color-pri-light;
+}
+
 .list-id {
-    -fx-fill: -color-dark-grey;
+    -fx-text-fill: -color-dark-grey;
     -fx-font-family: "Poppins";
     -fx-font-weight: bold;
     -fx-font-size: 12;
     -fx-padding: 0.2em 0px;
+    -fx-max-width: 100;
+    -fx-wrap-text: true;
 }
-
-
 
 .notfi-graphic {
     -fx-icon-color: -color-ter;

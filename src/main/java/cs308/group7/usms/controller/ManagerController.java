@@ -1,10 +1,9 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.model.Course;
 import cs308.group7.usms.model.User;
-import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.sql.Date;
@@ -136,16 +135,31 @@ public class ManagerController{
     /**Gets a list of all courses
      * @return List containing the id of all modules
      */
-    public List<String> getCourses(){
+    public List<Course> getCourses(){
         //test values for view
-        List<String> courses = new ArrayList<>();
-        courses.add("Computer & Electronic Systems");
-        courses.add("Computer Science");
-        courses.add("Software Engineering");
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course("G600",
+                "Software Engineering",
+                "Software Engineering will provide you with the essential skills to become a professional developer " +
+                        "of high-quality software, focusing on large-scale software systems.",
+                "Undergraduate",
+                4));
+        courses.add(new Course("GHK6",
+                "Computer & Electronic Systems",
+                "Computer and Electronic Systems is one of the few UK degrees with triple accreditation from the Institution of Engineering and Technology, British Computer Society and the Science Council.",
+                "Undergraduate",
+                4));
+        courses.add(new Course("G400",
+                "Computer Science",
+                "Computer Science demands and develops a challenging mix of skills and abilities. Our graduates not only understand new technologies but can influence their development.",
+                "Undergraduate",
+                4));
         return courses;
     }
 
-    /**Gets a list of all modules
+    /**
+     * Gets a list of all modules
+     *
      * @return List containing the id of all modules
      */
     public List<String> getModules(){

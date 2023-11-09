@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 public class Course {
-
     private final String courseID;
     private final String name;
     private String description;
