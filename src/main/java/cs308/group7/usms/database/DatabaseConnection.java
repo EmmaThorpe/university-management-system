@@ -157,6 +157,11 @@ public class DatabaseConnection implements Closeable {
         return result;
     }
 
+    public String sqlString(String s) {
+        s = s.replaceAll("'", "\\\\'");
+        return "'" + s + "'";
+    }
+
     /**
      * Closes the database connection pool
      */

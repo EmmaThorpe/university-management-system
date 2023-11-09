@@ -4,8 +4,10 @@ import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
 
-public class App {
-    public static DatabaseConnection databaseConnection;
+import static javafx.application.Application.launch;
+
+public class App{
+    private static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
         // Create database pool (no longer necessary, is created as needed)
