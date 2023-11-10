@@ -17,6 +17,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class ManagerUI extends UserUI{
@@ -70,7 +71,7 @@ public class ManagerUI extends UserUI{
      * Accounts Dashboard
      **/
 
-    public void accounts(List<User> accountList, List<Course> coursesList, List<Module> moduleList) {
+    public void accounts(List<HashMap<String, String>> accountList, List<Course> coursesList, List<Module> moduleList) {
         resetCurrentValues();
 
         ArrayList<Button> accountBtnsList = new ArrayList<Button>();
@@ -102,15 +103,18 @@ public class ManagerUI extends UserUI{
 
     }
 
-    private VBox userButtons(List<User> accountList, VBox rightPanel, VBox details){
+    private VBox userButtons(List<HashMap<String, String>> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
-        User tempUser;
         HBox tempButton;
-        for (User user : accountList) {
-            tempUser = user;
-            tempButton = makeUserListButton(tempUser.getUserID(), tempUser.getForename(), tempUser.getSurname(),
-                    tempUser.getType(), tempUser.getActivated());
-            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, details));
+        for (HashMap<String, String> account : accountList) {
+            tempButton = makeUserListButton(
+                    account.get("userID"),
+                    account.get("forename"),
+                    account.get("surname"),
+                    account.get("userType"),
+                    account.get("activated")
+            );
+            tempButton.setOnMouseClicked(pickUser(account, rightPanel, details));
             panel.getChildren().add(tempButton);
         }
 
@@ -121,19 +125,21 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-    private HBox makeUserListButton(String userID, String fname, String lname, User.UserType userType,
-                                  boolean activated) {
-            Text nameDisplay = new Text(fname.concat(" ".concat(lname)));
+    private HBox makeUserListButton(String userID, String fname, String lname, String userType,
+                                  String activated) {
+            Text nameDisplay = new Text(fname + " " + lname);
 
-            HBox activatedDisplay = activeDetail(
-                    (activated ? "ACTIVATED" : "DEACTIVATED"),
-                    activated
-            );
+            HBox activatedDisplay = new HBox();
+            if (activated.equals("ACTIVATED")) {
+                activatedDisplay.getChildren().add(activeDetail(activated, true));
+            } else {
+                activatedDisplay.getChildren().add(activeDetail(activated, false));
+            }
 
             FontIcon appGraphic;
-            if (userType.equals(User.UserType.STUDENT)) {
+            if (userType.equals("STUDENT")) {
                 appGraphic =  new FontIcon(FontAwesomeSolid.USER);
-            } else if (userType.equals(User.UserType.LECTURER)) {
+            } else if (userType.equals("LECTURER")) {
                 appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
             } else {
                 appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
@@ -146,27 +152,34 @@ public class ManagerUI extends UserUI{
             return listButton;
     }
 
-    private EventHandler pickUser(User tempUser, VBox rightPanel, VBox accDetails){
+    private EventHandler pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
-            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(tempUser)));
-
+            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(
+                    user.get("userID"),
+                    user.get("managerID"),
+                    user.get("forename"),
+                    user.get("surname"),
+                    user.get("email"),
+                    user.get("DOB"),
+                    user.get("gender"),
+                    user.get("userType"),
+                    user.get("activated")
+            )));
             ArrayList<Button> accountBtnsList = new ArrayList<>();
 
-            if (tempUser.getType().equals(User.UserType.STUDENT)) {
+            if (user.get("userType").equals("STUDENT")) {
                 accountBtnsList.add(currentButtons.get("ISSUE STUDENT DECISION"));
                 accountBtnsList.add(currentButtons.get("ENROL STUDENT INTO COURSE"));
             }
-            if (tempUser.getType().equals(User.UserType.LECTURER)) {
+            if (user.get("userType").equals("LECTURER")) {
                 accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
             }
-
 
             accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
             accountBtnsList.add(currentButtons.get("ACTIVATE"));
             accountBtnsList.add(currentButtons.get("DEACTIVATE"));
 
-
-            if (tempUser.getActivated()) {
+            if (user.get("activated").equals("ACTIVATED")) {
                 currentButtons.get("ACTIVATE").setDisable(true);
                 currentButtons.get("DEACTIVATE").setDisable(false);
             } else {
@@ -189,23 +202,22 @@ public class ManagerUI extends UserUI{
         };
     }
 
-    private VBox userDetailDisplay(User tempUser) {
-        Text idTitle = new Text(tempUser.getUserID());
+    private VBox userDetailDisplay(String userID, String managerID, String forename, String surname, String email, String dob, String gender, String userType, String activated) {
+        Text idTitle = new Text(userID);
         idTitle.getStyleClass().add("info-box-title");
 
         VBox row1 = new VBox(
-            listDetail("FULL NAME", tempUser.getForename().concat(" ".concat(tempUser.getSurname()))),
-            listDetail("EMAIL", tempUser.getEmail()),
-            listDetail("USER TYPE", tempUser.getType().toString())
+            listDetail("FULL NAME", (forename + " " + surname)),
+            listDetail("EMAIL", email),
+            listDetail("DOB", dob),
+            listDetail("GENDER", gender)
+
         );
 
         VBox row2 = new VBox(
-            listDetail("DOB", tempUser.getDOB().toString()),
-            listDetail("GENDER", tempUser.getGender()),
-            listDetail("ACCOUNT STATUS",
-                    (tempUser.getActivated() ? "Active" : "Inactive")
-            )//,
-            //listDetail("MANAGED BY", tempUser.getManager().getUserID())
+            listDetail("USER TYPE", userType),
+            listDetail("STATUS", activated),
+            listDetail("MANAGED BY", managerID)
         );
 
         row1.setSpacing(5);

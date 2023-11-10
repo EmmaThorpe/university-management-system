@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,20 +94,41 @@ public class ManagerController{
     /**Gets all the users
      * @return An ArrayList of users
      */
-    public List<User> getUsers(){
+    public List < HashMap <String, String> > getUsers(){
         List<User> accounts = new ArrayList<>();
-        accounts.add(new User("abc1","def1", "a","b", "a.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
-        accounts.add(new User("abc2","def2", "b","c", "b.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
-        accounts.add(new User("abc3","def3", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
-        accounts.add(new User("abc4","def4", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
-        accounts.add(new User("abc5","def5", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
-        accounts.add(new User("abc6","def6", "x","x", "x.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc1","mng1", "a","b", "a.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
+        accounts.add(new User("abc2","mng1", "b","c", "b.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
+        accounts.add(new User("abc3","mng1", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
+        accounts.add(new User("abc4","mng1", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
+        accounts.add(new User("abc5","mng1", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
+        accounts.add(new User("abc6","mng2", "x","x", "x.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
-        accounts.add(new User("abc7","def7", "y","y", "y.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc7","mng1", "y","y", "y.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
-        accounts.add(new User("abc8","def8", "z","z", "z.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc8","mng2", "z","z", "z.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
-        return accounts;
+
+        List<HashMap<String, String>> users = new ArrayList<HashMap<String, String>>();
+        for (User acc : accounts ) {
+            try {
+                HashMap<String, String> userDetailsMap = new HashMap<String, String>();
+                userDetailsMap.put("userID", acc.getUserID());
+                userDetailsMap.put("managerID", acc.getManager().getUserID());
+                userDetailsMap.put("forename", acc.getForename());
+                userDetailsMap.put("surname", acc.getSurname());
+                userDetailsMap.put("email", acc.getEmail());
+                userDetailsMap.put("DOB", acc.getDOB().toString());
+                userDetailsMap.put("gender", acc.getGender());
+                userDetailsMap.put("userType", acc.getType().toString());
+                userDetailsMap.put("activated", acc.getActivated()? "ACTIVATED" : "DEACTIVATED");
+
+                users.add(userDetailsMap);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return users;
     }
 
 
@@ -200,7 +222,6 @@ public class ManagerController{
      */
     public List<Lecturer> getLecturers(){
         //test values for view
-        List<User> users = getUsers();
         List<Lecturer> lecturers = new ArrayList<>();
         try {
             lecturers.add(new Lecturer(
