@@ -274,14 +274,6 @@ public class MainUI {
         modalContent.getChildren().set(0, updateContent);
     }
 
-    //will return the header id, that returns "SUCCESS" if the modal
-    //was a success modal, "ERROR" if error modal, and the empty
-    //string when it is neither
-    protected String getModalStatus(Dialog modal){
-        String modalStatus = modal.getDialogPane().getHeader().getId();
-        return modalStatus;
-    }
-
     protected HBox modalButtonBar(Button action, DialogPane modal){
         ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 

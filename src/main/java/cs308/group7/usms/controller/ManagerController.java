@@ -1,10 +1,13 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.model.Course;
+import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.model.User;
+import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.control.Button;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.util.List;
@@ -59,6 +62,9 @@ public class ManagerController{
             case "MANAGE COURSES":
                 manUI.courses(getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
+            case "MANAGE MODULES":
+                manUI.modules(getModules(), getLecturers());
+                buttons =manUI.getCurrentButtons();
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
@@ -92,7 +98,12 @@ public class ManagerController{
         accounts.add(new User("abc3","def3", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
         accounts.add(new User("abc4","def4", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
         accounts.add(new User("abc5","def5", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
-
+        accounts.add(new User("abc6","def6", "x","x", "x.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+                true));
+        accounts.add(new User("abc7","def7", "y","y", "y.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+                true));
+        accounts.add(new User("abc8","def8", "z","z", "z.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+                true));
         return accounts;
     }
 
@@ -103,12 +114,6 @@ public class ManagerController{
         return null;
     }
 
-    /**Gets the userIDs of all lecturers
-     * @return An ArrayList of lecturers' userIDs
-     */
-    public ArrayList<String> getLecturers(){
-        return null;
-    }
 
     /**Takes in a userID and activates the user
      * @param userID
@@ -162,13 +167,60 @@ public class ManagerController{
      *
      * @return List containing the id of all modules
      */
-    public List<String> getModules(){
+    public List<Module> getModules(){
         //test values for view
-        List<String> modules = new ArrayList<>();
-        modules.add("CS308: Building Software Systems");
-        modules.add("CS312: Web Applications Development");
-        modules.add("CS316: Functional Programming");
+        List<Module> modules = new ArrayList<>();
+        modules.add(new Module("CS308",
+                        "Building Software Systems",
+                        "Development in a group setting of significant systems from scratch aiming not just at any " +
+                                "solution but a good solution, and to be introduced to more general Software Engineering topics.",
+                        20));
+        modules.add(new Module("CS312",
+                "Web Applications Development",
+                "Introduces the basic concepts and fundamental technical skills required for web app development. ",
+                20));
+        modules.add(new Module("CS316",
+                "Functional Programming",
+                "Functional Programming is a style of programming based on writing programs that generate their results by constructing new data, instead of modifying existing data. This is a simple idea that has profound consequences for how we write programs, and the kinds of programs that are made easier to write",
+                20));
         return modules;
+    }
+
+
+    /**
+     * Gets a list of all lecturers
+     *
+     * @return List containing the id of all lecturers
+     */
+    public List<Lecturer> getLecturers(){
+        //test values for view
+        List<Lecturer> lecturers = new ArrayList<>();
+        try {
+            lecturers.add(new Lecturer(
+                    "abc4",
+                    "CS308",
+                    "Doctor"
+            ));
+
+            lecturers.add(new Lecturer(
+                    "abc6",
+                    "CS316",
+                    "Doctor"
+            ));
+            lecturers.add(new Lecturer(
+                    "abc7",
+                    "CS312",
+                    "Doctor"
+            ));
+            lecturers.add(new Lecturer(
+                    "abc8",
+                    "CS312",
+                    "Doctor"
+            ));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lecturers;
     }
 
     /**Gets info of the curriculum the student is in

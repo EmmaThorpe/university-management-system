@@ -66,7 +66,7 @@ public class ManagerUI extends MainUI{
      * Accounts Dashboard
      **/
 
-    public void accounts(List<User> accountList, List<Course> coursesList, List<String> moduleList) {
+    public void accounts(List<User> accountList, List<Course> coursesList, List<Module> moduleList) {
         resetCurrentValues();
 
         ArrayList<Button> accountBtnsList = new ArrayList<Button>();
@@ -134,7 +134,7 @@ public class ManagerUI extends MainUI{
                 appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
             }
 
-        VBox userDetails = new VBox(nameDisplay, activatedDisplay);
+            VBox userDetails = new VBox(nameDisplay, activatedDisplay);
             userDetails.setSpacing(5.0);
 
             HBox listButton = makeListButton(userID, appGraphic, userDetails);
@@ -234,10 +234,16 @@ public class ManagerUI extends MainUI{
         return container;
     }
 
-    private VBox assignModule(List<String> modules) {
-        VBox setModule = dropdownField("Module to assign to",
-                modules);
-        VBox container = new VBox(setModule);
+    private VBox assignModule(List<Module> modules) {
+        List<String> moduleNames = new ArrayList<String>();
+
+        for (Module m : modules) {
+            moduleNames.add(m.getName());
+        }
+        VBox setCourse = dropdownField("Module to assign to",
+                moduleNames);
+
+        VBox container = new VBox(setCourse);
         return container;
     }
 
@@ -305,7 +311,7 @@ public class ManagerUI extends MainUI{
      * Course Dashboard
      **/
 
-    public void courses(List<Course> courseList, List<String> moduleList) {
+    public void courses(List<Course> courseList, List<Module> moduleList) {
         resetCurrentValues();
 
         Button add = inputButton("ADD COURSE");
@@ -428,10 +434,127 @@ public class ManagerUI extends MainUI{
         return container;
     }
 
-    private VBox assignCourseModule(List<String> modules) {
-        VBox setModule = dropdownField("Module to assign to",
-                modules);
-        VBox container = new VBox(setModule);
+    private VBox assignCourseModule(List<Module> modules) {
+        List<String> moduleNames = new ArrayList<String>();
+
+        for (Module m : modules) {
+            moduleNames.add(m.getName());
+        }
+        VBox setCourse = dropdownField("Module to assign to",
+                moduleNames);
+
+        VBox container = new VBox(setCourse);
         return container;
     }
+
+    /**
+     * Course Dashboard
+     **/
+
+    public void modules(List<Module> moduleList, List<Lecturer> lecturerList) {
+        resetCurrentValues();
+
+        Button add = inputButton("ADD MODULE");
+        Button assign = inputButton("ASSIGN MODULE TO LECTURER");
+        Button edit = inputButton("UPDATE MODULE INFORMATION");
+
+        makeModal("ADD MODULE MODAL", add, "add", new VBox(), false, false);
+        makeModal("ASSIGN LECTURER MODAL", edit, "edit", new VBox(), false, false);
+        makeModal("UPDATE MODULE MODAL", assign, "assign", new VBox(), false, false);
+
+        VBox moduleDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, moduleDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = moduleButtons(moduleList, add, rightActionPanel, moduleDetails);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+    }
+
+    private VBox moduleButtons(List<Module> moduleList, Button addBtn, VBox rightPanel, VBox moduleDetails){
+        VBox panel = new VBox();
+        Module tempModule;
+        HBox tempButton;
+        for (Module module : moduleList) {
+            tempModule = module;
+            tempButton = makeModuleListButton(
+                    tempModule.getModuleID(),
+                    tempModule.getName(),
+                    tempModule.getCredit()
+            );
+            tempButton.setOnMouseClicked(pickModule(tempModule, rightPanel, moduleDetails));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollablePanelWithAction(courseListPanel, addBtn);
+    }
+
+    private HBox makeModuleListButton(String id, String name, Integer credit) {
+        HBox yearsDisplay = listDetail("CREDITS" , credit.toString());
+        Text nameDisplay = new Text(name);
+
+        VBox courseDetails = new VBox(nameDisplay, yearsDisplay);
+        courseDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
+        return listButton;
+    }
+
+    private EventHandler pickModule(Module tempModule, VBox rightPanel, VBox moduleDetails){
+        return event -> {
+            moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
+
+            ArrayList<Button> moduleBtnsList = new ArrayList<>();
+
+            moduleBtnsList.add(currentButtons.get("ASSIGN MODULE TO LECTURER"));
+            moduleBtnsList.add(currentButtons.get("UPDATE MODULE INFORMATION"));
+
+            Button[] moduleBtns = moduleBtnsList.toArray(new Button[0]);
+            moduleBtns = stylePanelActions(moduleBtns);
+
+            VBox moduleBtnView = new VBox(moduleBtns);
+
+            moduleBtnView.setAlignment(Pos.CENTER);
+            moduleBtnView.setSpacing(20.0);
+            moduleBtnView.setPadding(new Insets(10));
+
+            VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
+
+            rightPanel.getChildren().set(0, moduleDetails);
+            rightPanel.getChildren().set(1, courseActionsDisplay);
+            rightPanel.setVisible(true);
+        };
+    }
+
+    private VBox moduleDetailDisplay(Module tempModule) {
+        Text idTitle = new Text(tempModule.getName());
+        idTitle.getStyleClass().add("info-box-title");
+
+        String creditsValue = ((Integer) tempModule.getCredit()).toString();
+        HBox col1 = new HBox (
+                listDetail("NAME", tempModule.getName()),
+                listDetail("CREDITS", creditsValue)
+        );
+        VBox col2 = infoDetailLong("DESCRIPTION", tempModule.getDescription());
+
+        String moduleLecs = "";
+        try {
+            for (Lecturer moduleLec : tempModule.getLecturers()) {
+                moduleLecs += moduleLec.getForename() + " " + moduleLec.getSurname() + "\n";
+            }
+        } catch (SQLException e) {
+            moduleLecs += "N/A";
+        }
+
+        VBox col3 = infoDetailLong("LECTURER(S)", moduleLecs);
+
+        col1.setSpacing(5);
+        col2.setSpacing(5);
+        return new VBox(idTitle, col1, col2, col3);
+    }
+
 }
