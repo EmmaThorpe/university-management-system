@@ -34,6 +34,8 @@ public class MainUI {
 
     Map<String, Button> currentButtons;
 
+    Map<String, Dialog> currentModals;
+
 
     /**  Display the first scene and shows the stage
      */
@@ -65,7 +67,7 @@ public class MainUI {
         currentFields = new HashMap<>();
         currentText = new HashMap<>();
         currentButtons = new HashMap<>();
-
+        currentModals = new HashMap<>();
     }
 
 
@@ -87,6 +89,8 @@ public class MainUI {
 
 
     public Map<String, Button> getCurrentButtons(){return currentButtons;}
+
+    public Map<String, Dialog> getCurrentModals(){return currentModals;}
 
     /**
      * Global components to be used across multiple UIs
@@ -188,7 +192,31 @@ public class MainUI {
         }
         return btns;
     }
-    protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean isSuccess, boolean isError) {
+
+    public ComboBox makeDropdown(List<String> choices) {
+        ComboBox choiceDropdown = new ComboBox();
+        for (String choice : choices) {
+            choiceDropdown.getItems().add(choice);
+        }
+        choiceDropdown.getSelectionModel().select(0);
+        return choiceDropdown;
+    }
+
+    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
+        StackPane iconStack = new StackPane();
+        Circle appGraphicBack = new Circle(radius);
+        appGraphicBack.getStyleClass().add(backgroundStyle);
+        FontIcon appGraphic = icon;
+        appGraphic.getStyleClass().add(graphicStyle);
+        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+        return iconStack;
+    }
+
+    /*
+    Modal
+     */
+    protected Dialog makeModal(String modalKey, Button trigger, String btnTxt, VBox modalContent, boolean isSuccess,
+                               boolean isError) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -233,8 +261,15 @@ public class MainUI {
 
         Window modalWindow = modal.getDialogPane().getScene().getWindow();
         modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
+
+        currentModals.put(modalKey, modal);
+        return modal;
     }
 
+    protected void setModalContent(Dialog modal, VBox updateContent){
+        VBox modalContent = (VBox) modal.getDialogPane().getContent();
+        modalContent.getChildren().set(0, updateContent);
+    }
     protected HBox modalButtonBar(Button action, DialogPane modal){
         ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 
@@ -252,25 +287,6 @@ public class MainUI {
         btnContainer.setPadding(new Insets(20, 0, 0, 0));
         return btnContainer;
     }
-    public ComboBox makeDropdown(List<String> choices) {
-        ComboBox choiceDropdown = new ComboBox();
-        for (String choice : choices) {
-            choiceDropdown.getItems().add(choice);
-        }
-        choiceDropdown.getSelectionModel().select(0);
-        return choiceDropdown;
-    }
-
-    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
-        StackPane iconStack = new StackPane();
-        Circle appGraphicBack = new Circle(radius);
-        appGraphicBack.getStyleClass().add(backgroundStyle);
-        FontIcon appGraphic = icon;
-        appGraphic.getStyleClass().add(graphicStyle);
-        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
-        return iconStack;
-    }
-
     protected HBox makeListButton(String id, FontIcon listGraphic, VBox listContent) {
         Label nameDisplay = new Label(id);
         nameDisplay.getStyleClass().add("list-id");
@@ -288,6 +304,10 @@ public class MainUI {
         HBox.setHgrow(listContent, Priority.ALWAYS);
         return listButton;
     }
+
+    /*
+     List
+     */
     protected HBox listDetail(String title, String content){
         HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
         titleDisplay.getStyleClass().add("list-detail");
@@ -336,59 +356,6 @@ public class MainUI {
         return detail;
     }
 
-
-    /**
-     *
-     this component is not in use right now but its purpose was to be
-     for any object, to get all its field names and values and
-     then display it as we see account details in manager
-     the problem was though accessing the field values as
-     the model here is not specific and therefore i
-     dont know how to call the get corresponding
-     get methods for each field, even though i figured
-     out how to get the name.
-     leaving it here to see if i can figure it out because
-     successfully implementing this would mean a lot less duped
-     code - fiona
-     */
-    protected VBox makePanelDetailDisplay(Object model) {
-        Field[] modelFields = model.getClass().getDeclaredFields();
-
-        Text idTitle = new Text(
-                model.getClass().getDeclaredFields()[0].getName()
-        );
-
-        int fieldNum = model.getClass().getDeclaredFields().length;
-        int fieldNumCutOffPoint = fieldNum / 2;
-
-        VBox row1 = new VBox();
-        VBox row2 = new VBox();
-
-        for (int i = 1; i < fieldNum; i++) {
-            Field currField = model.getClass().getDeclaredFields()[i];
-            if (i < fieldNumCutOffPoint) {
-                row1.getChildren().add(
-                        listDetail(
-                                currField.getName().toUpperCase(),
-                                "hi"
-                        )
-                );
-            } else {
-                row2.getChildren().add(
-                        listDetail(
-                                currField.getName().toUpperCase(),
-                                "world"
-                        )
-                );
-            }
-        }
-
-        row1.setSpacing(5);
-        row2.setSpacing(5);
-        HBox rows = new HBox(row1, row2);
-        return new VBox(idTitle, rows);
-    }
-
     public void createScene(String top, Pane mainContent, Pane bottom){
         VBox title = setTitle(top);
 
@@ -401,6 +368,9 @@ public class MainUI {
         currScene = new Scene(root);
     }
 
+    /*
+     Input
+     */
     protected VBox inputField(String text, Boolean password){
         Label label=new Label(text);
 

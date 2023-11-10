@@ -13,7 +13,6 @@ import javafx.scene.text.Text;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,9 +73,9 @@ public class ManagerUI extends MainUI{
         inputButton("DEACTIVATE");
         Button enrol = inputButton("ENROL STUDENT INTO COURSE");
 
-        makeModal(assign, "assign to module", assignModule(moduleList), false, false);
-        makeModal(reset, "reset password", resetPass(), false, false);
-        makeModal(enrol, "enrol to course", enrolCourse(coursesList), false, false);
+        makeModal("ASSIGN LECTURER MODULE MODAL",assign, "assign to module", assignModule(moduleList), false, false);
+        makeModal("RESET PASSWORD MODAL", reset, "reset password", resetPass(), false, false);
+        makeModal("ENROL STUDENT MODAL", enrol, "enrol to course", enrolCourse(coursesList), false, false);
 
         VBox accountDetails = new VBox(new VBox());
 
@@ -243,12 +242,9 @@ public class ManagerUI extends MainUI{
         Button edit = inputButton("EDIT COURSE");
         Button assign = inputButton("ASSIGN MODULE TO COURSE");
 
-        makeModal(add, "add", addCourse(), false, false);
-        makeModal(
-                edit, "edit",
-                new VBox(), // TODO: find way to pass in the selected course editCourse(courseList.get(0)),
-                false, false);
-        makeModal(assign, "assign", new VBox(), false, false);
+        makeModal("ADD COURSE MODAL", add, "add", addCourse(), false, false);
+        makeModal("EDIT COURSE MODAL", edit, "edit", new VBox(), false, false);
+        makeModal("ASSIGN MODULE MODAL", assign, "assign", new VBox(), false, false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -312,6 +308,8 @@ public class ManagerUI extends MainUI{
 
             VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
 
+            setModalContent(currentModals.get("EDIT COURSE MODAL"), editCourse(tempCourse));
+
             rightPanel.getChildren().set(0, courseDetails);
             rightPanel.getChildren().set(1, courseActionsDisplay);
             rightPanel.setVisible(true);
@@ -340,16 +338,9 @@ public class ManagerUI extends MainUI{
      * Course Dashboard - modals
      **/
     private VBox addCourse() {
-        List<String> levelOptions = new ArrayList<String>();
-        levelOptions.add("Undergraduate");
-        levelOptions.add("Postgraduate");
-
         VBox setName = inputField("Name", false);
         VBox setDesc = inputFieldLong("Description");
-        VBox setLevel = dropdownField(
-                "Level",
-                levelOptions
-        );
+        VBox setLevel = inputField("Level of Study", false);
         VBox setYears = inputField("Length of course", false);
 
         VBox container = new VBox(setName, setDesc, setLevel, setYears);
@@ -360,8 +351,8 @@ public class ManagerUI extends MainUI{
         Integer curYears = currentCourse.getLength();
 
         VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.getDescription());
-        VBox setLevel = inputFieldSetValue("Edit Level", currentCourse.getLevel());
-        VBox setYear = inputFieldSetValue("Edit Length", curYears.toString());
+        VBox setLevel = inputFieldSetValue("Edit Level of Study", currentCourse.getLevel());
+        VBox setYear = inputFieldSetValue("Edit Length of Course", curYears.toString());
 
         VBox container = new VBox(setDesc, setLevel, setYear);
         return container;
