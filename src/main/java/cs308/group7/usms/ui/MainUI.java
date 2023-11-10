@@ -14,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.fontawesome5.*;
 import javafx.scene.layout.BorderPane;
@@ -192,27 +193,41 @@ public class MainUI {
 
         modalDialog.setHeader(header);
 
-
-        Button okButton = inputButton(btnTxt);
-        Button cancelButton = inputButton("CANCEL");
-
-        HBox btnContainer = new HBox(okButton, cancelButton);
-
+        Button actionBtn = inputButton(btnTxt.toUpperCase());
+        HBox btnContainer = modalButtonBar(actionBtn, modalDialog);
         VBox content = new VBox(modalContent, btnContainer);
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 
         modalDialog.setContent(content);
-        cancelButton.getStyleClass().add("outline-button");
 
         Dialog modal = new Dialog();
         modal.setDialogPane(modalDialog);
         trigger.setOnAction(e -> {
             modal.showAndWait();
         });
+
+        Window modalWindow = modal.getDialogPane().getScene().getWindow();
+        modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
     }
 
+    protected HBox modalButtonBar(Button action, DialogPane modal){
+        ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 
+        modal.getButtonTypes().addAll(cancelButtonType);
+
+        Button cancelButton = (Button) modal.lookupButton(cancelButtonType);
+        cancelButton.getStyleClass().add("outline-button");
+
+        HBox btnContainer = new HBox(action, cancelButton);
+
+        modal.getButtonTypes().removeAll(cancelButtonType);
+
+        btnContainer.setSpacing(10.0);
+        btnContainer.setAlignment(Pos.BOTTOM_RIGHT);
+        btnContainer.setPadding(new Insets(20, 0, 0, 0));
+        return btnContainer;
+    }
     public ComboBox makeDropdown(List<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
         for (String choice : choices) {
