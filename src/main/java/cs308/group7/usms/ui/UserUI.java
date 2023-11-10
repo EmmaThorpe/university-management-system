@@ -18,17 +18,13 @@ public class UserUI extends MainUI{
         VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
         VBox confirmPass = textAndField("CONFIRM NEW PASSWORD", confirmPasswordCheck(manager));
 
-        VBox container = new VBox(setPass, confirmPass);
 
-
-
-        return container;
+        return new VBox(setPass, confirmPass);
     }
 
     public VBox resetPassUser() {
         VBox oldPass = inputField("OLD PASSWORD", true);
-        VBox container = new VBox(oldPass, resetPass(false));
-        return container;
+        return new VBox(oldPass, resetPass(false));
     }
 
 
@@ -64,12 +60,7 @@ public class UserUI extends MainUI{
     private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
         boolean disabled;
         validFields.put(type, value);
-        if((validFields.get("NEW PASSWORD") && validFields.get("CONFIRM NEW PASSWORD"))){
-            disabled = false;
-        }else{
-            disabled = true;
-
-        }
+        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
 
         if(manager){
             currentButtons.get("RESET USER PASSWORD").setDisable(disabled);

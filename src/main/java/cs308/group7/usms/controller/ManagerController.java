@@ -5,6 +5,7 @@ import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.model.User;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.ManagerUI;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -37,6 +38,11 @@ public class ManagerController{
                 buttons.get("MANAGE SIGN-UP WORKFLOW").setOnAction((event)->pageSetter("MANAGE SIGN-UP WORKFLOW", false));
                 buttons.get("MANAGE ACCOUNTS").setOnAction((event)->pageSetter("MANAGE ACCOUNTS", false));
                 buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
+
+
+                Map<String, Node> currFields = manUI.getCurrentFields();
+                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
+
                 break;
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers(), getCourses(), getModules());
@@ -57,7 +63,6 @@ public class ManagerController{
                 buttons =manUI.getCurrentButtons();
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
-        //buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
 
         if(initial){
@@ -65,9 +70,6 @@ public class ManagerController{
         }else{
             manUI.displayScene();
         }
-        Text tex = new Text("Test");
-        manUI.makeNotificationModal(new VBox( tex), true);
-
     }
 
 
@@ -76,13 +78,14 @@ public class ManagerController{
     //Connections with models
 
 
-    /**Changes the password for a user.
+    /**Changes the password for a user. And updates the view accordingly
      * @param oldPass
      * @param newPass
-     * @return Boolean value representing if the password change was successful or not.
      */
-    public boolean changePassword(String oldPass, String newPass){
-        return true;
+    public void changePassword(String oldPass, String newPass){
+        // password changing
+        pageSetter("DASHBOARD", false);
+
     }
 
     /**Gets all the users
@@ -114,10 +117,10 @@ public class ManagerController{
         boolean success = true; //dummy for testing
         if(success){
             pageSetter("MANAGE ACCOUNTS", false);
-
+            manUI.makeNotificationModal("Account succesfully activated", true);
         }else{
             pageSetter("MANAGE ACCOUNTS", false);
-
+            manUI.makeNotificationModal("Error activating account", false);
         }
 
     }

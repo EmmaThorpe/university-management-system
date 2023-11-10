@@ -1,10 +1,6 @@
 package cs308.group7.usms.ui;
-
-import cs308.group7.usms.model.User;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -193,8 +189,7 @@ public class MainUI {
     /*
     Modal
      */
-    protected Dialog makeModal(Button trigger, String btnTxt, VBox modalContent, boolean isSuccess,
-                               boolean isError, boolean disabled) {
+    protected Dialog makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -202,24 +197,9 @@ public class MainUI {
         Text headerTitle = new Text(btnTxt.toUpperCase());
         headerTitle.getStyleClass().add("modal-header-text");
         HBox header = new HBox();
+        header.getStyleClass().add("modal-header");
+        header.setId("");
 
-        FontIcon modalGraphic;
-        if (isSuccess) {
-            header.getStyleClass().add("modal-header-suc");
-            modalGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
-            modalGraphic.getStyleClass().add("modal-graphic");
-            header.getChildren().add(modalGraphic);
-            header.setId("SUCCESS");
-        } else if (isError) {
-            header.getStyleClass().add("modal-header-err");
-            modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
-            modalGraphic.getStyleClass().add("modal-graphic");
-            header.getChildren().add(modalGraphic);
-            header.setId("ERROR");
-        } else {
-            header.getStyleClass().add("modal-header");
-            header.setId("");
-        }
 
         header.getChildren().add(headerTitle);
         header.setSpacing(10);
@@ -254,7 +234,7 @@ public class MainUI {
 
 
 
-    public void makeNotificationModal(VBox modalContent, boolean isSuccess) {
+    public void makeNotificationModal(String modalContent, boolean isSuccess) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -288,7 +268,7 @@ public class MainUI {
         header.setSpacing(10);
 
         modalDialog.setHeader(header);
-        VBox content = new VBox(modalContent);
+        VBox content = new VBox(new Text(modalContent));
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 
