@@ -6,6 +6,8 @@ import cs308.group7.usms.model.User;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,20 +41,8 @@ public class ManagerController{
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers(), getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
-                buttons.get("ACTIVATE").setOnAction((event)-> {
-                    pageSetter("MANAGE ACCOUNTS", false);
-                    if(activateUser(manUI.getSelectedVal())){
-
-                    }else{
-
-                    }});
-                buttons.get("DEACTIVATE").setOnAction((event)-> {
-                    pageSetter("MANAGE ACCOUNTS", false);
-                    if(activateUser(manUI.getSelectedVal())){
-
-                    }else{
-
-                    }});
+                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getSelectedVal()));
+                buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getSelectedVal()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
             case "STUDENT DECISION":
@@ -67,6 +57,7 @@ public class ManagerController{
                 buttons =manUI.getCurrentButtons();
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
+        //buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
 
         if(initial){
@@ -74,9 +65,15 @@ public class ManagerController{
         }else{
             manUI.displayScene();
         }
+        Text tex = new Text("Test");
+        manUI.makeNotificationModal(new VBox( tex), true);
 
     }
 
+
+
+
+    //Connections with models
 
 
     /**Changes the password for a user.
@@ -89,7 +86,7 @@ public class ManagerController{
     }
 
     /**Gets all the users
-     * @return An ArrayList of userIDs
+     * @return An ArrayList of users
      */
     public List<User> getUsers(){
         List<User> accounts = new ArrayList<>();
@@ -107,19 +104,22 @@ public class ManagerController{
         return accounts;
     }
 
-    /**Gets the userIDs of all students
-     * @return An ArrayList of students' userIDs
-     */
-    public ArrayList<String> getStudents(){
-        return null;
-    }
-
 
     /**Takes in a userID and activates the user
      * @param userID
      */
-    public boolean activateUser(String userID){
-        return true;
+    public void activateUser(String userID){
+        //boolean success = activation code;
+
+        boolean success = true; //dummy for testing
+        if(success){
+            pageSetter("MANAGE ACCOUNTS", false);
+
+        }else{
+            pageSetter("MANAGE ACCOUNTS", false);
+
+        }
+
     }
 
     /**Takes in a userID and deactivates the user
@@ -165,7 +165,7 @@ public class ManagerController{
     /**
      * Gets a list of all modules
      *
-     * @return List containing the id of all modules
+     * @return List containing the id's and names of all modules
      */
     public List<Module> getModules(){
         getUsers();

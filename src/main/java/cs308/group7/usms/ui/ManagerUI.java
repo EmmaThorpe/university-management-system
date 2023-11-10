@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ManagerUI extends MainUI{
+public class ManagerUI extends UserUI{
 
     String selectedVal;
 
@@ -40,8 +40,12 @@ public class ManagerUI extends MainUI{
         Button mngSignupBtn = inputButton("MANAGE SIGN-UP WORKFLOW");
         Button mngAccountsBtn = inputButton("MANAGE ACCOUNTS");
         Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
+        Button passwordBtn = inputButton("CHANGE PASSWORD");
+        passwordBtn.getStyleClass().add("toolbar-btn");
+        makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(),false, false, true);
 
-        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn};
+
+        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
         mngBtns = stylePanelActions(mngBtns);
 
         VBox mainActionPanel = makePanel(new VBox(mngBtns));
@@ -83,9 +87,9 @@ public class ManagerUI extends MainUI{
 
         stylePanelActions(accountBtnsList.toArray(new Button[0]));
 
-        makeModal("ASSIGN LECTURER MODULE MODAL",assign, "assign to module", assignModule(moduleList), false, false);
-        makeModal("RESET PASSWORD MODAL", reset, "reset password", resetPass(), false, false);
-        makeModal("ENROL STUDENT MODAL", enrol, "enrol to course", enrolCourse(coursesList), false, false);
+        makeModal(assign,"ASSIGN LECTURER MODULE MODAL",  assignModule(moduleList), false, false, false);
+        makeModal(reset,"RESET USER PASSWORD",  resetPass(true), false, false, true);
+        makeModal(enrol,"ENROL STUDENT MODAL", enrolCourse(coursesList), false, false, false);
 
         VBox accountDetails = new VBox(new VBox());
 
@@ -95,6 +99,7 @@ public class ManagerUI extends MainUI{
 
         VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountDetails);
         twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
+
     }
 
     private VBox userButtons(List<User> accountList, VBox rightPanel, VBox details){
@@ -213,14 +218,6 @@ public class ManagerUI extends MainUI{
      * Account dashboard - modals
      **/
 
-    private VBox resetPass() {
-        VBox setPass = inputField("New password", false);
-        VBox confirmPass = inputField("Confirm new password", false);
-
-        VBox container = new VBox(setPass, confirmPass);
-        return container;
-    }
-
     private VBox enrolCourse(List<Course> courses) {
         List<String> courseNames = new ArrayList<String>();
 
@@ -318,9 +315,9 @@ public class ManagerUI extends MainUI{
         Button edit = inputButton("EDIT COURSE");
         Button assign = inputButton("ASSIGN MODULE TO COURSE");
 
-        makeModal("ADD COURSE MODAL", add, "add", addCourse(), false, false);
-        makeModal("EDIT COURSE MODAL", edit, "edit", new VBox(), false, false);
-        makeModal("ASSIGN MODULE MODAL", assign, "assign", assignCourseModule(moduleList), false, false);
+        makeModal( add, "add", addCourse(), false, false, false);
+        makeModal( edit, "edit", new VBox(), false, false, false);
+        makeModal(assign, "assign", assignCourseModule(moduleList), false, false, false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -458,9 +455,9 @@ public class ManagerUI extends MainUI{
         Button assign = inputButton("ASSIGN MODULE TO LECTURER");
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
-        makeModal("ADD MODULE MODAL", add, "add", new VBox(), false, false);
-        makeModal("ASSIGN LECTURER MODAL", edit, "edit", new VBox(), false, false);
-        makeModal("UPDATE MODULE MODAL", assign, "assign", new VBox(), false, false);
+        makeModal(add, "add", new VBox(), false, false, false);
+        makeModal( edit, "edit", new VBox(), false, false, false);
+        makeModal( assign, "assign", new VBox(), false, false, false);
 
         VBox moduleDetails = new VBox(new VBox());
 
