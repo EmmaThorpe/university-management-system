@@ -168,6 +168,7 @@ public class ManagerController{
      * @return List containing the id of all modules
      */
     public List<Module> getModules(){
+        getUsers();
         //test values for view
         List<Module> modules = new ArrayList<>();
         modules.add(new Module("CS308",
