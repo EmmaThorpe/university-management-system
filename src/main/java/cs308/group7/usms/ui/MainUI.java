@@ -28,13 +28,15 @@ public class MainUI {
     String css = this.getClass().getResource("/css/style.css").toExternalForm();
     Scene currScene;
 
-    Map<String, Node> currentFields;
+    protected Map<String, Node> currentFields;
 
-    Map<String, Text> currentText;
+    protected Map<String, Text> currentText;
 
-    Map<String, Button> currentButtons;
+    protected Map<String, Button> currentButtons;
 
-    Map<String, Dialog> currentModals;
+    protected Map<String, Boolean> validFields;
+
+    protected Map<String, Dialog> currentModals;
 
 
     /**  Display the first scene and shows the stage
@@ -108,37 +110,7 @@ public class MainUI {
         return title;
     }
 
-    protected HBox makeToolbar(String role) {
-        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
 
-        Text title = new Text(role);
-        title.setTranslateY(5.0);
-        title.getStyleClass().add("toolbar-title");
-
-        HBox titleContainer = new HBox(iconStack, title);
-        titleContainer.setPadding(new Insets(10));
-        titleContainer.setSpacing(10);
-
-        Button homeBtn = inputButton("HOME");
-        homeBtn.getStyleClass().add("toolbar-btn");
-        Button logoutBtn = inputButton("LOG OUT");
-        logoutBtn.getStyleClass().add("toolbar-btn");
-        HBox.setMargin(logoutBtn, new Insets(10));
-
-        HBox logoutContainer = new HBox(homeBtn, logoutBtn);
-        logoutContainer.setAlignment(Pos.CENTER);
-
-        Region region = new Region();
-        HBox.setHgrow(region, Priority.ALWAYS);
-
-        HBox container = new HBox(titleContainer, region, logoutContainer);
-        container.setPadding(new Insets(15));
-        container.setSpacing(50);
-        container.getStyleClass().add("toolbar-bar");
-
-        return container;
-    }
     protected VBox makePanel(VBox content) {
         content.setPadding(new Insets(20));
         content.setSpacing(20.0);
@@ -147,6 +119,8 @@ public class MainUI {
 
         return panel;
     }
+
+
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -156,6 +130,8 @@ public class MainUI {
 
         return panel;
     }
+
+
     protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -180,6 +156,8 @@ public class MainUI {
         scrollPart.fitToWidthProperty().set(true);
         return new VBox(scrollPart);
     }
+
+
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
@@ -215,8 +193,8 @@ public class MainUI {
     /*
     Modal
      */
-    protected Dialog makeModal(String modalKey, Button trigger, String btnTxt, VBox modalContent, boolean isSuccess,
-                               boolean isError) {
+    protected Dialog makeModal(Button trigger, String btnTxt, VBox modalContent, boolean isSuccess,
+                               boolean isError, boolean disabled) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -249,6 +227,11 @@ public class MainUI {
         modalDialog.setHeader(header);
 
         Button actionBtn = inputButton(btnTxt.toUpperCase());
+
+        if(disabled){
+           actionBtn.setDisable(true);
+        }
+
         HBox btnContainer = modalButtonBar(actionBtn, modalDialog);
         VBox content = new VBox(modalContent, btnContainer);
         content.setPadding(new Insets(10));
@@ -265,9 +248,63 @@ public class MainUI {
         Window modalWindow = modal.getDialogPane().getScene().getWindow();
         modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
 
-        currentModals.put(modalKey, modal);
+        currentModals.put(btnTxt, modal);
         return modal;
     }
+
+
+
+    public void makeNotificationModal(VBox modalContent, boolean isSuccess) {
+        DialogPane modalDialog = new DialogPane();
+
+        modalDialog.getStyleClass().add("modal");
+
+        Text headerTitle;
+
+        if(isSuccess){
+            headerTitle = new Text("SUCCESS");
+        }else{
+            headerTitle = new Text("ERROR");
+        }
+        headerTitle.getStyleClass().add("modal-header-text");
+        HBox header = new HBox();
+
+        FontIcon modalGraphic;
+        if (isSuccess) {
+            header.getStyleClass().add("modal-header-suc");
+            modalGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
+            modalGraphic.getStyleClass().add("modal-graphic");
+            header.getChildren().add(modalGraphic);
+            header.setId("SUCCESS");
+        } else{
+            header.getStyleClass().add("modal-header-err");
+            modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
+            modalGraphic.getStyleClass().add("modal-graphic");
+            header.getChildren().add(modalGraphic);
+            header.setId("ERROR");
+        }
+
+        header.getChildren().add(headerTitle);
+        header.setSpacing(10);
+
+        modalDialog.setHeader(header);
+        VBox content = new VBox(modalContent);
+        content.setPadding(new Insets(10));
+        content.setAlignment(Pos.CENTER);
+
+        modalDialog.setContent(content);
+
+        Dialog modal = new Dialog();
+        modal.setDialogPane(modalDialog);
+
+        Window modalWindow = modal.getDialogPane().getScene().getWindow();
+        modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
+
+        modal.showAndWait();
+    }
+
+
+
 
     protected void setModalContent(Dialog modal, VBox updateContent){
         VBox modalContent = (VBox) modal.getDialogPane().getContent();
@@ -325,6 +362,8 @@ public class MainUI {
         return detail;
     }
 
+
+
     protected HBox activeDetail(String text, Boolean isActive){
         HBox activatedDisplay = new HBox();
         if (isActive) {
@@ -360,6 +399,61 @@ public class MainUI {
         return detail;
     }
 
+
+    /**
+     *
+     this component is not in use right now but its purpose was to be
+     for any object, to get all its field names and values and
+     then display it as we see account details in manager
+     the problem was though accessing the field values as
+     the model here is not specific and therefore i
+     dont know how to call the get corresponding
+     get methods for each field, even though i figured
+     out how to get the name.
+     leaving it here to see if i can figure it out because
+     successfully implementing this would mean a lot less duped
+     code - fiona
+     */
+    protected VBox makePanelDetailDisplay(Object model) {
+        Field[] modelFields = model.getClass().getDeclaredFields();
+
+        Text idTitle = new Text(
+                model.getClass().getDeclaredFields()[0].getName()
+        );
+
+        int fieldNum = model.getClass().getDeclaredFields().length;
+        int fieldNumCutOffPoint = fieldNum / 2;
+
+        VBox row1 = new VBox();
+        VBox row2 = new VBox();
+
+        for (int i = 1; i < fieldNum; i++) {
+            Field currField = model.getClass().getDeclaredFields()[i];
+            if (i < fieldNumCutOffPoint) {
+                row1.getChildren().add(
+                        listDetail(
+                                currField.getName().toUpperCase(),
+                                "hi"
+                        )
+                );
+            } else {
+                row2.getChildren().add(
+                        listDetail(
+                                currField.getName().toUpperCase(),
+                                "world"
+                        )
+                );
+            }
+        }
+
+        row1.setSpacing(5);
+        row2.setSpacing(5);
+        HBox rows = new HBox(row1, row2);
+        return new VBox(idTitle, rows);
+    }
+
+
+
     public void createScene(String top, Pane mainContent, Pane bottom){
         VBox title = setTitle(top);
 
@@ -375,6 +469,8 @@ public class MainUI {
     /*
      Input
      */
+
+
     protected VBox inputField(String text, Boolean password){
         Label label=new Label(text);
 
@@ -392,6 +488,8 @@ public class MainUI {
 
         return inputField;
     }
+
+
 
     protected VBox inputFieldSetValue(String text, String value){
         Label label=new Label(text);
@@ -433,6 +531,8 @@ public class MainUI {
         return inputField;
     }
 
+
+
     protected VBox dropdownField(String text, List<String> choices){
         Label label=new Label(text);
         ComboBox field = makeDropdown(choices);
@@ -445,18 +545,36 @@ public class MainUI {
         return inputField;
     }
 
+
+
     protected Text inputText(String text){
         Text inputText = new Text();
         currentText.put(text, inputText);
         return inputText;
     }
 
+    protected VBox textAndField(String text, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextField field=new TextField();
+        Text inputText = new Text();
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
 
     protected Button inputButton(String text){
         Button button = new Button(text);
         currentButtons.put(text, button);
         return button;
     }
+
+
 
     protected HBox bottomButtons(HBox buttons){
         buttons.setSpacing(20.0);
@@ -505,25 +623,52 @@ public class MainUI {
         return notfiCard;
     }
 
-    protected void twoPanelLayout(VBox left, VBox right, String title){
 
-        HBox toolbar = makeToolbar(title);
 
-        HBox actionPanel = new HBox(left, right);
 
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
 
-        root.setPadding(new Insets(10));
 
-        currScene = new Scene(root);
+    public boolean validPassword(String password, Text output){
+        String specialChars = "@!#$%&/()=?@£{}.-;<>_,*";
+        boolean upperCharacter = false;
+        boolean lowerCharacter = false;
+        boolean number = false;
+        boolean specialCharacter = false;
+
+        for (int i = 0; i < password.length(); i++){
+            char curr = password.charAt(i);
+
+            if(Character.isUpperCase(curr)){
+                upperCharacter = true;
+            }else if(Character.isLowerCase(curr)){
+                lowerCharacter = true;
+            }else if(Character.isDigit(curr)){
+                number = true;
+            }else if(specialChars.contains(Character.toString(curr))){
+                specialCharacter = true;
+            }else{
+                output.setText("Contains character not allowed in passwords");
+                return false;
+            }
+        }
+
+        if(!upperCharacter){
+            output.setText("Password must contain an uppercase letter");
+            return false;
+        }else if(!lowerCharacter){
+            output.setText("Password must contain a lowercase letter");
+            return false;
+        }else if(!number){
+            output.setText("Password must contain a number");
+            return false;
+        }else if(!specialCharacter){
+            output.setText("Password must contain a special letter");
+            return false;
+        }
+        return true;
     }
+
 
 
 }
