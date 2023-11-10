@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,10 @@ public class ManagerUI extends MainUI{
     public String getSelectedVal(){
         return selectedVal;
     }
+
+    /**
+     * Main Dashboard
+     **/
 
     public void dashboard() {
         resetCurrentValues();
@@ -55,6 +60,10 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
+    /**
+     * Accounts Dashboard
+     **/
+
     public void accounts(List<User> accountList, List<Course> coursesList, List<String> moduleList) {
         resetCurrentValues();
 
@@ -69,17 +78,17 @@ public class ManagerUI extends MainUI{
         makeModal(reset, "reset password", resetPass(), false, false);
         makeModal(enrol, "enrol to course", enrolCourse(coursesList), false, false);
 
-        Text accountText = new Text();
+        VBox accountDetails = new VBox(new VBox());
 
         VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, accountText);
+        rightActionPanel.getChildren().add(0, accountDetails);
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountText);
+        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountDetails);
         twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
     }
 
-    private VBox userButtons(List<User> accountList, VBox rightPanel, Text accText){
+    private VBox userButtons(List<User> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
         User tempUser;
         HBox tempButton;
@@ -87,7 +96,7 @@ public class ManagerUI extends MainUI{
             tempUser = user;
             tempButton = makeUserListButton(tempUser.getUserID(), tempUser.getForename(), tempUser.getSurname(),
                     tempUser.getType(), tempUser.getActivated());
-            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, accText));
+            tempButton.setOnMouseClicked(pickUser(tempUser, rightPanel, details));
             panel.getChildren().add(tempButton);
         }
 
@@ -123,9 +132,9 @@ public class ManagerUI extends MainUI{
             return listButton;
     }
 
-    private EventHandler pickUser(User tempUser, VBox rightPanel, Text accText){
+    private EventHandler pickUser(User tempUser, VBox rightPanel, VBox accDetails){
         return event -> {
-            accText.setText(tempUser.getUserID());
+            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(tempUser)));
 
             ArrayList<Button> accountBtnsList = new ArrayList<>();
 
@@ -158,88 +167,42 @@ public class ManagerUI extends MainUI{
             accountBtnView.setSpacing(20.0);
             accountBtnView.setPadding(new Insets(10));
 
-            rightPanel.getChildren().set(0, accText);
-            rightPanel.getChildren().set(1, accountBtnView);
+            VBox accountActionsDisplay = makeScrollablePart(accountBtnView);
+
+            rightPanel.getChildren().set(0, accDetails);
+            rightPanel.getChildren().set(1, accountActionsDisplay);
             rightPanel.setVisible(true);
         };
     }
 
-    public void courses(List<Course> courseList, List<String> moduleList) {
-        resetCurrentValues();
+    private VBox userDetailDisplay(User tempUser) {
+        Text idTitle = new Text(tempUser.getUserID());
+        idTitle.getStyleClass().add("info-box-title");
 
-        Button add = inputButton("ADD COURSE");
-        Button edit = inputButton("EDIT COURSE");
-        Button assign = inputButton("ASSIGN MODULE TO COURSE");
+        VBox row1 = new VBox(
+            listDetail("FULL NAME", tempUser.getForename().concat(" ".concat(tempUser.getSurname()))),
+            listDetail("EMAIL", tempUser.getEmail()),
+            listDetail("USER TYPE", tempUser.getType().toString())
+        );
 
-        makeModal(add, "add", new VBox(), false, false);
-        makeModal(edit, "edit", new VBox(), false, false);
-        makeModal(assign, "assign", new VBox(), false, false);
+        VBox row2 = new VBox(
+            listDetail("DOB", tempUser.getDOB().toString()),
+            listDetail("GENDER", tempUser.getGender()),
+            listDetail("ACCOUNT STATUS",
+                    (tempUser.getActivated() ? "Active" : "Inactive")
+            )//,
+            //listDetail("MANAGED BY", tempUser.getManager().getUserID())
+        );
 
-
-        Text courseText = new Text();
-
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, courseText);
-        rightActionPanel.setVisible(false);
-
-        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseText);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
+        row1.setSpacing(5);
+        row2.setSpacing(5);
+        HBox rows = new HBox(row1, row2);
+        return new VBox(idTitle, rows);
     }
 
-    private VBox courseButtons(List<Course> courseList, Button addBtn, VBox rightPanel, Text accText){
-        VBox panel = new VBox();
-        Course tempCourse;
-        HBox tempButton;
-        for (Course course : courseList) {
-            tempCourse = course;
-            tempButton = makeCourseListButton(
-                    tempCourse.getName(),
-                    tempCourse.getLevel(),
-                    tempCourse.getLength()
-            );
-            tempButton.setOnMouseClicked(pickCourse(tempCourse, rightPanel, accText));
-            panel.getChildren().add(tempButton);
-        }
-
-        panel.setSpacing(20.0);
-        panel.setPadding(new Insets(10, 2, 10, 2));
-
-        ScrollPane courseListPanel = new ScrollPane(panel);
-        return makeScrollablePanelWithAction(courseListPanel, addBtn);
-    }
-
-    private HBox makeCourseListButton(String name, String level, Integer years) {
-        HBox yearsDisplay = listDetail("YEARS" , years.toString());
-        HBox levelDisplay = listDetail("LEVEL" , level);
-
-        VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
-        courseDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
-        return listButton;
-    }
-
-    private EventHandler pickCourse(Course tempCourse, VBox rightPanel, Text accText){
-        return event -> {
-
-            ArrayList<Button> accountBtnsList = new ArrayList<>();
-
-            accountBtnsList.add(currentButtons.get("EDIT COURSE"));
-            accountBtnsList.add(currentButtons.get("ASSIGN MODULE TO COURSE"));
-
-            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
-            accountBtns = stylePanelActions(accountBtns);
-
-            VBox accountBtnView = new VBox(accountBtns);
-
-            accountBtnView.setAlignment(Pos.CENTER);
-            accountBtnView.setSpacing(20.0);
-            accountBtnView.setPadding(new Insets(10));
-
-            rightPanel.getChildren().set(0, accText);
-            rightPanel.getChildren().set(1, accountBtnView);
-            rightPanel.setVisible(true);
-        };
-    }
+    /**
+     * Account dashboard - modals
+     **/
 
     private VBox resetPass() {
         VBox setPass = inputField("New password", false);
@@ -269,10 +232,134 @@ public class ManagerUI extends MainUI{
         return container;
     }
 
+    /**
+     * Course Dashboard
+     **/
+
+    public void courses(List<Course> courseList, List<String> moduleList) {
+        resetCurrentValues();
+
+        Button add = inputButton("ADD COURSE");
+        Button edit = inputButton("EDIT COURSE");
+        Button assign = inputButton("ASSIGN MODULE TO COURSE");
+
+        makeModal(add, "add", addCourse(), false, false);
+        makeModal(
+                edit, "edit",
+                new VBox(), // TODO: find way to pass in the selected course editCourse(courseList.get(0)),
+                false, false);
+        makeModal(assign, "assign", new VBox(), false, false);
+
+        VBox courseDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, courseDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseDetails);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
+    }
+
+    private VBox courseButtons(List<Course> courseList, Button addBtn, VBox rightPanel, VBox courseDetails){
+        VBox panel = new VBox();
+        Course tempCourse;
+        HBox tempButton;
+        for (Course course : courseList) {
+            tempCourse = course;
+            tempButton = makeCourseListButton(
+                    tempCourse.getName(),
+                    tempCourse.getLevel(),
+                    tempCourse.getLength()
+            );
+            tempButton.setOnMouseClicked(pickCourse(tempCourse, rightPanel, courseDetails));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollablePanelWithAction(courseListPanel, addBtn);
+    }
+
+    private HBox makeCourseListButton(String name, String level, Integer years) {
+        HBox yearsDisplay = listDetail("YEARS" , years.toString());
+        HBox levelDisplay = listDetail("LEVEL" , level);
+
+        VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
+        courseDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
+        return listButton;
+    }
+
+    private EventHandler pickCourse(Course tempCourse, VBox rightPanel, VBox courseDetails){
+        return event -> {
+            courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
+
+            ArrayList<Button> courseBtnsList = new ArrayList<>();
+
+            courseBtnsList.add(currentButtons.get("EDIT COURSE"));
+            courseBtnsList.add(currentButtons.get("ASSIGN MODULE TO COURSE"));
+
+            Button[] courseBtns = courseBtnsList.toArray(new Button[0]);
+            courseBtns = stylePanelActions(courseBtns);
+
+            VBox courseBtnView = new VBox(courseBtns);
+
+            courseBtnView.setAlignment(Pos.CENTER);
+            courseBtnView.setSpacing(20.0);
+            courseBtnView.setPadding(new Insets(10));
+
+            VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
+
+            rightPanel.getChildren().set(0, courseDetails);
+            rightPanel.getChildren().set(1, courseActionsDisplay);
+            rightPanel.setVisible(true);
+        };
+    }
+
+    private VBox courseDetailDisplay(Course tempCourse) {
+        Text idTitle = new Text(tempCourse.getName());
+        idTitle.getStyleClass().add("info-box-title");
+
+        VBox col1 = infoDetailLong("DESCRIPTION", tempCourse.getDescription());
+
+        Integer courseLength = tempCourse.getLength();
+
+        HBox col2 = new HBox(
+                listDetail("LEVEL", tempCourse.getLevel()),
+                listDetail("COURSE LENGTH", courseLength.toString())
+        );
+
+        col1.setSpacing(5);
+        col2.setSpacing(5);
+        return new VBox(idTitle, col1, col2);
+    }
+
+    /**
+     * Course Dashboard - modals
+     **/
+    private VBox addCourse() {
+        List<String> levelOptions = new ArrayList<String>();
+        levelOptions.add("Undergraduate");
+        levelOptions.add("Postgraduate");
+
+        VBox setName = inputField("Name", false);
+        VBox setDesc = inputFieldLong("Description");
+        VBox setLevel = dropdownField(
+                "Level",
+                levelOptions
+        );
+        VBox setYears = inputField("Length of course", false);
+
+        VBox container = new VBox(setName, setDesc, setLevel, setYears);
+        return container;
+    }
+
     private VBox editCourse(Course currentCourse) {
         Integer curYears = currentCourse.getLength();
 
-        VBox setDesc = inputFieldSetValue("Edit Description", currentCourse.getDescription());
+        VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.getDescription());
         VBox setLevel = inputFieldSetValue("Edit Level", currentCourse.getLevel());
         VBox setYear = inputFieldSetValue("Edit Length", curYears.toString());
 

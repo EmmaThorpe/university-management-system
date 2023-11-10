@@ -126,7 +126,7 @@
     -fx-padding: 0.2em 0px;
 }
 
-.text-field {
+.text-field, .text-area {
     -fx-background-insets: 0, 0 0 1 0;
     -fx-border-color: -drop-shadow;
     -fx-padding: 5;
@@ -137,7 +137,7 @@
 .combo-box-base {
     -fx-border-radius: 10;
     -fx-background-radius: 10;
-    -fx-border-color: -color-light-grey;
+    -fx-border-color:  -drop-shadow;
     -fx-padding: 5px 10px;
 }
 
@@ -176,12 +176,16 @@
     -fx-icon-size: 40;
 }
 
-.login-title {
+.login-title, .info-box-title {
     -fx-fill: -color-dark-grey;
     -fx-font-family: "Poppins";
     -fx-font-weight: bold;
-    -fx-font-size: 40;
+
     -fx-padding: 0.2em 0px;
+}
+
+.login-title {
+    -fx-font-size: 40;
 }
 
 .login-back {
@@ -284,6 +288,9 @@
 
 .panel {
     -fx-min-width: 400;
+    -fx-max-width: 500;
+    -fx-max-height: 450;
+    -fx-min-height: 450;
 }
 
 .card-toggle {
@@ -352,6 +359,21 @@
     -fx-padding: 0.2em 0px;
     -fx-max-width: 100;
     -fx-wrap-text: true;
+}
+
+.info-box {
+    -fx-border-radius: 10;
+    -fx-background-color: -drop-shadow;
+    -fx-background-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: -drop-shadow;
+    -fx-padding: 5;
+    -fx-text-fill: -color-dark-grey;
+}
+
+.info-box-title {
+    -fx-font-size: 20;
+    -fx-alignment: baseline-center;
 }
 
 .notfi-graphic {

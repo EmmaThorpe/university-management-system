@@ -20,6 +20,7 @@ import org.kordamp.ikonli.fontawesome5.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class MainUI {
@@ -151,7 +152,6 @@ public class MainUI {
 
         return panel;
     }
-
     protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -169,6 +169,13 @@ public class MainUI {
         return panel;
     }
 
+    protected VBox makeScrollablePart(VBox content) {
+        ScrollPane scrollPart = new ScrollPane(content);
+        scrollPart.setPadding(new Insets(20));
+        scrollPart.fitToHeightProperty().set(true);
+        scrollPart.fitToWidthProperty().set(true);
+        return new VBox(scrollPart);
+    }
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
@@ -306,6 +313,82 @@ public class MainUI {
         return activatedDisplay;
     }
 
+    protected VBox infoContainer(VBox content) {
+        content.setPadding(new Insets(10));
+        content.setSpacing(5);
+        VBox infoBox = new VBox(content);
+        infoBox.getStyleClass().add("info-box");
+
+        return infoBox;
+    }
+
+    protected VBox infoDetailLong(String title, String content){
+        HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
+        titleDisplay.getStyleClass().add("list-detail");
+
+        Text contentDisplay =new Text(content);
+        contentDisplay.setWrappingWidth(370);
+
+        VBox detail = new VBox(titleDisplay, contentDisplay);
+        detail.setPadding(new Insets(10));
+        detail.setSpacing(10);
+
+        return detail;
+    }
+
+
+    /**
+     *
+     this component is not in use right now but its purpose was to be
+     for any object, to get all its field names and values and
+     then display it as we see account details in manager
+     the problem was though accessing the field values as
+     the model here is not specific and therefore i
+     dont know how to call the get corresponding
+     get methods for each field, even though i figured
+     out how to get the name.
+     leaving it here to see if i can figure it out because
+     successfully implementing this would mean a lot less duped
+     code - fiona
+     */
+    protected VBox makePanelDetailDisplay(Object model) {
+        Field[] modelFields = model.getClass().getDeclaredFields();
+
+        Text idTitle = new Text(
+                model.getClass().getDeclaredFields()[0].getName()
+        );
+
+        int fieldNum = model.getClass().getDeclaredFields().length;
+        int fieldNumCutOffPoint = fieldNum / 2;
+
+        VBox row1 = new VBox();
+        VBox row2 = new VBox();
+
+        for (int i = 1; i < fieldNum; i++) {
+            Field currField = model.getClass().getDeclaredFields()[i];
+            if (i < fieldNumCutOffPoint) {
+                row1.getChildren().add(
+                        listDetail(
+                                currField.getName().toUpperCase(),
+                                "hi"
+                        )
+                );
+            } else {
+                row2.getChildren().add(
+                        listDetail(
+                                currField.getName().toUpperCase(),
+                                "world"
+                        )
+                );
+            }
+        }
+
+        row1.setSpacing(5);
+        row2.setSpacing(5);
+        HBox rows = new HBox(row1, row2);
+        return new VBox(idTitle, rows);
+    }
+
     public void createScene(String top, Pane mainContent, Pane bottom){
         VBox title = setTitle(top);
 
@@ -339,6 +422,34 @@ public class MainUI {
     protected VBox inputFieldSetValue(String text, String value){
         Label label=new Label(text);
         TextField field = new TextField(value);
+
+        currentFields.put(text, field);
+
+        VBox inputField = new VBox(label, field);
+        inputField.setPadding(new Insets(10));
+
+        return inputField;
+    }
+
+    protected VBox inputFieldLong(String text){
+        Label label=new Label(text);
+        TextArea field=new TextArea();
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
+
+        currentFields.put(text, field);
+
+        VBox inputField = new VBox(label, field);
+        inputField.setPadding(new Insets(10));
+
+        return inputField;
+    }
+
+    protected VBox inputFieldLongSetValue(String text, String value){
+        Label label=new Label(text);
+        TextArea field=new TextArea(value);
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
 
         currentFields.put(text, field);
 
