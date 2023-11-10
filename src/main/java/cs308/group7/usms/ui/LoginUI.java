@@ -15,23 +15,6 @@ import java.util.*;
 
 public class LoginUI extends MainUI{
 
-    private Map<String, Boolean> validFields;
-
-    protected VBox textAndField(String text, ChangeListener<String> listener){
-        Label label=new Label(text);
-        TextField field=new TextField();
-        Text inputText = new Text();
-
-        currentFields.put(text, field);
-        currentText.put(text, inputText);
-
-        field.textProperty().addListener(listener);
-
-        validFields.put(text, false);
-
-        return new VBox(label, field, inputText);
-    }
-
 
     /** Returns the login scene so it can then be displayed
      */
@@ -184,46 +167,6 @@ public class LoginUI extends MainUI{
 
     }
 
-
-    public boolean validPassword(String password, Text output){
-        String specialChars = "@!#$%&/()=?@£{}.-;<>_,*";
-        boolean upperCharacter = false;
-        boolean lowerCharacter = false;
-        boolean number = false;
-        boolean specialCharacter = false;
-
-        for (int i = 0; i < password.length(); i++){
-            char curr = password.charAt(i);
-
-            if(Character.isUpperCase(curr)){
-                upperCharacter = true;
-            }else if(Character.isLowerCase(curr)){
-                lowerCharacter = true;
-            }else if(Character.isDigit(curr)){
-                number = true;
-            }else if(specialChars.contains(Character.toString(curr))){
-                specialCharacter = true;
-            }else{
-                output.setText("Contains character not allowed in passwords");
-                return false;
-            }
-        }
-
-        if(!upperCharacter){
-            output.setText("Password must contain an uppercase letter");
-            return false;
-        }else if(!lowerCharacter){
-            output.setText("Password must contain a lowercase letter");
-            return false;
-        }else if(!number){
-            output.setText("Password must contain a number");
-            return false;
-        }else if(!specialCharacter){
-            output.setText("Password must contain a special letter");
-            return false;
-        }
-        return true;
-    }
 
 
     protected ChangeListener<Toggle> toggleUser(ToggleGroup userSelected, ScrollPane formContent, VBox qualificationField){

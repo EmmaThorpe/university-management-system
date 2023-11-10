@@ -42,7 +42,7 @@ public class ManagerUI extends UserUI{
         Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
         passwordBtn.getStyleClass().add("toolbar-btn");
-        makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(),false, false, true);
+        makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
 
         Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
@@ -87,9 +87,9 @@ public class ManagerUI extends UserUI{
 
         stylePanelActions(accountBtnsList.toArray(new Button[0]));
 
-        makeModal(assign,"ASSIGN LECTURER MODULE MODAL",  assignModule(moduleList), false, false, false);
-        makeModal(reset,"RESET USER PASSWORD",  resetPass(true), false, false, true);
-        makeModal(enrol,"ENROL STUDENT MODAL", enrolCourse(coursesList), false, false, false);
+        makeModal(assign,"ASSIGN LECTURER MODULE MODAL",  assignModule(moduleList),  false);
+        makeModal(reset,"RESET USER PASSWORD",  resetPass(true), true);
+        makeModal(enrol,"ENROL STUDENT MODAL", enrolCourse(coursesList), false);
 
         VBox accountDetails = new VBox(new VBox());
 
@@ -315,9 +315,9 @@ public class ManagerUI extends UserUI{
         Button edit = inputButton("EDIT COURSE");
         Button assign = inputButton("ASSIGN MODULE TO COURSE");
 
-        makeModal( add, "add", addCourse(), false, false, false);
-        makeModal( edit, "edit", new VBox(), false, false, false);
-        makeModal(assign, "assign", assignCourseModule(moduleList), false, false, false);
+        makeModal( add, "add", addCourse(),  false);
+        makeModal( edit, "edit", new VBox(),  false);
+        makeModal(assign, "assign", assignCourseModule(moduleList), false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -455,9 +455,9 @@ public class ManagerUI extends UserUI{
         Button assign = inputButton("ASSIGN MODULE TO LECTURER");
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
-        makeModal(add, "add", new VBox(), false, false, false);
-        makeModal( edit, "edit", new VBox(), false, false, false);
-        makeModal( assign, "assign", new VBox(), false, false, false);
+        makeModal(add, "add", new VBox(), false);
+        makeModal( edit, "edit", new VBox(), false);
+        makeModal( assign, "assign", new VBox(), false);
 
         VBox moduleDetails = new VBox(new VBox());
 
