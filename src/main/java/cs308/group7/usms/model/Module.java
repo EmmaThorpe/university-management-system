@@ -40,6 +40,8 @@ public class Module {
         this.credit = credit;
     }
 
+    public String getModuleID() { return moduleID; }
+
     public String getName() { return name; }
 
     public String getDescription() { return description; }

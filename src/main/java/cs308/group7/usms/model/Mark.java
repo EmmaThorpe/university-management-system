@@ -50,7 +50,10 @@ public class Mark {
         this.labMark = labMark;
         this.examMark = examMark;
     }
+    
+    public String getModuleID() { return moduleID; }
 
+    public String getUserID() { return userID; }
 
     public double getLabMark() { return labMark; }
 
