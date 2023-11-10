@@ -1,6 +1,7 @@
 package cs308.group7.usms.ui;
 
 import cs308.group7.usms.model.*;
+import cs308.group7.usms.model.Module;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,6 +14,7 @@ import javafx.scene.text.Text;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -243,13 +245,23 @@ public class ManagerUI extends MainUI{
      * Account dashboard - pages
      **/
 
-    public void studentDecision() {
+    /** WIP
+    public void studentDecision(Student currStudent, List<Module> moduleList, List<Mark> markList) throws SQLException {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Accounts: Issue Student Decision");
 
+        VBox panel = new VBox();
 
+        for (Module module : moduleList) {
+            List<Student> moduleSem1 = module.getStudents(true, false, currStudent.getYearOfStudy());
+            List<Student> moduleSem2 =module.getStudents(false, true, currStudent.getYearOfStudy());
+            if (moduleSem1.contains(currStudent) || moduleSem2.contains(currStudent)) {
+                panel.getChildren().add(makeMarkList(currStudent.getMark(module.getModuleID(), latestAttempt) ,
+                        module.getName()));
+            }
+        }
 
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
+        VBox mainActionPanel = makePanel(panel);
         mainActionPanel.setAlignment(Pos.CENTER);
 
         HBox actionPanel = new HBox(mainActionPanel);
@@ -267,17 +279,27 @@ public class ManagerUI extends MainUI{
         currScene = new Scene(root);
     }
 
-    public makeMarkList (Student currStudent) {
-        for (Module m : currStudent.getM
+    public makeMarkList (Mark mark) {
+            Double examValue = mark.getExamMark();
+            String examMark = examValue.toString() + "%";
 
-        HBox yearsDisplay = listDetail("YEARS" , years.toString());
-        HBox levelDisplay = listDetail("LEVEL" , level);
+            Double labValue = mark.getLabMark();
+            String labMark = labValue.toString() + "%";
 
-        VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
-        courseDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
-        return
+            Integer attemptValue = mark.getAttemptNo();
+            String attemptNo = attemptValue.toString();
+
+            HBox examDisplay = listDetail("EXAM", examMark);
+            HBox labDisplay = listDetail("LAB", labMark);
+            HBox attemptDisplay = listDetail("ATTEMPT NUMBER", attemptNo);
+
+            VBox markDetails = new VBox(examDisplay, labDisplay, attemptDisplay);
+
+            markDetails.setSpacing(5.0);
+            HBox listButton = makeListButton(mark.getModuleID(), new FontIcon(FontAwesomeSolid.AWARD), markDetails);
+            return listButton;
     }
+     */
 
     /**
      * Course Dashboard
