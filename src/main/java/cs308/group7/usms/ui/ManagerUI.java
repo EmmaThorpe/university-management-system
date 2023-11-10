@@ -14,6 +14,7 @@ import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ManagerUI extends MainUI{
@@ -66,12 +67,19 @@ public class ManagerUI extends MainUI{
     public void accounts(List<User> accountList, List<Course> coursesList, List<String> moduleList) {
         resetCurrentValues();
 
-        inputButton("ISSUE STUDENT DECISION");
+        ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+
+        accountBtnsList.add(inputButton("ISSUE STUDENT DECISION"));
         Button assign = inputButton("ASSIGN LECTURER TO MODULE");
-        Button reset = inputButton("RESET PASSWORD");
-        inputButton("ACTIVATE");
-        inputButton("DEACTIVATE");
         Button enrol = inputButton("ENROL STUDENT INTO COURSE");
+        accountBtnsList.add(enrol);
+        accountBtnsList.add(assign);
+        Button reset = inputButton("RESET PASSWORD");
+        accountBtnsList.add(reset);
+        accountBtnsList.add(inputButton("ACTIVATE"));
+        accountBtnsList.add(inputButton("DEACTIVATE"));
+
+        stylePanelActions(accountBtnsList.toArray(new Button[0]));
 
         makeModal("ASSIGN LECTURER MODULE MODAL",assign, "assign to module", assignModule(moduleList), false, false);
         makeModal("RESET PASSWORD MODAL", reset, "reset password", resetPass(), false, false);
@@ -145,12 +153,11 @@ public class ManagerUI extends MainUI{
                 accountBtnsList.add(currentButtons.get("ASSIGN LECTURER TO MODULE"));
             }
 
+
             accountBtnsList.add(currentButtons.get("RESET PASSWORD"));
             accountBtnsList.add(currentButtons.get("ACTIVATE"));
             accountBtnsList.add(currentButtons.get("DEACTIVATE"));
 
-            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
-            accountBtns = stylePanelActions(accountBtns);
 
             if (tempUser.getActivated()) {
                 currentButtons.get("ACTIVATE").setDisable(true);
@@ -160,6 +167,7 @@ public class ManagerUI extends MainUI{
                 currentButtons.get("DEACTIVATE").setDisable(true);
             }
 
+            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
             VBox accountBtnView = new VBox(accountBtns);
 
             accountBtnView.setAlignment(Pos.CENTER);
@@ -232,6 +240,46 @@ public class ManagerUI extends MainUI{
     }
 
     /**
+     * Account dashboard - pages
+     **/
+
+    public void studentDecision() {
+        resetCurrentValues();
+        HBox toolbar = makeToolbar("Accounts: Issue Student Decision");
+
+
+
+        VBox mainActionPanel = makePanel(new VBox(mngBtns));
+        mainActionPanel.setAlignment(Pos.CENTER);
+
+        HBox actionPanel = new HBox(mainActionPanel);
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
+    public makeMarkList (Student currStudent) {
+        for (Module m : currStudent.getM
+
+        HBox yearsDisplay = listDetail("YEARS" , years.toString());
+        HBox levelDisplay = listDetail("LEVEL" , level);
+
+        VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
+        courseDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
+        return
+    }
+
+    /**
      * Course Dashboard
      **/
 
@@ -244,7 +292,7 @@ public class ManagerUI extends MainUI{
 
         makeModal("ADD COURSE MODAL", add, "add", addCourse(), false, false);
         makeModal("EDIT COURSE MODAL", edit, "edit", new VBox(), false, false);
-        makeModal("ASSIGN MODULE MODAL", assign, "assign", new VBox(), false, false);
+        makeModal("ASSIGN MODULE MODAL", assign, "assign", assignCourseModule(moduleList), false, false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -358,4 +406,10 @@ public class ManagerUI extends MainUI{
         return container;
     }
 
+    private VBox assignCourseModule(List<String> modules) {
+        VBox setModule = dropdownField("Module to assign to",
+                modules);
+        VBox container = new VBox(setModule);
+        return container;
+    }
 }

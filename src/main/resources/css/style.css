@@ -369,11 +369,12 @@
     -fx-border-color: -drop-shadow;
     -fx-padding: 5;
     -fx-text-fill: -color-dark-grey;
+    -fx-max-width: 470;
 }
 
 .info-box-title {
     -fx-font-size: 20;
-    -fx-alignment: baseline-center;
+    -fx-text-alignment: center;
 }
 
 .notfi-graphic {

@@ -5,7 +5,9 @@ import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Course {
     private final String courseID;
@@ -95,28 +97,31 @@ public class Course {
     /**
      * Gets the modules for the course within the curriculum timeframe specified
      * @return The result of the query
+     * @throws SQLException If the query fails
      */
-    public void getModules(boolean sem1, boolean sem2, int year) {
+    public List<Module> getModules(boolean sem1, boolean sem2, int year) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         String semester1 = (sem1) ? "1" : "0";
         String semester2 = (sem2) ? "1" : "0";
         try {
             CachedRowSet result = db.select(new String[]{"Curriculum", "Module"}, new String[]{"Module.ModuleID"},
                                             new String[]{"Module.ModuleID = Curriculum.ModuleID",
-                                                         "Curriculum.CourseID = " + courseID,
+                                                         "Curriculum.CourseID = " + db.sqlString(courseID),
                                                          "Curriculum.Semester1 = " + semester1,
                                                          "Curriculum.Semester2 = " + semester2,
                                                          "Curriculum.Year = " + year});
 
+            List<Module> moduleList = new ArrayList<>();
             while(result.next()){
                 String moduleID = result.getString("ModuleID");
-                System.out.println(moduleID);
+                Module m = new Module(moduleID);
+                moduleList.add(m);
             }
 
-            return; //TODO: change return when Module is implemented
+            return moduleList;
         } catch (SQLException e) {
             System.out.println("Failed to query modules.");
-            return;
+            throw new SQLException(e.getMessage() + " - " + courseID + "'s getModules failed");
         }
     }
 
@@ -124,53 +129,53 @@ public class Course {
      * Gets all the modules for the course
      * @return The result of the query
      */
-    public void getModules() {
+    public List<Module> getModules() throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Curriculum", "Module"},
-                                            new String[]{"Module.ModuleID"},
+                                            new String[]{"DISTINCT Module.ModuleID"},
                                             new String[]{"Module.ModuleID = Curriculum.ModuleID",
                                                          "Curriculum.CourseID = " + courseID});
 
+            List<Module> moduleList = new ArrayList<>();
             while(result.next()){
                 String moduleID = result.getString("ModuleID");
-                System.out.println(moduleID);
+                Module m = new Module(moduleID);
+                moduleList.add(m);
             }
 
-            return; //TODO: change return when Module is implemented
+            return moduleList;
         } catch (SQLException e) {
             System.out.println("Failed to query modules.");
-            return;
+            throw new SQLException(e.getMessage() + " - " + courseID + "'s getModules failed");
         }
     }
 
     /**
      * Gets all the students for the course
      * @return The result of the query
+     * @throws SQLException if the query fails
      */
-    public Student[] getStudents() {
+    public List<Student> getStudents() throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Curriculum", "Student"},
                                             new String[]{"DISTINCT Student.UserID"},
                                             new String[]{"Curriculum.CourseID = Student.CourseID",
                                                          "Curriculum.CourseID = " + db.sqlString(courseID)});
-            Student[] studentList = new Student[result.size()];
-            int i = 0;
+            List<Student> studentList = new ArrayList<>();
 
             while(result.next()){
                 String userID = result.getString("UserID");
                 Student s = new Student(userID);
-                studentList[i] = s;
-                i++;
+                studentList.add(s);
             }
 
             return studentList;
 
         } catch (SQLException e) {
             System.out.println("Failed to query students.");
-            System.out.println(e.getMessage());
-            return new Student[0];
+            throw new SQLException(e.getMessage() + " - " + courseID + "'s getStudents failed");
         }
     }
 }
