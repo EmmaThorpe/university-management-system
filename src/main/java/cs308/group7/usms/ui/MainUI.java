@@ -231,13 +231,16 @@ public class MainUI {
             modalGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
             modalGraphic.getStyleClass().add("modal-graphic");
             header.getChildren().add(modalGraphic);
+            header.setId("SUCCESS");
         } else if (isError) {
             header.getStyleClass().add("modal-header-err");
             modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
             modalGraphic.getStyleClass().add("modal-graphic");
             header.getChildren().add(modalGraphic);
+            header.setId("ERROR");
         } else {
             header.getStyleClass().add("modal-header");
+            header.setId("");
         }
 
         header.getChildren().add(headerTitle);
@@ -270,6 +273,15 @@ public class MainUI {
         VBox modalContent = (VBox) modal.getDialogPane().getContent();
         modalContent.getChildren().set(0, updateContent);
     }
+
+    //will return the header id, that returns "SUCCESS" if the modal
+    //was a success modal, "ERROR" if error modal, and the empty
+    //string when it is neither
+    protected String getModalStatus(Dialog modal){
+        String modalStatus = modal.getDialogPane().getHeader().getId();
+        return modalStatus;
+    }
+
     protected HBox modalButtonBar(Button action, DialogPane modal){
         ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 
