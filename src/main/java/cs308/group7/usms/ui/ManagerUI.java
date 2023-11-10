@@ -182,11 +182,11 @@ public class ManagerUI extends MainUI{
         rightActionPanel.getChildren().add(0, courseText);
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = courseButtons(courseList, rightActionPanel, courseText);
+        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseText);
         twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
     }
 
-    private VBox courseButtons(List<Course> courseList, VBox rightPanel, Text accText){
+    private VBox courseButtons(List<Course> courseList, Button addBtn, VBox rightPanel, Text accText){
         VBox panel = new VBox();
         Course tempCourse;
         HBox tempButton;
@@ -204,8 +204,8 @@ public class ManagerUI extends MainUI{
         panel.setSpacing(20.0);
         panel.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane accountListPanel = new ScrollPane(panel);
-        return makeScrollablePanel(accountListPanel);
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
     private HBox makeCourseListButton(String name, String level, Integer years) {

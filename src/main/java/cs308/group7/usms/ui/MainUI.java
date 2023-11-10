@@ -152,6 +152,23 @@ public class MainUI {
         return panel;
     }
 
+    protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
+        content.setPadding(new Insets(20));
+        content.fitToHeightProperty().set(true);
+        content.fitToWidthProperty().set(true);
+
+        HBox btnContainer = new HBox(action);
+        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
+        btnContainer.setPadding(new Insets(0, 0, 20, 0));
+
+        VBox panel = new VBox(content, btnContainer);
+
+        panel.setSpacing(5);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
