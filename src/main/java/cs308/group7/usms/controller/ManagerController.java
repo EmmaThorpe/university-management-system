@@ -1,18 +1,13 @@
 package cs308.group7.usms.controller;
 
-import cs308.group7.usms.model.Course;
-import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.model.User;
-import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +55,7 @@ public class ManagerController{
                 buttons =manUI.getCurrentButtons();
                 break;
             case "MANAGE MODULES":
-                manUI.modules(getModules(), getLecturers());
+                manUI.modules(getModules(), getFreeLecturers());
                 buttons =manUI.getCurrentButtons();
                 break;
         }
@@ -142,85 +137,57 @@ public class ManagerController{
 
     }
 
-    /**Gets a list of all courses
-     * @return List containing the id of all modules
+    /**
+     * Gets a list of all courses
+     *
+     * @return List containing a map of course info
      */
-    public List<Course> getCourses(){
-        //test values for view
-        List<Course> courses = new ArrayList<>();
-        courses.add(new Course("G600",
-                "Software Engineering",
-                "Software Engineering will provide you with the essential skills to become a professional developer " +
-                        "of high-quality software, focusing on large-scale software systems.",
-                "Undergraduate",
-                4));
-        courses.add(new Course("GHK6",
-                "Computer & Electronic Systems",
-                "Computer and Electronic Systems is one of the few UK degrees with triple accreditation from the Institution of Engineering and Technology, British Computer Society and the Science Council.",
-                "Undergraduate",
-                4));
-        courses.add(new Course("G400",
-                "Computer Science",
-                "Computer Science demands and develops a challenging mix of skills and abilities. Our graduates not only understand new technologies but can influence their development.",
-                "Undergraduate",
-                4));
+    public List<Map<String, String>> getCourses(){
+        List<Map<String, String>> courses = new ArrayList<>();
+        HashMap<String, String> temp = new HashMap<>();
+        temp.put("Id","G600");
+        temp.put("Name","Software Engineering");
+        temp.put("Description","Software Engineering will of high-quality software, focusing on large-scale software systems." );
+        temp.put("Level", "Undergraduate");
+        temp.put("Years", "4");
+
+        courses.add(temp);
         return courses;
     }
 
     /**
      * Gets a list of all modules
      *
-     * @return List containing the id's and names of all modules
+     * @return List of maps containg module info
      */
-    public List<Module> getModules(){
-        getUsers();
-        //test values for view
-        List<Module> modules = new ArrayList<>();
-        modules.add(new Module("CS308",
-                        "Building Software Systems",
-                        "Development in a group setting of significant systems from scratch.",
-                        20));
-        modules.add(new Module("CS312",
-                "Web Applications Development",
-                "Introduces the basic concepts and fundamental technical skills required for web app development. ",
-                20));
-        modules.add(new Module("CS316",
-                "Functional Programming",
-                "Functional Programming is a style of programming based on writing programs that generate their " +
-                        "results by constructing new data."
-                ,20));
+    public List<Map<String, String>> getModules(){
+        List<Map<String, String>> modules = new ArrayList<>();
+        HashMap temp = new HashMap<String, String>();
+        temp.put("Id","CS308");
+        temp.put("Name", "Building Software Systems");
+        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
+        temp.put("Credit", "20");
+        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
+
+        modules.add(temp);
         return modules;
     }
 
 
     /**
-     * Gets a list of all lecturers
+     * Gets a list of all lecturers with no current class
      *
-     * @return List containing the id of all lecturers
+     * @return List of maps containing the name and the id of all lecturers
      */
-    public List<Lecturer> getLecturers(){
-        //test values for view
-        List<User> users = getUsers();
-        List<Lecturer> lecturers = new ArrayList<>();
-        try {
-            lecturers.add(new Lecturer(
-                    "lec1",
-                    "CS308",
-                    "Doctor"
-            ));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Map<String, String>> getFreeLecturers(){
+        List<Map<String, String>> lecturers = new ArrayList<>();
+        Map<String, String> temp = new HashMap<>();
+        temp.put("Id", "GOAT");
+        temp.put("Name","Theresa May");
+        lecturers.add(temp);
         return lecturers;
     }
 
-    /**Gets info of the curriculum the student is in
-     * @param moduleID
-     * @return A map containing module information
-     */
-    public Map<String,String> getModuleInformation(String moduleID){
-        return null;
-    }
 
     /** Assign a lecturer to a module
      * @param lecturerID

@@ -1,16 +1,18 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.model.Student;
 import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class StudentController{
-    String userID;
+    Student currStu;
     StudentUI stuUI;
 
-    public StudentController(String id){
-        userID = id;
+    public StudentController(String id) throws SQLException {
+        currStu = new Student(id);
         stuUI = new StudentUI();
         stuUI.home();
         stuUI.displayScene();
@@ -19,7 +21,6 @@ public class StudentController{
     /**Changes the password for a user.
      * @param oldPass
      * @param newPass
-     * @return Boolean value representing if the password change was successful or not.
      */
     public boolean changePassword(String oldPass, String newPass){
         return true;
@@ -36,7 +37,7 @@ public class StudentController{
     /** Get weekly lecture materials for a course
      * @param moduleID
      * @param week
-     * @return ???
+     * @return ??? Whatever the pdf type is
      */
     public String getLectureMaterials(String moduleID, int week){
         return "";

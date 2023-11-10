@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class ManagerUI extends UserUI{
 
@@ -70,7 +71,7 @@ public class ManagerUI extends UserUI{
      * Accounts Dashboard
      **/
 
-    public void accounts(List<User> accountList, List<Course> coursesList, List<Module> moduleList) {
+    public void accounts(List<User> accountList, List<Map<String, String>> coursesList, List<Map<String, String>> moduleList) {
         resetCurrentValues();
 
         ArrayList<Button> accountBtnsList = new ArrayList<Button>();
@@ -218,11 +219,11 @@ public class ManagerUI extends UserUI{
      * Account dashboard - modals
      **/
 
-    private VBox enrolCourse(List<Course> courses) {
+    private VBox enrolCourse(List<Map<String, String>> courses) {
         List<String> courseNames = new ArrayList<String>();
 
-        for (Course c : courses) {
-            courseNames.add(c.getName());
+        for (Map<String, String> c : courses) {
+            courseNames.add(c.get("Name"));
         }
         VBox setCourse = dropdownField("Course to enrol to",
                 courseNames);
@@ -231,11 +232,11 @@ public class ManagerUI extends UserUI{
         return container;
     }
 
-    private VBox assignModule(List<Module> modules) {
+    private VBox assignModule(List<Map<String, String>> modules) {
         List<String> moduleNames = new ArrayList<String>();
 
-        for (Module m : modules) {
-            moduleNames.add(m.getName());
+        for (Map<String, String> m : modules) {
+            moduleNames.add(m.get("Name"));
         }
         VBox setCourse = dropdownField("Module to assign to",
                 moduleNames);
@@ -308,7 +309,7 @@ public class ManagerUI extends UserUI{
      * Course Dashboard
      **/
 
-    public void courses(List<Course> courseList, List<Module> moduleList) {
+    public void courses(List<Map<String, String>> courseList, List<Map<String, String>> moduleList) {
         resetCurrentValues();
 
         Button add = inputButton("ADD COURSE");
@@ -329,18 +330,16 @@ public class ManagerUI extends UserUI{
         twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
     }
 
-    private VBox courseButtons(List<Course> courseList, Button addBtn, VBox rightPanel, VBox courseDetails){
+    private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel, VBox courseDetails){
         VBox panel = new VBox();
-        Course tempCourse;
         HBox tempButton;
-        for (Course course : courseList) {
-            tempCourse = course;
+        for (Map<String, String> course : courseList) {
             tempButton = makeCourseListButton(
-                    tempCourse.getName(),
-                    tempCourse.getLevel(),
-                    tempCourse.getLength()
+                    course.get("Name"),
+                    course.get("Level"),
+                    course.get("Years")
             );
-            tempButton.setOnMouseClicked(pickCourse(tempCourse, rightPanel, courseDetails));
+            tempButton.setOnMouseClicked(pickCourse(course, rightPanel, courseDetails));
             panel.getChildren().add(tempButton);
         }
 
@@ -351,8 +350,8 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
-    private HBox makeCourseListButton(String name, String level, Integer years) {
-        HBox yearsDisplay = listDetail("YEARS" , years.toString());
+    private HBox makeCourseListButton(String name, String level, String years) {
+        HBox yearsDisplay = listDetail("YEARS" , years);
         HBox levelDisplay = listDetail("LEVEL" , level);
 
         VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
@@ -361,7 +360,7 @@ public class ManagerUI extends UserUI{
         return listButton;
     }
 
-    private EventHandler pickCourse(Course tempCourse, VBox rightPanel, VBox courseDetails){
+    private EventHandler pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails){
         return event -> {
             courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
 
@@ -389,17 +388,16 @@ public class ManagerUI extends UserUI{
         };
     }
 
-    private VBox courseDetailDisplay(Course tempCourse) {
-        Text idTitle = new Text(tempCourse.getName());
+    private VBox courseDetailDisplay(Map<String, String> tempCourse) {
+        Text idTitle = new Text(tempCourse.get("Name"));
         idTitle.getStyleClass().add("info-box-title");
 
-        VBox col1 = infoDetailLong("DESCRIPTION", tempCourse.getDescription());
+        VBox col1 = infoDetailLong("DESCRIPTION", tempCourse.get("Description"));
 
-        Integer courseLength = tempCourse.getLength();
 
         HBox col2 = new HBox(
-                listDetail("LEVEL", tempCourse.getLevel()),
-                listDetail("COURSE LENGTH", courseLength.toString())
+                listDetail("LEVEL", tempCourse.get("Level")),
+                listDetail("COURSE LENGTH", tempCourse.get("Length"))
         );
 
         col1.setSpacing(5);
@@ -420,22 +418,20 @@ public class ManagerUI extends UserUI{
         return container;
     }
 
-    private VBox editCourse(Course currentCourse) {
-        Integer curYears = currentCourse.getLength();
-
-        VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.getDescription());
-        VBox setLevel = inputFieldSetValue("Edit Level of Study", currentCourse.getLevel());
-        VBox setYear = inputFieldSetValue("Edit Length of Course", curYears.toString());
+    private VBox editCourse(Map<String, String> currentCourse) {
+        VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.get("Description"));
+        VBox setLevel = inputFieldSetValue("Edit Level of Study", currentCourse.get("Level"));
+        VBox setYear = inputFieldSetValue("Edit Length of Course", currentCourse.get("Length"));
 
         VBox container = new VBox(setDesc, setLevel, setYear);
         return container;
     }
 
-    private VBox assignCourseModule(List<Module> modules) {
+    private VBox assignCourseModule(List<Map<String, String>> modules) {
         List<String> moduleNames = new ArrayList<String>();
 
-        for (Module m : modules) {
-            moduleNames.add(m.getName());
+        for (Map<String, String> m : modules) {
+            moduleNames.add(m.get("Name"));
         }
         VBox setCourse = dropdownField("Module to assign to",
                 moduleNames);
@@ -448,7 +444,7 @@ public class ManagerUI extends UserUI{
      * Course Dashboard
      **/
 
-    public void modules(List<Module> moduleList, List<Lecturer> lecturerList) {
+    public void modules(List<Map<String, String>> moduleList, List<Map<String, String>> lecturerList) {
         resetCurrentValues();
 
         Button add = inputButton("ADD MODULE");
@@ -469,18 +465,16 @@ public class ManagerUI extends UserUI{
         twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
     }
 
-    private VBox moduleButtons(List<Module> moduleList, Button addBtn, VBox rightPanel, VBox moduleDetails){
+    private VBox moduleButtons(List<Map<String, String>> moduleList, Button addBtn, VBox rightPanel, VBox moduleDetails){
         VBox panel = new VBox();
-        Module tempModule;
         HBox tempButton;
-        for (Module module : moduleList) {
-            tempModule = module;
+        for (Map<String, String> module : moduleList) {
             tempButton = makeModuleListButton(
-                    tempModule.getModuleID(),
-                    tempModule.getName(),
-                    tempModule.getCredit()
+                    module.get("Id"),
+                    module.get("Name"),
+                    module.get("Credit")
             );
-            tempButton.setOnMouseClicked(pickModule(tempModule, rightPanel, moduleDetails));
+            tempButton.setOnMouseClicked(pickModule(module, rightPanel, moduleDetails));
             panel.getChildren().add(tempButton);
         }
 
@@ -491,8 +485,8 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
-    private HBox makeModuleListButton(String id, String name, Integer credit) {
-        HBox yearsDisplay = listDetail("CREDITS" , credit.toString());
+    private HBox makeModuleListButton(String id, String name, String credit) {
+        HBox yearsDisplay = listDetail("CREDITS" , credit);
         Text nameDisplay = new Text(name);
 
         VBox courseDetails = new VBox(nameDisplay, yearsDisplay);
@@ -501,7 +495,7 @@ public class ManagerUI extends UserUI{
         return listButton;
     }
 
-    private EventHandler pickModule(Module tempModule, VBox rightPanel, VBox moduleDetails){
+    private EventHandler pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {
             moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
 
@@ -527,27 +521,20 @@ public class ManagerUI extends UserUI{
         };
     }
 
-    private VBox moduleDetailDisplay(Module tempModule) {
-        Text idTitle = new Text(tempModule.getName());
+    private VBox moduleDetailDisplay(Map<String, String> tempModule) {
+        Text idTitle = new Text(tempModule.get("Name"));
         idTitle.getStyleClass().add("info-box-title");
 
-        String creditsValue = ((Integer) tempModule.getCredit()).toString();
+        String creditsValue = tempModule.get("Credit");
         HBox col1 = new HBox (
-                listDetail("NAME", tempModule.getName()),
+                listDetail("NAME", tempModule.get("Name")),
                 listDetail("CREDITS", creditsValue)
         );
-        VBox col2 = infoDetailLong("DESCRIPTION", tempModule.getDescription());
+        VBox col2 = infoDetailLong("DESCRIPTION", tempModule.get("Description"));
 
-        String moduleLecs = "";
-        try {
-            for (Lecturer moduleLec : tempModule.getLecturers()) {
-                moduleLecs += moduleLec.getForename() + " " + moduleLec.getSurname() + "\n";
-            }
-        } catch (SQLException e) {
-            moduleLecs += "N/A";
-        }
 
-        VBox col3 = infoDetailLong("LECTURER(S)", moduleLecs);
+
+        VBox col3 = infoDetailLong("LECTURER(S)", tempModule.get("Lecturers"));
 
         col1.setSpacing(5);
         col2.setSpacing(5);
