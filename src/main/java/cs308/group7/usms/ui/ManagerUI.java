@@ -381,7 +381,7 @@ public class ManagerUI extends UserUI{
 
             VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
 
-            setModalContent(currentModals.get("EDIT COURSE MODAL"), editCourse(tempCourse));
+            setModalContent(currentModals.get("edit"), editCourse(tempCourse));
 
             rightPanel.getChildren().set(0, courseDetails);
             rightPanel.getChildren().set(1, courseActionsDisplay);

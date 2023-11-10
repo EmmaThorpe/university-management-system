@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -19,8 +20,6 @@ public class UserUI extends MainUI{
         VBox confirmPass = textAndField("CONFIRM NEW PASSWORD", confirmPasswordCheck(manager));
 
         VBox container = new VBox(setPass, confirmPass);
-
-
 
         return container;
     }
@@ -48,8 +47,8 @@ public class UserUI extends MainUI{
 
     protected ChangeListener<String> confirmPasswordCheck(Boolean manager){
         return (obs, oldText, newText) -> {
-            System.out.println(currentFields.get("NEW PASSWORD").getAccessibleText());
-            if (!newText.equals(currentFields.get("NEW PASSWORD").getAccessibleText())) {
+            TextField newPassField = (TextField) currentFields.get("NEW PASSWORD");
+            if (!newText.equals(newPassField.getText())) {
                 currentText.get("CONFIRM NEW PASSWORD").setText("Passwords must match");
                 checkValidPasswordFields("CONFIRM NEW PASSWORD", false, manager);
             } else {

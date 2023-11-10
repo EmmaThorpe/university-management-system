@@ -52,9 +52,11 @@ public class ManagerController{
             case "MANAGE COURSES":
                 manUI.courses(getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
+                break;
             case "MANAGE MODULES":
                 manUI.modules(getModules(), getLecturers());
                 buttons =manUI.getCurrentButtons();
+                break;
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
         //buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword());
@@ -173,8 +175,7 @@ public class ManagerController{
         List<Module> modules = new ArrayList<>();
         modules.add(new Module("CS308",
                         "Building Software Systems",
-                        "Development in a group setting of significant systems from scratch aiming not just at any " +
-                                "solution but a good solution, and to be introduced to more general Software Engineering topics.",
+                        "Development in a group setting of significant systems from scratch.",
                         20));
         modules.add(new Module("CS312",
                 "Web Applications Development",
@@ -182,8 +183,9 @@ public class ManagerController{
                 20));
         modules.add(new Module("CS316",
                 "Functional Programming",
-                "Functional Programming is a style of programming based on writing programs that generate their results by constructing new data, instead of modifying existing data. This is a simple idea that has profound consequences for how we write programs, and the kinds of programs that are made easier to write",
-                20));
+                "Functional Programming is a style of programming based on writing programs that generate their " +
+                        "results by constructing new data."
+                ,20));
         return modules;
     }
 
@@ -195,27 +197,12 @@ public class ManagerController{
      */
     public List<Lecturer> getLecturers(){
         //test values for view
+        List<User> users = getUsers();
         List<Lecturer> lecturers = new ArrayList<>();
         try {
             lecturers.add(new Lecturer(
-                    "abc4",
+                    "lec1",
                     "CS308",
-                    "Doctor"
-            ));
-
-            lecturers.add(new Lecturer(
-                    "abc6",
-                    "CS316",
-                    "Doctor"
-            ));
-            lecturers.add(new Lecturer(
-                    "abc7",
-                    "CS312",
-                    "Doctor"
-            ));
-            lecturers.add(new Lecturer(
-                    "abc8",
-                    "CS312",
                     "Doctor"
             ));
         } catch (SQLException e) {
