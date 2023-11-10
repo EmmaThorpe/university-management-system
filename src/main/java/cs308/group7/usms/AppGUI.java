@@ -5,6 +5,7 @@ import cs308.group7.usms.ui.MainUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class AppGUI extends Application {
@@ -14,7 +15,7 @@ public class AppGUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws SQLException {
         Map<String, String> user;
         boolean exiting = false;
         while (!exiting) {
