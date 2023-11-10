@@ -110,8 +110,8 @@ Create Table Mark(
     ModuleID VARCHAR(5) NOT NULL,
     UserID VARCHAR(5) NOT NULL,
     AttNo INT NOT NULL,
-    Lab FLOAT NOT NULL,
-    Exam FLOAT NOT NULL,
+    Lab FLOAT,
+    Exam FLOAT,
     CONSTRAINT pkMark PRIMARY KEY(ModuleID, UserID, AttNo),
     Constraint fkMark FOREIGN KEY(ModuleID) REFERENCES Module(ModuleID),
     Constraint fkMark2 FOREIGN KEY(UserID) REFERENCES Users(UserID)

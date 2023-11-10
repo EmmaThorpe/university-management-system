@@ -76,11 +76,7 @@ public class Student extends User {
         }
     }
 
-    // TODO: private boolean addMark(int moduleID, Mark mark)
-
-    // TODO: private boolean getMark(int moduleID, int attemptNumber)
-
-    // TODO: private boolean setMark(int moduleID, Mark mark)
+    public Mark getMark(String moduleID, int attemptNumber) throws SQLException { return new Mark(this.getUserID(), moduleID, attemptNumber); }
 
     public StudentDecision getDecision() {
         return decision;
