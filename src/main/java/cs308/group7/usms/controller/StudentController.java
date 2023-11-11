@@ -34,6 +34,14 @@ public class StudentController{
     }
 
 
+    /**Gets info of the course the student is in
+     * @return A map containing course information
+     */
+    public Map<String,String> getCourseInfo(){
+        return null;
+    }
+
+
     /** Get weekly lecture materials for a course
      * @param moduleID
      * @param week

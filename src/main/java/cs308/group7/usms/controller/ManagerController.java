@@ -76,15 +76,6 @@ public class ManagerController{
     //Connections with models
 
 
-    /**Changes the password for a user. And updates the view accordingly
-     * @param oldPass
-     * @param newPass
-     */
-    public void changePassword(String oldPass, String newPass){
-        // password changing
-        pageSetter("DASHBOARD", false);
-
-    }
 
     /**Gets all the users
      * @return An ArrayList of users
@@ -123,39 +114,6 @@ public class ManagerController{
         }
 
         return users;
-    }
-
-
-    /**Takes in a userID and activates the user
-     * @param userID
-     */
-    public void activateUser(String userID) {
-        //boolean success = activation code;
-
-        boolean success = true; //dummy for testing
-        if(success){
-            pageSetter("MANAGE ACCOUNTS", false);
-            manUI.makeNotificationModal("Account succesfully activated", true);
-        }else{
-            pageSetter("MANAGE ACCOUNTS", false);
-            manUI.makeNotificationModal("Error activating account", false);
-        }
-
-    }
-
-    /**Takes in a userID and deactivates the user
-     * @param userID
-     */
-    public void deactivateUser(String userID){
-
-    }
-
-    /**Takes in a userID and password, and sets the selected user's password to be the set password
-     * @param userID
-     * @param password
-     */
-    public void resetPassword(String userID, String password){
-
     }
 
     /**
@@ -210,6 +168,52 @@ public class ManagerController{
     }
 
 
+
+
+
+    /**Takes in a userID and activates the user
+     * @param userID
+     */
+    public void activateUser(String userID) {
+        //boolean success = activation code;
+
+        boolean success = true; //dummy for testing
+        if(success){
+            pageSetter("MANAGE ACCOUNTS", false);
+            manUI.makeNotificationModal("Account successfully activated", true);
+        }else{
+            manUI.makeNotificationModal("Error activating account", false);
+        }
+
+    }
+
+    /**Takes in a userID and deactivates the user
+     * @param userID
+     */
+    public void deactivateUser(String userID){
+
+    }
+
+    /**Takes in a userID and password, and sets the selected user's password to be the set password
+     * @param userID
+     * @param password
+     */
+    public void resetPassword(String userID, String password){
+
+    }
+
+
+    /**Changes the password for a user. And updates the view accordingly
+     * @param userID - the id of the user whose password is being changed
+     * @param newPass - the new password
+     */
+    public void changePassword(String userID, String newPass){
+        // password changing
+        pageSetter("DASHBOARD", false);
+
+    }
+
+
     /** Assign a lecturer to a module
      * @param lecturerID
      * @param moduleID
@@ -247,7 +251,7 @@ public class ManagerController{
      * @param name
      * @param description
      */
-    public void addNewCourse(String code, String name, String description){
+    public void addCourse(String code, String name, String description){
 
     }
 
