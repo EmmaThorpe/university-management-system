@@ -10,15 +10,18 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class LecturerController{
-    Lecturer currLec;
-    LecturerUI lecUI;
 
-    public LecturerController(String id) throws SQLException {
-        currLec = new Lecturer(id);
+    private final String lecturerID;
+    private final LecturerUI lecUI;
+
+    public LecturerController(String id) {
+        this.lecturerID = id;
         lecUI = new LecturerUI();
         lecUI.home();
         lecUI.displayFirstScene();
     }
+
+    private Lecturer getCurrentLecturer() throws SQLException { return new Lecturer(lecturerID); }
 
     /**Changes the password for a user.
      * @param oldPass

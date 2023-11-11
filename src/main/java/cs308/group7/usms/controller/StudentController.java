@@ -8,15 +8,18 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class StudentController{
-    Student currStu;
-    StudentUI stuUI;
 
-    public StudentController(String id) throws SQLException {
-        currStu = new Student(id);
+    private final String studentID;
+    private final StudentUI stuUI;
+
+    public StudentController(String id) {
+        studentID = id;
         stuUI = new StudentUI();
         stuUI.home();
         stuUI.displayScene();
     }
+
+    private Student getCurrentStudent() throws SQLException { return new Student(studentID); }
 
     /**Changes the password for a user.
      * @param oldPass

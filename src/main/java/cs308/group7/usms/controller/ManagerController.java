@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ManagerController{
-    String userID;
 
-    ManagerUI manUI;
+    private final String userID;
+    private final ManagerUI manUI;
 
     public ManagerController(String id) {
         userID = id;
