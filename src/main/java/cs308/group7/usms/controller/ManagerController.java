@@ -78,7 +78,7 @@ public class ManagerController{
 
 
     /**Gets all the users
-     * @return An ArrayList of users
+     * @return List of maps with user fields and their values (eg: forename, "john")
      */
     public List < HashMap <String, String> > getUsers() {
         List<User> accounts = new ArrayList<>();
@@ -96,10 +96,10 @@ public class ManagerController{
 
         List<HashMap<String, String>> users = new ArrayList<HashMap<String, String>>();
         for (User acc : accounts ) {
-            try {
+            //try {
                 HashMap<String, String> userDetailsMap = new HashMap<String, String>();
                 userDetailsMap.put("userID", acc.getUserID());
-                userDetailsMap.put("managerID", acc.getManager().getUserID());
+                userDetailsMap.put("managerID", "mng1");
                 userDetailsMap.put("forename", acc.getForename());
                 userDetailsMap.put("surname", acc.getSurname());
                 userDetailsMap.put("email", acc.getEmail());
@@ -108,9 +108,9 @@ public class ManagerController{
                 userDetailsMap.put("userType", acc.getType().toString());
                 userDetailsMap.put("activated", acc.getActivated()? "ACTIVATED" : "DEACTIVATED");
                 users.add(userDetailsMap);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            //} catch (SQLException e) {
+            //    throw new RuntimeException(e);
+            //}
         }
 
         return users;
