@@ -1,33 +1,38 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.ui.LecturerUI;
+import cs308.group7.usms.ui.MainUI;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class LecturerController extends UIController{
-    String userID;
-    LecturerUI lecUI;
+public class LecturerController{
 
-    public LecturerController(String id){
-        currentStage = new Stage();
-        userID = id;
+    private final String lecturerID;
+    private final LecturerUI lecUI;
+
+    public LecturerController(String id) {
+        this.lecturerID = id;
         lecUI = new LecturerUI();
-        displayFirstScene(lecUI.home());
+        lecUI.home();
+        lecUI.displayFirstScene();
     }
+
+    private Lecturer getCurrentLecturer() throws SQLException { return new Lecturer(lecturerID); }
 
     /**Changes the password for a user.
      * @param oldPass
      * @param newPass
-     * @return Boolean value representing if the password change was successful or not.
      */
     public boolean changePassword(String oldPass, String newPass){
         return true;
     }
 
 
-    /**Gets info of the curriculum the student is in
+    /**Gets info of the module that the lecturer runs
      * @return A map containing module information
      */
     public Map<String,String> getModuleInformation(){
@@ -36,17 +41,19 @@ public class LecturerController extends UIController{
 
 
     /**Update materials for a module
-     * @param Materials
+     * @param Materials (Whatever the pdf data type is)
      */
     public void updateModuleMaterial(String Materials){
     }
 
-    /**
+    /**Gets an arraylist of student id's in the lecturer's module
      * @return An ArrayList of students' userIDs
      */
     public ArrayList<String> getEnrolledStudents(){
         return null;
     }
+
+
 
     /**Updates the student lab mark
      * @param studentID

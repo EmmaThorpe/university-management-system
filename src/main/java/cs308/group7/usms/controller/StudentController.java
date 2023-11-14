@@ -1,23 +1,29 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.model.Student;
+import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 
+import java.sql.SQLException;
 import java.util.Map;
 
-public class StudentController extends UIController{
-    String userID;
-    StudentUI stuUI;
+public class StudentController{
 
-    public StudentController(String id){
-        userID = id;
+    private final String studentID;
+    private final StudentUI stuUI;
+
+    public StudentController(String id) {
+        studentID = id;
         stuUI = new StudentUI();
-        displayFirstScene(stuUI.home());
+        stuUI.home();
+        stuUI.displayScene();
     }
+
+    private Student getCurrentStudent() throws SQLException { return new Student(studentID); }
 
     /**Changes the password for a user.
      * @param oldPass
      * @param newPass
-     * @return Boolean value representing if the password change was successful or not.
      */
     public boolean changePassword(String oldPass, String newPass){
         return true;
@@ -31,10 +37,18 @@ public class StudentController extends UIController{
     }
 
 
+    /**Gets info of the course the student is in
+     * @return A map containing course information
+     */
+    public Map<String,String> getCourseInfo(){
+        return null;
+    }
+
+
     /** Get weekly lecture materials for a course
      * @param moduleID
      * @param week
-     * @return ???
+     * @return ??? Whatever the pdf type is
      */
     public String getLectureMaterials(String moduleID, int week){
         return "";

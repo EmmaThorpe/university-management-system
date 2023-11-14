@@ -49,9 +49,12 @@ public class Mark {
         this.examMark = examMark;
     }
 
+    public String getModuleID() { return moduleID; }
+
+    public String getUserID() { return userID; }
+
     @Nullable
     public Double getLabMark() { return labMark; }
-
 
     /**
      * Sets the lab mark of the student for this module and attempt
