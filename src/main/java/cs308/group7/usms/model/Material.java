@@ -11,6 +11,7 @@ import java.util.HashMap;
 public class Material {
 
     private final String moduleID;
+    private final int semester;
     private final int week;
     private String lectureNote = null;
     private String labNote = null;
@@ -18,13 +19,15 @@ public class Material {
     /**
      * Creates a new Material object from the database. If the material does not exist, updating it will create it.
      * @param moduleID The module's ID
+     * @param semester The semester of the module
      * @param week The week of the module
      * @throws SQLException If the query fails
      */
-    public Material(String moduleID, int week) throws SQLException {
+    public Material(String moduleID, int semester, int week) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
-        try (CachedRowSet res = db.select(new String[]{"Material"}, null, new String[]{"ModuleID = '" + moduleID + "'", "Week = " + week})) {
+        try (CachedRowSet res = db.select(new String[]{"Material"}, null, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week})) {
             this.moduleID = moduleID;
+            this.semester = semester;
             this.week = week;
             if (res.next()) {
                 this.lectureNote = res.getString("LectureNote");
@@ -32,6 +35,23 @@ public class Material {
             }
         }
     }
+
+    /**
+     * Creates a new Material object from the given parameters without checking the database
+     */
+    public Material(String moduleID, int semester, int week, String lectureNote, String labNote) {
+        this.moduleID = moduleID;
+        this.semester = semester;
+        this.week = week;
+        this.lectureNote = lectureNote;
+        this.labNote = labNote;
+    }
+
+    public Module getModule() throws SQLException { return new Module(moduleID); }
+
+    public int getSemester() { return semester; }
+
+    public int getWeek() { return week; }
 
     /**
      * Returns the lecture note for this week of the module, or null if unset
@@ -49,11 +69,12 @@ public class Material {
         HashMap<String, String> values = new HashMap<>();
         values.put("LectureNote", "'" + lectureNote + "'"); // TODO: Need a better method, vulnerable to SQL injection
         try {
-            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Week = " + week}) > 0) {
+            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week}) > 0) {
                 this.lectureNote = lectureNote;
                 return true;
             } else {
                 values.put("ModuleID", "'" + moduleID + "'");
+                values.put("Semester", String.valueOf(semester));
                 values.put("Week", String.valueOf(week));
                 if (db.insert("Material", values) > 0) {
                     this.lectureNote = lectureNote;
@@ -63,7 +84,7 @@ public class Material {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Failed to set lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.out.println("Failed to set lecture note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
             return false;
         }
     }
@@ -84,11 +105,12 @@ public class Material {
         HashMap<String, String> values = new HashMap<>();
         values.put("LabNote", "'" + labNote + "'"); // TODO: Need a better method, vulnerable to SQL injection
         try {
-            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Week = " + week}) > 0) {
+            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week}) > 0) {
                 this.labNote = labNote;
                 return true;
             } else {
                 values.put("ModuleID", "'" + moduleID + "'");
+                values.put("Semester", String.valueOf(semester));
                 values.put("Week", String.valueOf(week));
                 if (db.insert("Material", values) > 0) {
                     this.labNote = labNote;
@@ -98,7 +120,7 @@ public class Material {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Failed to set lab note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.out.println("Failed to set lab note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
             return false;
         }
     }
