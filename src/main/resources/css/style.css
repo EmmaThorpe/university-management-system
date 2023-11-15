@@ -390,3 +390,7 @@
 .notfi-text {
     -fx-fill: -color-dark-grey;
 }
+
+.notice-text {
+    -fx-fill: -color-ter;
+}

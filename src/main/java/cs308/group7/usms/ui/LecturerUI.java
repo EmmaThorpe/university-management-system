@@ -9,6 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.util.List;
+import java.util.Map;
+
 public class LecturerUI extends UserUI{
 
     public void dashboard() {
@@ -20,7 +23,6 @@ public class LecturerUI extends UserUI{
         Button addMaterialBtn = inputButton("ADD MATERIAL");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
 
-        passwordBtn.getStyleClass().add("toolbar-btn");
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
 
@@ -44,5 +46,18 @@ public class LecturerUI extends UserUI{
 
         currScene = new Scene(root);
     }
+
+    /* Module dashboard */
+    public void module(Map<String, String> lecturerModule){
+        Button update = inputButton("UPDATE MODULE INFORMATION");
+        makeModal(update, "edit", editModule(lecturerModule),  false);
+        VBox modulePanel = makePanelWithAction(
+                new VBox(infoContainer(moduleDetailDisplay(lecturerModule))),
+                update
+        );
+        singlePanelLayout(modulePanel, "Module");
+    }
+
+
 
 }

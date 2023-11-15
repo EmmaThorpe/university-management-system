@@ -43,9 +43,6 @@ public class ManagerUI extends UserUI{
         Button mngAccountsBtn = inputButton("MANAGE ACCOUNTS");
         Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
-        passwordBtn.getStyleClass().add("toolbar-btn");
-        makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
-
 
         Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
         mngBtns = stylePanelActions(mngBtns);
@@ -57,6 +54,8 @@ public class ManagerUI extends UserUI{
         actionPanel.setAlignment(Pos.CENTER);
         actionPanel.setSpacing(20.0);
         HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
         BorderPane root = new BorderPane(actionPanel);
         root.setTop(toolbar);
@@ -126,32 +125,6 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-    private HBox makeUserListButton(String userID, String fname, String lname, String userType,
-                                  String activated) {
-            Text nameDisplay = new Text(fname + " " + lname);
-
-            HBox activatedDisplay = new HBox();
-            if (activated.equals("ACTIVATED")) {
-                activatedDisplay.getChildren().add(activeDetail(activated, true));
-            } else {
-                activatedDisplay.getChildren().add(activeDetail(activated, false));
-            }
-
-            FontIcon appGraphic;
-            if (userType.equals("STUDENT")) {
-                appGraphic =  new FontIcon(FontAwesomeSolid.USER);
-            } else if (userType.equals("LECTURER")) {
-                appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
-            } else {
-                appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
-            }
-
-            VBox userDetails = new VBox(nameDisplay, activatedDisplay);
-            userDetails.setSpacing(5.0);
-
-            HBox listButton = makeListButton(userID, appGraphic, userDetails);
-            return listButton;
-    }
 
     private EventHandler pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
@@ -201,30 +174,6 @@ public class ManagerUI extends UserUI{
             rightPanel.getChildren().set(1, accountActionsDisplay);
             rightPanel.setVisible(true);
         };
-    }
-
-    private VBox userDetailDisplay(String userID, String managerID, String forename, String surname, String email, String dob, String gender, String userType, String activated) {
-        Text idTitle = new Text(userID);
-        idTitle.getStyleClass().add("info-box-title");
-
-        VBox row1 = new VBox(
-            listDetail("FULL NAME", (forename + " " + surname)),
-            listDetail("EMAIL", email),
-            listDetail("DOB", dob),
-            listDetail("GENDER", gender)
-
-        );
-
-        VBox row2 = new VBox(
-            listDetail("USER TYPE", userType),
-            listDetail("STATUS", activated),
-            listDetail("MANAGED BY", managerID)
-        );
-
-        row1.setSpacing(5);
-        row2.setSpacing(5);
-        HBox rows = new HBox(row1, row2);
-        return new VBox(idTitle, rows);
     }
 
     /**
@@ -406,21 +355,24 @@ public class ManagerUI extends UserUI{
      * Course Dashboard - modals
      **/
     private VBox addCourse() {
+        VBox setCode = inputField("Code", false);
         VBox setName = inputField("Name", false);
         VBox setDesc = inputFieldLong("Description");
         VBox setLevel = inputField("Level of Study", false);
         VBox setYears = inputField("Length of course", false);
 
-        VBox container = new VBox(setName, setDesc, setLevel, setYears);
+        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);
         return container;
     }
 
     private VBox editCourse(Map<String, String> currentCourse) {
+        VBox setCode = inputFieldSetValue("Code", currentCourse.get("Id"));
+        VBox setName = inputFieldSetValue("Edit Name", currentCourse.get("Name"));
         VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.get("Description"));
         VBox setLevel = inputFieldSetValue("Edit Level of Study", currentCourse.get("Level"));
-        VBox setYear = inputFieldSetValue("Edit Length of Course", currentCourse.get("Length"));
+        VBox setYear = inputFieldSetValue("Edit Length of Course", currentCourse.get("Years"));
 
-        VBox container = new VBox(setDesc, setLevel, setYear);
+        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYear);
         return container;
     }
 
@@ -448,9 +400,9 @@ public class ManagerUI extends UserUI{
         Button assign = inputButton("ASSIGN MODULE TO LECTURER");
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
-        makeModal(add, "add", new VBox(), false);
+        makeModal(add, "add", addModule(), false);
         makeModal( edit, "edit", new VBox(), false);
-        makeModal( assign, "assign", new VBox(), false);
+        makeModal( assign, "assign", assignModuleLecturers(lecturerList), false);
 
         VBox moduleDetails = new VBox(new VBox());
 
@@ -482,8 +434,6 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
-
-
     private EventHandler pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {
             moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
@@ -502,6 +452,8 @@ public class ManagerUI extends UserUI{
             moduleBtnView.setSpacing(20.0);
             moduleBtnView.setPadding(new Insets(10));
 
+            setModalContent(currentModals.get("edit"), editModule(tempModule));
+
             VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
 
             rightPanel.getChildren().set(0, moduleDetails);
@@ -510,6 +462,31 @@ public class ManagerUI extends UserUI{
         };
     }
 
+    /**
+     * Module Dashboard - modals
+     **/
+    private VBox addModule() {
+        VBox setCode = inputField("Code", false);
+        VBox setName = inputField("Name", false);
+        VBox setDesc = inputFieldLong("Description");
+        VBox setCredits = inputField("Credits", false);
+
+        VBox container = new VBox(setCode, setName, setDesc, setCredits);
+        return container;
+    }
+
+    private VBox assignModuleLecturers(List<Map<String, String>> lecturers) {
+        List<String> lecturersList = new ArrayList<String>();
+
+        for (Map<String, String> lec : lecturers) {
+            lecturersList.add(lec.get("Name"));
+        }
+        VBox setCourse = dropdownField("Lecturer to assign to",
+                lecturersList);
+
+        VBox container = new VBox(setCourse);
+        return container;
+    }
 
 
 }

@@ -40,7 +40,6 @@ public class StudentUI extends UserUI{
         Button passwordBtn = inputButton("CHANGE PASSWORD");
         Button fileBtn = inputButton("OPEN FILE");
 
-        passwordBtn.getStyleClass().add("toolbar-btn");
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
 
@@ -140,7 +139,7 @@ public class StudentUI extends UserUI{
 
     public void course(Map<String, String> studentCourse) {
         VBox courseDetails = makePanel(new VBox(infoContainer(courseDetailDisplay(studentCourse))));
-        singlePanelLayout(courseDetails, "Courses");
+        singlePanelLayout(courseDetails, "Course");
     }
 
     /**

@@ -126,7 +126,7 @@ public class LoginUI extends MainUI{
     protected ChangeListener<String> emailCheck(){
         return (obs, oldText, newText) -> {
             if (!EmailValidator.getInstance().isValid(newText)) {
-                currentText.get("EMAIL").setText("Not Valid Email Format");
+                currentText.get("EMAIL").setText("Not a valid Email format");
                 checkValidFields("EMAIL", false);
             } else if (newText.length() > 20) {
                 currentText.get("EMAIL").setText("Emails must be less than or equal to 20 character");

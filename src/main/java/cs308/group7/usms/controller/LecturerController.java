@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class LecturerController{
@@ -29,15 +30,18 @@ public class LecturerController{
             case "DASHBOARD":
                 lecUI.dashboard();
                 buttons =lecUI.getCurrentButtons();
-                buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULES", false));
-
-
+                buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULE", false));
                 Map<String, Node> currFields = lecUI.getCurrentFields();
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
                 break;
             case "VIEW MODULE":
+                lecUI.module(getModuleInformation());
+                buttons =lecUI.getCurrentButtons();
                 break;
+            case "UPDATE MODULE INFORMATION":
+
+
 
         }
         buttons.get("LOG OUT").setOnAction(event -> lecUI.hideStage());
@@ -67,7 +71,13 @@ public class LecturerController{
      * @return A map containing module information
      */
     public Map<String,String> getModuleInformation(){
-        return null;
+        Map<String,String> temp = new HashMap<String, String>();
+        temp.put("Id","CS308");
+        temp.put("Name", "Building Software Systems");
+        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
+        temp.put("Credit", "20");
+        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
+        return temp;
     }
 
 

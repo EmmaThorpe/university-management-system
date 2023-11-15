@@ -35,7 +35,6 @@ public class UserUI extends MainUI{
         return currentID;
     }
 
-
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
         VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
@@ -48,7 +47,6 @@ public class UserUI extends MainUI{
         VBox oldPass = inputField("OLD PASSWORD", true);
         return new VBox(oldPass, resetPass(false));
     }
-
 
     protected ChangeListener<String> passwordCheck(Boolean manager){
         return (obs, oldText, newText) -> {
@@ -169,7 +167,9 @@ public class UserUI extends MainUI{
     }
 
 
-    //Module Elements
+    /**
+        Module Elements
+     */
 
     protected HBox makeModuleListButton(String id, String name, String credit) {
         HBox yearsDisplay = listDetail("CREDITS" , credit);
@@ -180,7 +180,6 @@ public class UserUI extends MainUI{
         HBox listButton = makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
         return listButton;
     }
-
 
     protected VBox moduleDetailDisplay(Map<String, String> tempModule) {
         Text idTitle = new Text(tempModule.get("Name"));
@@ -193,14 +192,24 @@ public class UserUI extends MainUI{
         );
         VBox col2 = infoDetailLong("DESCRIPTION", tempModule.get("Description"));
 
-
-
         VBox col3 = infoDetailLong("LECTURER(S)", tempModule.get("Lecturers"));
 
         col1.setSpacing(5);
         col2.setSpacing(5);
         return new VBox(idTitle, col1, col2, col3);
     }
+
+    //used by both managers and lecturers
+    protected VBox editModule(Map<String, String> currentModule) {
+        VBox setCode = inputFieldSetValue("Code", currentModule.get("Id"));
+        VBox setName = inputFieldSetValue("Edit Name", currentModule.get("Name"));
+        VBox setDesc = inputFieldLongSetValue("Edit Description", currentModule.get("Description"));
+        VBox setCredit = inputFieldSetValue("Edit Credits", currentModule.get("Credit"));
+
+        VBox container = new VBox(setCode, setName, setDesc, setCredit);
+        return container;
+    }
+
 
     //Course Elements
 
@@ -220,6 +229,61 @@ public class UserUI extends MainUI{
         col2.setSpacing(5);
         return new VBox(idTitle, col1, col2);
     }
+
+    //Student elements
+
+    protected HBox makeUserListButton(String userID, String fname, String lname, String userType,
+                                    String activated) {
+        Text nameDisplay = new Text(fname + " " + lname);
+
+        HBox activatedDisplay = new HBox();
+        if (activated.equals("ACTIVATED")) {
+            activatedDisplay.getChildren().add(activeDetail(activated, true));
+        } else {
+            activatedDisplay.getChildren().add(activeDetail(activated, false));
+        }
+
+        FontIcon appGraphic;
+        if (userType.equals("STUDENT")) {
+            appGraphic =  new FontIcon(FontAwesomeSolid.USER);
+        } else if (userType.equals("LECTURER")) {
+            appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
+        } else {
+            appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
+        }
+
+        VBox userDetails = new VBox(nameDisplay, activatedDisplay);
+        userDetails.setSpacing(5.0);
+
+        HBox listButton = makeListButton(userID, appGraphic, userDetails);
+        return listButton;
+    }
+
+    protected VBox userDetailDisplay(String userID, String managerID, String forename, String surname, String email,
+                             String dob, String gender, String userType, String activated) {
+        Text idTitle = new Text(userID);
+        idTitle.getStyleClass().add("info-box-title");
+
+        VBox row1 = new VBox(
+                listDetail("FULL NAME", (forename + " " + surname)),
+                listDetail("EMAIL", email),
+                listDetail("DOB", dob),
+                listDetail("GENDER", gender)
+
+        );
+
+        VBox row2 = new VBox(
+                listDetail("USER TYPE", userType),
+                listDetail("STATUS", activated),
+                listDetail("MANAGED BY", managerID)
+        );
+
+        row1.setSpacing(5);
+        row2.setSpacing(5);
+        HBox rows = new HBox(row1, row2);
+        return new VBox(idTitle, rows);
+    }
+
 
     //PDF viewer
 

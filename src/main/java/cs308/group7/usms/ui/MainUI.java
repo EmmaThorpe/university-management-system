@@ -116,6 +116,21 @@ public class MainUI {
         return panel;
     }
 
+    protected VBox makePanelWithAction(VBox content, Button action) {
+        content.setPadding(new Insets(20));
+
+        HBox btnContainer = new HBox(action);
+        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
+        btnContainer.setPadding(new Insets(0, 0, 20, 0));
+
+        VBox panel = new VBox(content, btnContainer);
+
+        panel.setSpacing(5);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
 
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
@@ -474,6 +489,7 @@ public class MainUI {
 
     protected Text inputText(String text){
         Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
         currentText.put(text, inputText);
         return inputText;
     }
@@ -482,6 +498,7 @@ public class MainUI {
         Label label=new Label(text);
         TextField field=new TextField();
         Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
 
         currentFields.put(text, field);
         currentText.put(text, inputText);
