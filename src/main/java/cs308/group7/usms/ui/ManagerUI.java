@@ -488,5 +488,84 @@ public class ManagerUI extends UserUI{
         return container;
     }
 
+    /**
+     * Signup workflow Dashboard
+     **/
+
+    public void signups(List<HashMap<String, String>> accountList)  {
+        resetCurrentValues();
+
+        ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+
+        accountBtnsList.add(inputButton("APPROVE SIGN UP"));
+
+        stylePanelActions(accountBtnsList.toArray(new Button[0]));
+
+        VBox accountDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, accountDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = signupButtons(accountList, rightActionPanel, accountDetails);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Sign Up Workflow");
+
+    }
+
+    private VBox signupButtons(List<HashMap<String, String>> accountList, VBox rightPanel, VBox details){
+        VBox panel = new VBox();
+        HBox tempButton;
+        for (HashMap<String, String> account : accountList) {
+            tempButton = makeUserListButton(
+                    account.get("userID"),
+                    account.get("forename"),
+                    account.get("surname"),
+                    account.get("userType"),
+                    account.get("activated")
+            );
+            tempButton.setOnMouseClicked(pickSignup(account, rightPanel, details));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane accountListPanel = new ScrollPane(panel);
+        return makeScrollablePanel(accountListPanel);
+    }
+
+
+    private EventHandler pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
+        return event -> {
+            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(
+                    user.get("userID"),
+                    user.get("managerID"),
+                    user.get("forename"),
+                    user.get("surname"),
+                    user.get("email"),
+                    user.get("DOB"),
+                    user.get("gender"),
+                    user.get("userType"),
+                    user.get("activated")
+            )));
+            ArrayList<Button> accountBtnsList = new ArrayList<>();
+            accountBtnsList.add(currentButtons.get("APPROVE SIGN UP"));
+
+            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
+            VBox accountBtnView = new VBox(accountBtns);
+
+            accountBtnView.setAlignment(Pos.CENTER);
+            accountBtnView.setSpacing(20.0);
+            accountBtnView.setPadding(new Insets(10));
+
+            VBox accountActionsDisplay = makeScrollablePart(accountBtnView);
+
+            rightPanel.getChildren().set(0, accDetails);
+            rightPanel.getChildren().set(1, accountActionsDisplay);
+            rightPanel.setVisible(true);
+        };
+    }
+
+
 
 }

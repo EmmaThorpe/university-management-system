@@ -5,7 +5,6 @@ import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.util.HashMap;
@@ -57,6 +56,10 @@ public class ManagerController{
                 break;
             case "MANAGE MODULES":
                 manUI.modules(getModules(), getFreeLecturers());
+                buttons =manUI.getCurrentButtons();
+                break;
+            case "MANAGE SIGN-UP WORKFLOW":
+                manUI.signups(getUnapprovedUsers(getUsers()));
                 buttons =manUI.getCurrentButtons();
                 break;
         }
@@ -115,6 +118,20 @@ public class ManagerController{
 
         return users;
     }
+
+    /**Gets all the users that are still to be approved ( are inactive)
+     * @return List of maps with user fields and their values (eg: forename, "john")
+     */
+    public List < HashMap <String, String> > getUnapprovedUsers(List<HashMap<String, String>> users) {
+        List<HashMap<String, String>> unapprovedUsers = new ArrayList<HashMap<String, String>>();
+        for (HashMap<String, String> user : users ) {
+            if (user.get("activated").equals("DEACTIVATED")) {
+                unapprovedUsers.add(user);
+            }
+        }
+        return unapprovedUsers;
+    }
+
 
     /**
      * Gets a list of all courses
