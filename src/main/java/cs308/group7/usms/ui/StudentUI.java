@@ -147,7 +147,12 @@ public class StudentUI extends UserUI{
      * Materials
      **/
 
-    public void materials(List<Map<String,String>> mater){
+    public void materials(List<Map<String,String>> mater, boolean twoSems){
+        if(twoSems){
+
+        }else{
+
+        }
 
     }
 
