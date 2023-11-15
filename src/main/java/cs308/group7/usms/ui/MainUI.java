@@ -130,7 +130,7 @@ public class MainUI {
         String operatorNameDisplay = operatorName.toUpperCase();
         ToggleButton op = new ToggleButton(operatorNameDisplay);
         op.setToggleGroup(group);
-        op.setUserData(operatorName.toLowerCase());
+        op.setUserData(operatorName);
         op.setContentDisplay(ContentDisplay.TOP);
         op.getStyleClass().add("card-toggle");
         return op;

@@ -224,7 +224,7 @@ public class LecturerUI extends UserUI{
         for (int sem=1; sem<=2;sem++) {
             for (int week=1; week<=10;week++) {
                 tempButton = makeWeekButton(week);
-                tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get(sem*(week-1)), rightPanel, materialDetails));
+                tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get((sem-1)*10 +(week-1)), rightPanel, materialDetails));
 
                 if(sem==1){
                     panelSem1.getChildren().add(tempButton);
@@ -253,7 +253,7 @@ public class LecturerUI extends UserUI{
 
     protected ChangeListener<Toggle> toggleSem(ToggleGroup semSelected, ScrollPane weekContent, VBox sem1Content, VBox sem2Content, VBox rightPanel){
         return (observableValue, currentToggle, newToggle) -> {
-            if (semSelected.getSelectedToggle().getUserData() == "Semester 1") {
+            if (semSelected.getSelectedToggle().getUserData() == "Semester 1"){
                 weekContent.contentProperty().set(sem1Content);
             } else {
                 weekContent.contentProperty().set(sem2Content);
@@ -287,11 +287,15 @@ public class LecturerUI extends UserUI{
             }else if(materials.get("Lab")) {
                 materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
                 currentButtons.get("CHANGE LAB MATERIAL").setText("UPDATE LAB MATERIAL");
+                currentButtons.get("CHANGE LECTURE MATERIAL").setText("ADD LECTURE MATERIAL");
 
             }else if(materials.get("Lecture")){
                 materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
                 currentButtons.get("CHANGE LECTURE MATERIAL").setText("UPDATE LECTURE MATERIAL");
-
+                currentButtons.get("CHANGE LAB MATERIAL").setText("ADD LAB MATERIAL");
+            }else{
+                currentButtons.get("CHANGE LECTURE MATERIAL").setText("ADD LECTURE MATERIAL");
+                currentButtons.get("CHANGE LAB MATERIAL").setText("ADD LAB MATERIAL");
             }
 
             materialBtnsList.add(currentButtons.get("CHANGE LECTURE MATERIAL"));
