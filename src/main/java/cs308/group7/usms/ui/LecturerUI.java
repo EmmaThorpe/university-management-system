@@ -1,16 +1,16 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.model.Student;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +24,7 @@ public class LecturerUI extends UserUI{
 
         Button viewModuleBtn = inputButton("VIEW MODULE");
         Button giveMarkBtn = inputButton("GIVE MARK");
-        Button addMaterialBtn = inputButton("ADD MATERIAL");
+        Button addMaterialBtn = inputButton("CHECK MATERIAL");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
 
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
@@ -153,4 +153,174 @@ public class LecturerUI extends UserUI{
         VBox setMark = inputFieldSetValue("Exam Mark", currentStudent.get("examMark"));
         return setMark;
     }
+
+    public void materials(String moduleID, List<Map<String, Boolean>> materialList, String semesters){
+        resetCurrentValues();
+        currentValues.put("ID",moduleID);
+
+        inputButton("VIEW LECTURE MATERIAL");
+        inputButton("VIEW LAB MATERIAL");
+
+        inputButton("CHANGE LECTURE MATERIAL").setOnAction(event -> uploadFile());
+        inputButton("CHANGE LAB MATERIAL");
+
+        VBox materialDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, materialDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel;
+
+        if(semesters.equals("1&2")){
+            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
+        }else{
+            leftActionPanel = weekButtons(Integer.parseInt(semesters), materialList, rightActionPanel, materialDetails);
+        }
+
+
+
+
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+
+
+    }
+
+
+    private VBox weekButtons(int semNo, List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
+        VBox panel = new VBox();
+        HBox tempButton;
+        for (int i=1; i<=2;i++) {
+            tempButton = makeWeekButton(i);
+            tempButton.setOnMouseClicked(pickWeek(i, semNo, materialList.get(i-1), rightPanel, materialDetails));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollablePanel(courseListPanel);
+    }
+
+
+
+    private VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
+
+
+        ToggleGroup semSelected = new ToggleGroup();
+        ToggleButton sem1 = setToggleOption(semSelected, "Semester 1");
+        ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
+        sem1.setSelected(true);
+
+        HBox.setHgrow(sem1, Priority.ALWAYS);
+        HBox.setHgrow(sem2, Priority.ALWAYS);
+        HBox semOptions = new HBox(sem1, sem2);
+
+        VBox panelSem1 = new VBox();
+        VBox panelSem2 = new VBox();
+
+        HBox tempButton;
+        for (int sem=1; sem<=2;sem++) {
+            for (int week=1; week<=10;week++) {
+                tempButton = makeWeekButton(week);
+                tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get(sem*(week-1)), rightPanel, materialDetails));
+
+                if(sem==1){
+                    panelSem1.getChildren().add(tempButton);
+                }else{
+                    panelSem2.getChildren().add(tempButton);
+                }
+
+
+            }
+        }
+
+
+        panelSem1.setSpacing(20.0);
+        panelSem1.setPadding(new Insets(10, 2, 10, 2));
+
+        panelSem2.setSpacing(20.0);
+        panelSem2.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane weekListPanel = new ScrollPane(panelSem1);
+
+        semSelected.selectedToggleProperty().addListener(toggleSem(semSelected, weekListPanel, panelSem1, panelSem2, rightPanel));
+
+
+        return new VBox(semOptions, makeScrollablePanel(weekListPanel));
+    }
+
+    protected ChangeListener<Toggle> toggleSem(ToggleGroup semSelected, ScrollPane weekContent, VBox sem1Content, VBox sem2Content, VBox rightPanel){
+        return (observableValue, currentToggle, newToggle) -> {
+            if (semSelected.getSelectedToggle().getUserData() == "Semester 1") {
+                weekContent.contentProperty().set(sem1Content);
+            } else {
+                weekContent.contentProperty().set(sem2Content);
+
+            }
+
+            rightPanel.setVisible(false);
+        };
+
+    }
+
+
+
+    private EventHandler pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
+        return event -> {
+            materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
+
+            currentValues.put("WEEK", String.valueOf(weekNo));
+            currentValues.put("SEMESTER", String.valueOf(semNo));
+
+            VBox courseActionsDisplay;
+
+            ArrayList<Button> materialBtnsList = new ArrayList<>();
+
+            if(materials.get("Lab") && materials.get("Lecture")){
+                materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
+                materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
+                currentButtons.get("CHANGE LECTURE MATERIAL").setText("UPDATE LECTURE MATERIAL");
+                currentButtons.get("CHANGE LAB MATERIAL").setText("UPDATE LAB MATERIAL");
+
+            }else if(materials.get("Lab")) {
+                materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
+                currentButtons.get("CHANGE LAB MATERIAL").setText("UPDATE LAB MATERIAL");
+
+            }else if(materials.get("Lecture")){
+                materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
+                currentButtons.get("CHANGE LECTURE MATERIAL").setText("UPDATE LECTURE MATERIAL");
+
+            }
+
+            materialBtnsList.add(currentButtons.get("CHANGE LECTURE MATERIAL"));
+            materialBtnsList.add(currentButtons.get("CHANGE LAB MATERIAL"));
+
+
+            Button[] materialBtns = materialBtnsList.toArray(new Button[0]);
+            materialBtns = stylePanelActions(materialBtns);
+
+            VBox materialBtnView = new VBox(materialBtns);
+
+            materialBtnView.setAlignment(Pos.CENTER);
+            materialBtnView.setSpacing(20.0);
+            materialBtnView.setPadding(new Insets(10));
+
+            courseActionsDisplay = makeScrollablePart(materialBtnView);
+
+
+
+            rightPanel.getChildren().set(0, materialDetails);
+            rightPanel.getChildren().set(1, courseActionsDisplay);
+            rightPanel.setVisible(true);
+        };
+    }
+
+    public File uploadFile(){
+        FileChooser fileChooser = new FileChooser();
+        List<File> listOfFiles = fileChooser.showOpenMultipleDialog(currentStage);
+        return listOfFiles.get(0);
+    }
+
 }

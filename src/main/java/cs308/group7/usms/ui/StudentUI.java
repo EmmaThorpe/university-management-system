@@ -123,7 +123,7 @@ public class StudentUI extends UserUI{
             moduleBtnView.setPadding(new Insets(10));
 
             currentText = new HashMap<>();
-            currentID = id;
+            currentValues.put("ID", id);
 
             VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
 
@@ -146,13 +146,75 @@ public class StudentUI extends UserUI{
      * Materials
      **/
 
-    public void materials(List<Map<String,String>> mater, boolean twoSems){
-        if(twoSems){
+    public void materials(String moduleID, List<Map<String, Boolean>> materialList, boolean twoSems){
+        resetCurrentValues();
+        currentValues.put("ID",moduleID);
 
-        }else{
+        inputButton("VIEW LECTURE MATERIAL");
+        inputButton("VIEW LAB MATERIAL");
 
+        VBox materialDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makePanel(new VBox());
+        rightActionPanel.getChildren().add(0, materialDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = weekButtons(materialList, rightActionPanel, materialDetails);
+        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+
+
+    }
+
+
+    private VBox weekButtons(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
+        VBox panel = new VBox();
+        HBox tempButton;
+        for (int i=1; i<=2;i++) {
+            tempButton = makeWeekButton(i);
+            tempButton.setOnMouseClicked(pickWeek(i, materialList.get(i-1), rightPanel, materialDetails));
+            panel.getChildren().add(tempButton);
         }
 
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollablePanel(courseListPanel);
+    }
+
+
+    private EventHandler pickWeek(int weekNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
+        return event -> {
+            materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
+
+            currentValues.put("WEEK", String.valueOf(weekNo));
+
+            VBox courseActionsDisplay;
+
+            if(materials.get("Lab") && materials.get("Lecture")){
+                ArrayList<Button> materialBtnsList = new ArrayList<>();
+
+                materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
+                materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
+
+                Button[] materialBtns = materialBtnsList.toArray(new Button[0]);
+                materialBtns = stylePanelActions(materialBtns);
+
+                VBox materialBtnView = new VBox(materialBtns);
+
+                materialBtnView.setAlignment(Pos.CENTER);
+                materialBtnView.setSpacing(20.0);
+                materialBtnView.setPadding(new Insets(10));
+
+                courseActionsDisplay = makeScrollablePart(materialBtnView);
+            }else{
+                courseActionsDisplay = makeScrollablePart(new VBox(new Text("No Material to Show!")));
+            }
+
+            rightPanel.getChildren().set(0, materialDetails);
+            rightPanel.getChildren().set(1, courseActionsDisplay);
+            rightPanel.setVisible(true);
+        };
     }
 
 

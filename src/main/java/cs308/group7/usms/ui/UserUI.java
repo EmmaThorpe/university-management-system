@@ -29,11 +29,6 @@ import java.util.Map;
 public class UserUI extends MainUI{
 
     private ImageView pdfImg;
-    protected String currentID;
-
-    public String getID(){
-        return currentID;
-    }
 
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
@@ -408,6 +403,19 @@ public class UserUI extends MainUI{
         }
 
     }
+
+
+
+    protected HBox makeWeekButton(int weekNo) {
+        Text nameDisplay = new Text("Week " + weekNo);
+
+        VBox weekDetails = new VBox(nameDisplay);
+        weekDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
+        return listButton;
+    }
+
+
 
 
 }

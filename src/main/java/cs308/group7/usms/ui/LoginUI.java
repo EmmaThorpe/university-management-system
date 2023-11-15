@@ -187,16 +187,7 @@ public class LoginUI extends MainUI{
 
     }
 
-    private ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
-        String operatorNameDisplay = operatorName.toUpperCase();
-        icon.getStyleClass().add("card-graphic");
-        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
-        op.setToggleGroup(group);
-        op.setUserData(operatorName.toLowerCase());
-        op.setContentDisplay(ContentDisplay.TOP);
-        op.getStyleClass().add("card-toggle");
-        return op;
-    }
+
 }
 
 
