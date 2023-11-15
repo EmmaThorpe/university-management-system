@@ -44,7 +44,7 @@ public class StudentController{
                 buttons.get("VIEW MATERIALS").setOnAction(event -> pageSetter("MATERIALS", false));
                 break;
             case "MATERIALS":
-                stuUI.materials(getAllLectureMaterials(stuUI.getID()));
+                stuUI.materials(getAllLectureMaterials(stuUI.getID()), getTwoSems("s"));
                 break;
             case "OPEN PDF":
                 stuUI.displayPDF(null, "LECTURER NOTES");
@@ -75,6 +75,9 @@ public class StudentController{
     }
 
 
+    private boolean getTwoSems(String moduleID){
+        return true;
+    }
 
     /**Gets info of the curriculum the student is in
      * @return A map containing curriculum information

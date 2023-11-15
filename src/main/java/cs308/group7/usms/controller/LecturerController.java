@@ -3,6 +3,8 @@ package cs308.group7.usms.controller;
 import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -17,9 +19,38 @@ public class LecturerController{
     public LecturerController(String id) {
         this.lecturerID = id;
         lecUI = new LecturerUI();
-        lecUI.home();
-        lecUI.displayFirstScene();
+        pageSetter("DASHBOARD", true);
     }
+
+
+    public void pageSetter(String page, Boolean initial){
+        Map<String, Button> buttons = null;
+        switch (page){
+            case "DASHBOARD":
+                lecUI.dashboard();
+                buttons =lecUI.getCurrentButtons();
+                buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULES", false));
+
+
+                Map<String, Node> currFields = lecUI.getCurrentFields();
+                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
+
+                break;
+            case "VIEW MODULE":
+                break;
+
+        }
+        buttons.get("LOG OUT").setOnAction(event -> lecUI.hideStage());
+        buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
+
+        if(initial){
+            lecUI.displayFirstScene();
+        }else{
+            lecUI.displayScene();
+        }
+    }
+
+
 
     private Lecturer getCurrentLecturer() throws SQLException { return new Lecturer(lecturerID); }
 
