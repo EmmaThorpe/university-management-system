@@ -38,10 +38,6 @@ public class Mark {
         }
     }
 
-    public String getUserID() { return userID; }
-
-    public String getModuleID() { return moduleID; }
-
     /**
      * Creates a new Mark object from the given parameters without checking the database
      */
