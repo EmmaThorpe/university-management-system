@@ -107,16 +107,18 @@ public class PasswordManager {
      */
     public Map<String,String> login(String email, String password){
         Map<String,String> potentialUser= new HashMap<>();
-        potentialUser.put("UserID", "idk2?");
         if(email.equals("student") && password.equals("a")){
+            potentialUser.put("UserID", "stu1");
             potentialUser.put("role", "Student");
             potentialUser.put("activated", "True");
 
         }else if(email.equals("lecturer") && password.equals("a")){
+            potentialUser.put("UserID", "lec1");
             potentialUser.put("role", "Lecturer");
             potentialUser.put("activated", "True");
 
         }else if(email.equals("manager") && password.equals("a")){
+            potentialUser.put("UserID", "mng1");
             potentialUser.put("role", "Manager");
             potentialUser.put("activated", "True");
 
