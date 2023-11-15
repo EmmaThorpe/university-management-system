@@ -1,6 +1,7 @@
 package cs308.group7.usms.controller;
 
-import cs308.group7.usms.model.Student;
+import cs308.group7.usms.model.*;
+import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 import javafx.scene.Node;
@@ -8,10 +9,7 @@ import javafx.scene.control.Button;
 import org.jpedal.exception.PdfException;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StudentController{
 
@@ -72,7 +70,8 @@ public class StudentController{
 
     private Student getCurrentStudent() throws SQLException { return new Student(studentID); }
 
-    /**Changes the password for a user.
+    /**
+     * Changes the password for a user.
      * @param oldPass
      * @param newPass
      */
@@ -85,63 +84,102 @@ public class StudentController{
         return true;
     }
 
-    /**Gets info of the curriculum the student is in
-     * @return A map containing curriculum information
+    /**
+     * Gets formatted curriculum information for this student. In the event of an error, returns an empty list.
+     * @return A List of Maps representing attended modules, each with the following keys:<br>
+     *         {@code Id, Name, Description, Credit, Lecturers}
      */
-    public List<Map<String,String>> getCurriculumInfo(){
-
-        List<Map<String, String>> modules = new ArrayList<>();
-        HashMap temp = new HashMap<String, String>();
-        temp.put("Id","CS308");
-        temp.put("Name", "Building Software Systems");
-        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
-        temp.put("Credit", "20");
-        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
-
-        modules.add(temp);
-        return modules;
+    public List<Map<String,String>> getCurriculumInfo() {
+        try {
+            List<Map<String, String>> res = new ArrayList<>();
+            for (Module m : getCurrentStudent().getCourse().getModules(true, false, 1)) { // TODO: This only gets modules for semester 1 of first year.
+                Map<String, String> moduleMap = new HashMap<>();                                          // TODO: Should be able to access current semester/year from somewhere
+                moduleMap.put("Id", m.getModuleID());                                                     // TODO: to determine the parameters for this method.
+                moduleMap.put("Name", m.getName());
+                moduleMap.put("Description", m.getDescription());
+                moduleMap.put("Credit", String.valueOf(m.getCredit()));
+                StringBuilder lecturers = new StringBuilder();
+                for (Lecturer l : m.getLecturers()) {
+                    if (!lecturers.isEmpty()) lecturers.append(", ");
+                    lecturers.append(l.getForename()).append(l.getSurname());
+                }
+                moduleMap.put("Lecturers", lecturers.toString());
+                res.add(moduleMap);
+            }
+            return res;
+        } catch (SQLException e) {
+            System.out.println("Failed to get curriculum info for student " + studentID + "!: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
 
-    /**Gets info of the course the student is in
-     * @return A map containing course information
+    /**
+     * Gets formatted course information for this student. In the event of an error, returns an empty map.
+     * @return A map representing the course, with the following keys:<br>
+     *         {@code Id, Name, Description, Level, Years}
      */
-    public Map<String,String> getCourseInfo(){
-        Map<String, String> temp = new HashMap<>();
-        temp.put("Id","G600");
-        temp.put("Name","Software Engineering");
-        temp.put("Description","Software Engineering will of high-quality software, focusing on large-scale software systems." );
-        temp.put("Level", "Undergraduate");
-        temp.put("Years", "4");
-        return temp;
+    public Map<String,String> getCourseInfo() {
+        try {
+            Course c = getCurrentStudent().getCourse();
+            Map<String, String> courseMap = new HashMap<>();
+            courseMap.put("Id", c.getCourseID());
+            courseMap.put("Name", c.getName());
+            courseMap.put("Description", c.getDescription());
+            courseMap.put("Level", c.getLevel());
+            courseMap.put("Years", String.valueOf(c.getLength()));
+            return courseMap;
+        } catch (SQLException e) {
+            System.out.println("Failed to get course info for student " + studentID + "!: " + e.getMessage());
+            return Collections.emptyMap();
+        }
     }
 
 
-    /** Get weekly lecture materials for a module
-     * @param moduleID
-     * @param week
-     * @return ??? Whatever the pdf type is
+    /**
+     * Get lecture material for a module, from a given semester and week.
+     * @return A map representing the lecture material, with the following keys:<br>
+     *         {@code LectureNote, LabNote}
+     * @deprecated Due to be replaced with two methods (for lecture + lab) that return PDFs (in some format)
      */
-    public String getLectureMaterials(String moduleID, int week){
-        return "";
+    public Map<String,String> getLectureMaterials(String moduleID, int semester, int week) {
+        try {
+            Material m = new Module(moduleID).getMaterial(semester, week);
+            Map<String, String> materialMap = new HashMap<>();
+            materialMap.put("LectureNote", m.getLectureNote());
+            materialMap.put("LabNote", m.getLabNote());
+            return materialMap;
+        } catch (SQLException e) {
+            System.out.println("Failed to get lecture materials for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
+            return Collections.emptyMap();
+        }
     }
 
 
 
-    /** Get ALL weekly lecture materials for a module
+    /**
+     * Get all lecture material for a module.
      * @param moduleID
      * @return ??? List<Map<String, ??? >>
+     * @deprecated When the new format is implemented, this should probably be removed.
+     *             Returning all PDFs from the database is likely to be intensive and unnecessary.
+     *             (this will work fine if you're just wanting the Material objects though, since it'll only load the PDFs when they're needed)
      */
     public List<Map<String, String>> getAllLectureMaterials(String moduleID){
         return null;
     }
 
 
-    /**Returns the student decision
-     * @return The result the student has received.
+    /**
+     * Get the student's decision. In the event of an error, returns "Unable to load student decision.".
      */
-    public String getDecision(){
-        return "Resit";
+    public String getDecision() {
+        try {
+            return Student.stringFromStudentDecision(getCurrentStudent().getDecision());
+        } catch (SQLException e) {
+            System.out.println("Failed to get decision for student " + studentID + "!: " + e.getMessage());
+            return "Unable to load student decision.";
+        }
     }
 
 }
