@@ -1,6 +1,8 @@
 package cs308.group7.usms.controller;
 
-import cs308.group7.usms.model.User;
+import cs308.group7.usms.App;
+import cs308.group7.usms.database.DatabaseConnection;
+import cs308.group7.usms.model.*;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -8,6 +10,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import javax.sql.rowset.CachedRowSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.util.HashMap;
@@ -113,43 +117,35 @@ public class ManagerController{
 
 
 
-    /**Gets all the users
+    /** Gets all the users
      * @return List of maps with user fields and their values (eg: forename, "john")
      */
-    public List < HashMap <String, String> > getUsers() {
-        List<User> accounts = new ArrayList<>();
-        accounts.add(new User("abc1","mng1", "a","b", "a.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
-        accounts.add(new User("abc2","mng1", "b","c", "b.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
-        accounts.add(new User("abc3","mng1", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
-        accounts.add(new User("abc4","mng1", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
-        accounts.add(new User("abc5","mng1", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
-        accounts.add(new User("abc6","mng2", "x","x", "x.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
-                true));
-        accounts.add(new User("abc7","mng1", "y","y", "y.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
-                true));
-        accounts.add(new User("abc8","mng2", "z","z", "z.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
-                true));
+    public List <HashMap <String, String>> getUsers() {
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, null);
+            List<HashMap<String, String>> users = new ArrayList<>();
 
-        List<HashMap<String, String>> users = new ArrayList<HashMap<String, String>>();
-        for (User acc : accounts ) {
-            //try {
+            while(result.next()){
+                User acc = new User(result.getString("UserID"));
                 HashMap<String, String> userDetailsMap = new HashMap<String, String>();
                 userDetailsMap.put("userID", acc.getUserID());
-                userDetailsMap.put("managerID", "mng1");
+                userDetailsMap.put("managerID", acc.getManager().getUserID());
                 userDetailsMap.put("forename", acc.getForename());
                 userDetailsMap.put("surname", acc.getSurname());
                 userDetailsMap.put("email", acc.getEmail());
                 userDetailsMap.put("DOB", acc.getDOB().toString());
                 userDetailsMap.put("gender", acc.getGender());
                 userDetailsMap.put("userType", acc.getType().toString());
-                userDetailsMap.put("activated", acc.getActivated()? "ACTIVATED" : "DEACTIVATED");
+                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
                 users.add(userDetailsMap);
-            //} catch (SQLException e) {
-            //    throw new RuntimeException(e);
-            //}
-        }
+            }
 
-        return users;
+            return users;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**Gets all the users that are still to be approved ( are inactive)
@@ -172,17 +168,27 @@ public class ManagerController{
      * @return List containing a map of course info
      */
     public List<Map<String, String>> getCourses(){
-        List<Map<String, String>> courses = new ArrayList<>();
-        HashMap<String, String> temp = new HashMap<>();
-        temp.put("Id","G600");
-        temp.put("Name","Software Engineering");
-        temp.put("Description","Software Engineering will of high-quality software, focusing on large-scale software systems." );
-        temp.put("Level", "Undergraduate");
-        temp.put("Years", "4");
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Course"}, new String[]{"CourseID"}, null);
+            List<Map<String, String>> modules = new ArrayList<>();
 
-        courses.add(temp);
+            while(result.next()){
+                Course cour = new Course(result.getString("CourseID"));
+                Map<String, String> courseDetailsMap = new HashMap<String, String>();
+                courseDetailsMap.put("Id", cour.getCourseID());
+                courseDetailsMap.put("Name", cour.getName());
+                courseDetailsMap.put("Description", cour.getDescription());
+                courseDetailsMap.put("Level", cour.getLevel());
+                courseDetailsMap.put("Years", String.valueOf(cour.getLength()));
+                modules.add(courseDetailsMap);
+            }
 
-        return courses;
+            return modules;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -191,17 +197,35 @@ public class ManagerController{
      * @return List of maps containg module info
      */
     public List<Map<String, String>> getModules(){
-        List<Map<String, String>> modules = new ArrayList<>();
-        HashMap temp = new HashMap<String, String>();
-        temp.put("Id","CS308");
-        temp.put("Name", "Building Software Systems");
-        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
-        temp.put("Credit", "20");
-        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, null);
+            List<Map<String, String>> modules = new ArrayList<>();
 
-        modules.add(temp);
+            while(result.next()){
+                Module mod = new Module(result.getString("ModuleID"));
+                Map<String, String> moduleDetailsMap = new HashMap<String, String>();
+                moduleDetailsMap.put("Id", mod.getModuleID());
+                moduleDetailsMap.put("Name", mod.getName());
+                moduleDetailsMap.put("Description", mod.getDescription());
+                moduleDetailsMap.put("Credit", String.valueOf(mod.getCredit()));
 
-        return modules;
+                List<Lecturer> lecs = mod.getLecturers();
+                List<String> lecsList = new ArrayList<>();
+                for(Lecturer l : lecs){
+                    lecsList.add(l.getForename() + " " + l.getSurname());
+                }
+                String lecsString = String.join(", ", lecsList);
+
+                moduleDetailsMap.put("Lecturers", lecsString);
+                modules.add(moduleDetailsMap);
+            }
+
+            return modules;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -210,6 +234,7 @@ public class ManagerController{
      *
      * @return List of maps containing the name and the id of all lecturers
      */
+    // TODO: ask about this. can lecturers have no class rn?
     public List<Map<String, String>> getFreeLecturers(){
         List<Map<String, String>> lecturers = new ArrayList<>();
         Map<String, String> temp = new HashMap<>();
@@ -299,15 +324,22 @@ public class ManagerController{
     /**Takes in a userID and activates the user
      * @param userID
      */
+    // TODO: ask about this. userID is always null. why?
     public void activateUser(String userID) {
-        //boolean success = activation code;
+        System.out.println(userID);
+        try {
+            User u = new User(userID);
+            boolean success = u.setActivated();
 
-        boolean success = true; //dummy for testing
-        if(success){
-            pageSetter("MANAGE ACCOUNTS", false);
-            manUI.makeNotificationModal("Account successfully activated", true);
-        }else{
-            manUI.makeNotificationModal("Error activating account", false);
+            if (success) {
+                pageSetter("MANAGE ACCOUNTS", false);
+                manUI.makeNotificationModal("Account successfully activated", true);
+            } else {
+                manUI.makeNotificationModal("Error activating account", false);
+            }
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
         }
 
     }
@@ -315,6 +347,7 @@ public class ManagerController{
     /**Takes in a userID and deactivates the user
      * @param userID
      */
+    // TODO: ask about this. can users be deactivated rn?
     public void deactivateUser(String userID){
         System.out.println(userID);
     }
@@ -323,6 +356,7 @@ public class ManagerController{
      * @param userID
      * @param password
      */
+    // TODO: erm password stuff is unclear rn
     public void resetPassword(String userID, String password){
         System.out.println(userID + " " +password);
     }
@@ -344,7 +378,15 @@ public class ManagerController{
      * @param lecturerID
      * @param moduleID
      */
+    // TODO: ask about this and others below. no usages so don't know how to test? how do u make the button do button things
     public void assignLecturerModule(String lecturerID, String moduleID){
+        try {
+            Lecturer l = new Lecturer(lecturerID);
+            l.assignModule(moduleID);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
         System.out.println(lecturerID +" "+moduleID);
     }
 
@@ -353,6 +395,13 @@ public class ManagerController{
      * @param courseID
      */
     public void assignStudentCourse(String studentID, String courseID){
+        try {
+            Student s = new Student(studentID);
+            s.setCourse(courseID);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
         System.out.println(studentID +" "+ courseID);
     }
 
@@ -360,7 +409,15 @@ public class ManagerController{
      * @param courseID
      * @param moduleID
      */
+    // TODO: ask about this. if there's no input how is it known which semester/year the module goes in?
     public void assignModuleCourse(String courseID, String moduleID){
+        try {
+            Course c = new Course(courseID);
+            //c.addModule(moduleID, );
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
         System.out.println(courseID + " " +moduleID);
     }
 
@@ -369,6 +426,18 @@ public class ManagerController{
      * @param decision
      */
     public void issueStudentDecision(String studentID, String decision){
+        try {
+            Student s = new Student(studentID);
+            switch (decision) {
+                case "Award" -> s.issueAward();
+                case "Resit" -> s.issueResit();
+                case "Withdrawal" -> s.issueWithdrawal();
+                default -> throw new IllegalArgumentException("Invalid decision string!");
+            };
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
         System.out.println(studentID + " " +decision);
     }
 
@@ -488,5 +557,7 @@ public class ManagerController{
     public void addBusinessRuleModule(int value, List<String> modules){
         System.out.println(value + " " +modules.toString());
     }
+
+    // TODO: check diagram for all the other methods i probably forgot about
 
 }
