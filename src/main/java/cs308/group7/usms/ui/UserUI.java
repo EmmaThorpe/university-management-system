@@ -12,8 +12,17 @@ import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class UserUI extends MainUI{
+
+    protected String currentID;
+
+    public String getID(){
+        return currentID;
+    }
+
+
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
         VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
@@ -122,5 +131,39 @@ public class UserUI extends MainUI{
         root.setPadding(new Insets(10));
 
         currScene = new Scene(root);
+    }
+
+
+    //Module Elements
+
+    protected HBox makeModuleListButton(String id, String name, String credit) {
+        HBox yearsDisplay = listDetail("CREDITS" , credit);
+        Text nameDisplay = new Text(name);
+
+        VBox courseDetails = new VBox(nameDisplay, yearsDisplay);
+        courseDetails.setSpacing(5.0);
+        HBox listButton = makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
+        return listButton;
+    }
+
+
+    protected VBox moduleDetailDisplay(Map<String, String> tempModule) {
+        Text idTitle = new Text(tempModule.get("Name"));
+        idTitle.getStyleClass().add("info-box-title");
+
+        String creditsValue = tempModule.get("Credit");
+        HBox col1 = new HBox (
+                listDetail("NAME", tempModule.get("Name")),
+                listDetail("CREDITS", creditsValue)
+        );
+        VBox col2 = infoDetailLong("DESCRIPTION", tempModule.get("Description"));
+
+
+
+        VBox col3 = infoDetailLong("LECTURER(S)", tempModule.get("Lecturers"));
+
+        col1.setSpacing(5);
+        col2.setSpacing(5);
+        return new VBox(idTitle, col1, col2, col3);
     }
 }

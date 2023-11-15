@@ -497,15 +497,7 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
-    private HBox makeModuleListButton(String id, String name, String credit) {
-        HBox yearsDisplay = listDetail("CREDITS" , credit);
-        Text nameDisplay = new Text(name);
 
-        VBox courseDetails = new VBox(nameDisplay, yearsDisplay);
-        courseDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
-        return listButton;
-    }
 
     private EventHandler pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {
@@ -533,24 +525,6 @@ public class ManagerUI extends UserUI{
         };
     }
 
-    private VBox moduleDetailDisplay(Map<String, String> tempModule) {
-        Text idTitle = new Text(tempModule.get("Name"));
-        idTitle.getStyleClass().add("info-box-title");
 
-        String creditsValue = tempModule.get("Credit");
-        HBox col1 = new HBox (
-                listDetail("NAME", tempModule.get("Name")),
-                listDetail("CREDITS", creditsValue)
-        );
-        VBox col2 = infoDetailLong("DESCRIPTION", tempModule.get("Description"));
-
-
-
-        VBox col3 = infoDetailLong("LECTURER(S)", tempModule.get("Lecturers"));
-
-        col1.setSpacing(5);
-        col2.setSpacing(5);
-        return new VBox(idTitle, col1, col2, col3);
-    }
 
 }
