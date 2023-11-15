@@ -320,7 +320,7 @@ public class UserUI extends MainUI{
 
     protected void backPage(Document pdf){
         int page = Integer.parseInt(currentText.get("PAGE NO").getText());
-        if(page>=1){
+        if(page>1){
             pdfImg.setImage(pdfToImg(pdf, page-2));
             currentText.get("PAGE NO").setText(String.valueOf(page-1));
         }
