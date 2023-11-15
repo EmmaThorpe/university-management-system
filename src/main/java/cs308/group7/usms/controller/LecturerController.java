@@ -1,6 +1,7 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.model.Lecturer;
+import cs308.group7.usms.model.User;
 import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
 import javafx.scene.Node;
@@ -10,6 +11,7 @@ import javafx.stage.Stage;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LecturerController{
@@ -31,6 +33,7 @@ public class LecturerController{
                 lecUI.dashboard();
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULE", false));
+                buttons.get("GIVE MARK").setOnAction((event)->pageSetter("GIVE MARK", false));
                 Map<String, Node> currFields = lecUI.getCurrentFields();
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
@@ -39,9 +42,10 @@ public class LecturerController{
                 lecUI.module(getModuleInformation());
                 buttons =lecUI.getCurrentButtons();
                 break;
-            case "UPDATE MODULE INFORMATION":
-
-
+            case "GIVE MARK":
+                lecUI.mark(getEnrolledStudents());
+                buttons =lecUI.getCurrentButtons();
+                break;
 
         }
         buttons.get("LOG OUT").setOnAction(event -> lecUI.hideStage());
@@ -53,8 +57,6 @@ public class LecturerController{
             lecUI.displayScene();
         }
     }
-
-
 
     private Lecturer getCurrentLecturer() throws SQLException { return new Lecturer(lecturerID); }
 
@@ -87,11 +89,28 @@ public class LecturerController{
     public void updateModuleMaterial(String Materials){
     }
 
-    /**Gets an arraylist of student id's in the lecturer's module
-     * @return An ArrayList of students' userIDs
+    /**Gets all the students in the lecturer's module
+     * @return List of maps with user fields and their values (eg: forename, "john")
      */
-    public ArrayList<String> getEnrolledStudents(){
-        return null;
+    public List<Map<String, String>> getEnrolledStudents(){
+        List<Map<String, String>> enrolled = new ArrayList<>();
+        Map<String, String> temp = new HashMap<>();
+        temp.put("userID", "stu1");
+        temp.put("managerID", "mng1");
+        temp.put("forename", "john");
+        temp.put("surname", "smith");
+        temp.put("email", "johnsmith@mail.com");
+        temp.put("DOB", "14-04-2000");
+        temp.put("gender", "man");
+        temp.put("userType", "STUDENT");
+        temp.put("activated", "ACTIVATED");
+        temp.put("courseID", "G600");
+        temp.put("YearOfStudy", "1");
+        temp.put("decision", "Award");
+        temp.put("labMark", "69");
+        temp.put("examMark", "72");
+        enrolled.add(temp);
+        return enrolled;
     }
 
 

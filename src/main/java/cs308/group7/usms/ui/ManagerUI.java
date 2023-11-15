@@ -125,7 +125,6 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-
     private EventHandler pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             accDetails.getChildren().set(0, infoContainer(userDetailDisplay(

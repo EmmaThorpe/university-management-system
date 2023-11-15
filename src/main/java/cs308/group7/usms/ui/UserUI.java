@@ -230,7 +230,7 @@ public class UserUI extends MainUI{
         return new VBox(idTitle, col1, col2);
     }
 
-    //Student elements
+    //user elements
 
     protected HBox makeUserListButton(String userID, String fname, String lname, String userType,
                                     String activated) {
@@ -284,6 +284,39 @@ public class UserUI extends MainUI{
         return new VBox(idTitle, rows);
     }
 
+
+    //student mark elements
+
+    protected HBox makeStudentMarkListButton(String userID, String fname, String lname, String labMark,
+                                      String examMark) {
+        Text nameDisplay = new Text(fname + " " + lname);
+
+        HBox examDisplay = listDetail("EXAM" , examMark);
+        HBox labDisplay = listDetail("LAB" , labMark);
+
+        HBox markDetails = new HBox(labDisplay, examDisplay);
+        markDetails.setSpacing(5.0);
+
+        VBox userDetails = new VBox(nameDisplay, markDetails);
+        userDetails.setSpacing(5.0);
+
+        HBox listButton = makeListButton(userID, new FontIcon(FontAwesomeSolid.USER), userDetails);
+        return listButton;
+    }
+    protected VBox studentMarkDisplay(String userID, String fname, String lname, String labMark,
+                                      String examMark) {
+        Text idTitle = new Text(userID);
+        idTitle.getStyleClass().add("info-box-title");
+
+        VBox row = new VBox(
+                listDetail("FULL NAME", (fname + " " + lname)),
+                listDetail("LAB MARK", labMark),
+                listDetail("EXAM MARK", examMark)
+        );
+
+        row.setSpacing(5);
+        return new VBox(idTitle, row);
+    }
 
     //PDF viewer
 
