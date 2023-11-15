@@ -23,7 +23,7 @@ public class Course {
      */
     public Course(String courseID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
-        CachedRowSet res = db.select(new String[]{"Course"}, null, new String[]{"CourseID = " + courseID});
+        CachedRowSet res = db.select(new String[]{"Course"}, null, new String[]{"CourseID = " + db.sqlString(courseID)});
         res.next();
         this.courseID = res.getString("CourseID");
         this.name = res.getString("Name");
@@ -42,6 +42,8 @@ public class Course {
         this.levelOfStudy = levelOfStudy;
         this.amountOfYears = amountOfYears;
     }
+
+    public String getCourseID() { return courseID; }
 
     public String getName() { return name; }
 
@@ -135,7 +137,7 @@ public class Course {
             CachedRowSet result = db.select(new String[]{"Curriculum", "Module"},
                                             new String[]{"DISTINCT Module.ModuleID"},
                                             new String[]{"Module.ModuleID = Curriculum.ModuleID",
-                                                         "Curriculum.CourseID = " + courseID});
+                                                         "Curriculum.CourseID = " + db.sqlString(courseID)});
 
             List<Module> moduleList = new ArrayList<>();
             while(result.next()){

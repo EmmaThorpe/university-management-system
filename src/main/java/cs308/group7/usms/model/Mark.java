@@ -125,4 +125,11 @@ public class Mark {
 
 
     public int getAttemptNo()  { return attemptNo; }
+
+    public boolean canBeCompensated() {
+        final boolean labCompensation = labMark != null && (labMark >= 40 && labMark < 50);
+        final boolean examCompensation = examMark != null && (examMark >= 40 && examMark < 50);
+        return labCompensation || examCompensation;
+    }
+
 }
