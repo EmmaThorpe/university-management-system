@@ -34,9 +34,9 @@ public class StudentUI extends UserUI{
         resetCurrentValues();
         HBox toolbar = makeToolbar("Student");
 
-        Button mngModuleBtn = inputButton("VIEW DECISION");
-        Button mngCourseBtn = inputButton("VIEW COURSE");
-        Button mngSignupBtn = inputButton("VIEW MODULES");
+        Button viewDecisionBtn = inputButton("VIEW DECISION");
+        Button viewCourseBtn = inputButton("VIEW COURSE");
+        Button viewModuleBtn = inputButton("VIEW MODULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
         Button fileBtn = inputButton("OPEN FILE");
 
@@ -44,7 +44,7 @@ public class StudentUI extends UserUI{
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
 
-        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, passwordBtn, fileBtn};
+        Button[] mngBtns = {viewDecisionBtn, viewCourseBtn, viewModuleBtn, passwordBtn, fileBtn};
         mngBtns = stylePanelActions(mngBtns);
 
         VBox mainActionPanel = makePanel(new VBox(mngBtns));
@@ -65,8 +65,9 @@ public class StudentUI extends UserUI{
         currScene = new Scene(root);
     }
 
-
-
+    /**
+     * Modules Dashboard
+     **/
 
     public void modules(List<Map<String, String>> moduleList) {
         resetCurrentValues();
@@ -133,6 +134,18 @@ public class StudentUI extends UserUI{
         };
     }
 
+    /**
+     * Course Dashboard
+     **/
+
+    public void course(Map<String, String> studentCourse) {
+        VBox courseDetails = makePanel(new VBox(infoContainer(courseDetailDisplay(studentCourse))));
+        singlePanelLayout(courseDetails, "Courses");
+    }
+
+    /**
+     * Materials
+     **/
 
     public void materials(List<Map<String,String>> mater){
 

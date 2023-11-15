@@ -30,6 +30,7 @@ public class StudentController{
             case "DASHBOARD":
                 stuUI.dashboard();
                 buttons =stuUI.getCurrentButtons();
+                buttons.get("VIEW COURSE").setOnAction((event)->pageSetter("VIEW COURSE", false));
                 buttons.get("VIEW MODULES").setOnAction((event)->pageSetter("VIEW MODULES", false));
                 buttons.get("OPEN FILE").setOnAction((event)->pageSetter("OPEN PDF", false));
 
@@ -38,6 +39,10 @@ public class StudentController{
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
                 break;
+            case "VIEW COURSE":
+                stuUI.course(getCourseInfo());
+                buttons = stuUI.getCurrentButtons();
+                break;
             case "VIEW MODULES":
                 stuUI.modules(getCurriculumInfo());
                 buttons =stuUI.getCurrentButtons();
@@ -45,6 +50,7 @@ public class StudentController{
                 break;
             case "MATERIALS":
                 stuUI.materials(getAllLectureMaterials(stuUI.getID()));
+                buttons = stuUI.getCurrentButtons();
                 break;
             case "OPEN PDF":
                 stuUI.displayPDF(null, "LECTURER NOTES");
@@ -98,7 +104,13 @@ public class StudentController{
      * @return A map containing course information
      */
     public Map<String,String> getCourseInfo(){
-        return null;
+        Map<String, String> temp = new HashMap<>();
+        temp.put("Id","G600");
+        temp.put("Name","Software Engineering");
+        temp.put("Description","Software Engineering will of high-quality software, focusing on large-scale software systems." );
+        temp.put("Level", "Undergraduate");
+        temp.put("Years", "4");
+        return temp;
     }
 
 

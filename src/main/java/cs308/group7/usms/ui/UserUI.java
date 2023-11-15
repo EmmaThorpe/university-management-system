@@ -126,6 +126,28 @@ public class UserUI extends MainUI{
         return container;
     }
 
+    /* Panel layouts */
+
+    protected void singlePanelLayout(VBox main, String title){
+
+        HBox toolbar = makeToolbar(title);
+
+        HBox actionPanel = new HBox(main);
+
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
     protected void twoPanelLayout(VBox left, VBox right, String title){
 
         HBox toolbar = makeToolbar(title);
@@ -180,7 +202,26 @@ public class UserUI extends MainUI{
         return new VBox(idTitle, col1, col2, col3);
     }
 
+    //Course Elements
 
+    protected VBox courseDetailDisplay(Map<String, String> tempCourse) {
+        Text idTitle = new Text(tempCourse.get("Name"));
+        idTitle.getStyleClass().add("info-box-title");
+
+        VBox col1 = infoDetailLong("DESCRIPTION", tempCourse.get("Description"));
+
+
+        HBox col2 = new HBox(
+                listDetail("LEVEL", tempCourse.get("Level")),
+                listDetail("COURSE LENGTH", tempCourse.get("Years"))
+        );
+
+        col1.setSpacing(5);
+        col2.setSpacing(5);
+        return new VBox(idTitle, col1, col2);
+    }
+
+    //PDF viewer
 
     public void displayPDF(File file, String type){
         resetCurrentValues();

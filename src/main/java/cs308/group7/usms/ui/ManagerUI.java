@@ -400,22 +400,7 @@ public class ManagerUI extends UserUI{
         };
     }
 
-    private VBox courseDetailDisplay(Map<String, String> tempCourse) {
-        Text idTitle = new Text(tempCourse.get("Name"));
-        idTitle.getStyleClass().add("info-box-title");
 
-        VBox col1 = infoDetailLong("DESCRIPTION", tempCourse.get("Description"));
-
-
-        HBox col2 = new HBox(
-                listDetail("LEVEL", tempCourse.get("Level")),
-                listDetail("COURSE LENGTH", tempCourse.get("Length"))
-        );
-
-        col1.setSpacing(5);
-        col2.setSpacing(5);
-        return new VBox(idTitle, col1, col2);
-    }
 
     /**
      * Course Dashboard - modals
@@ -453,7 +438,7 @@ public class ManagerUI extends UserUI{
     }
 
     /**
-     * Course Dashboard
+     * Modules Dashboard
      **/
 
     public void modules(List<Map<String, String>> moduleList, List<Map<String, String>> lecturerList) {
