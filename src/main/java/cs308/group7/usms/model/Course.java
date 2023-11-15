@@ -43,6 +43,8 @@ public class Course {
         this.amountOfYears = amountOfYears;
     }
 
+    public String getCourseID() { return courseID; }
+
     public String getName() { return name; }
 
     public String getDescription() { return description; }
