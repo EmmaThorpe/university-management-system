@@ -1,21 +1,34 @@
 package cs308.group7.usms.ui;
 
 import javafx.beans.value.ChangeListener;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.icepdf.core.exceptions.PDFException;
+import org.icepdf.core.exceptions.PDFSecurityException;
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.Page;
+import org.icepdf.core.util.GraphicsRenderingHints;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserUI extends MainUI{
 
+    private ImageView pdfImg;
     protected String currentID;
 
     public String getID(){
@@ -166,4 +179,97 @@ public class UserUI extends MainUI{
         col2.setSpacing(5);
         return new VBox(idTitle, col1, col2, col3);
     }
+
+
+
+    public void displayPDF(File file, String type){
+        resetCurrentValues();
+
+        Document pdf = showPage();
+
+        int amount = pdf.getNumberOfPages()-1;
+        Text pageNo = inputText("PAGE NO");
+
+        currentText.get("PAGE NO").setText("1");
+        pdfImg = new ImageView(pdfToImg(pdf, 0));
+
+        Button backBtn = inputButton("<-");
+        Button forwardBtn = inputButton("->");
+
+        backBtn.setOnAction(event -> backPage(pdf));
+        forwardBtn.setOnAction(event -> forwardPage(pdf, amount));
+
+        BorderPane root = new BorderPane();
+        HBox toolbar = makeToolbar(type);
+
+        root.setTop(toolbar);
+        root.setLeft(backBtn);
+        root.setRight(forwardBtn);
+        root.setBottom(pageNo);
+
+        root.setCenter(new ScrollPane(pdfImg));
+        currScene = new Scene(root);
+
+    }
+
+
+    protected void backPage(Document pdf){
+        int page = Integer.parseInt(currentText.get("PAGE NO").getText());
+        if(page>=1){
+            pdfImg.setImage(pdfToImg(pdf, page-2));
+            currentText.get("PAGE NO").setText(String.valueOf(page-1));
+        }
+
+    }
+
+    protected void forwardPage(Document pdf, int amount){
+        int page = Integer.parseInt(currentText.get("PAGE NO").getText());
+
+        if(page <= amount){
+            pdfImg.setImage(pdfToImg(pdf, page));
+            currentText.get("PAGE NO").setText(String.valueOf(page+1));
+        }
+    }
+
+
+
+
+
+
+
+    protected Document showPage() {
+
+
+        Document currentDocument = new Document();
+        try {
+            File file = new File("src/main/resources/CS308_Coursework.pdf");
+            currentDocument.setFile(file.getAbsolutePath());
+            return currentDocument;
+
+
+        } catch (PDFException | PDFSecurityException | IOException ex) {
+        }
+
+
+        return null;
+    }
+
+    protected WritableImage pdfToImg(Document currentDocument, int page){
+        float scale = 1f;
+
+        try {
+            BufferedImage image = (BufferedImage) currentDocument.getPageImage(page,
+                    GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0f, scale);
+
+            WritableImage pdfImage = SwingFXUtils.toFXImage(image, null);
+
+            return pdfImage;
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 }

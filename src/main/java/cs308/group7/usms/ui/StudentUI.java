@@ -1,6 +1,7 @@
 package cs308.group7.usms.ui;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,6 +11,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StudentUI extends UserUI{
+
     private final PdfDecoderFX pdf = new PdfDecoderFX();
     public void dashboard() {
         resetCurrentValues();
@@ -135,58 +138,9 @@ public class StudentUI extends UserUI{
 
     }
 
-    public void displayPDF(File files){
-        resetCurrentValues();
-
-        ImageView pdfImage = new ImageView(showPage());
-
-        BorderPane root = new BorderPane();
-        HBox toolbar = makeToolbar("Student");
-        root.setTop(toolbar);
-        root.setCenter(pdfImage);
-        currScene = new Scene(root);
-
-    }
 
 
 
-
-
-
-
-    private WritableImage showPage() {
-
-
-        Document currentDocument = new Document();
-        try {
-            File file = new File("C:/Users/duffy/OneDrive/Documents/211.pdf");
-            currentDocument.setFile(file.getAbsolutePath());
-            return pdfToImg(currentDocument, 0);
-
-
-        } catch (PDFException | PDFSecurityException | IOException ex) {
-        }
-
-
-        return null;
-    }
-
-    protected WritableImage pdfToImg(Document currentDocument, int page){
-        float scale = 0.7f;
-
-        try {
-            BufferedImage image = (BufferedImage) currentDocument.getPageImage(page,
-                    GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0f, scale);
-
-            WritableImage pdfImage = SwingFXUtils.toFXImage(image, null);
-
-            return pdfImage;
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
 
 

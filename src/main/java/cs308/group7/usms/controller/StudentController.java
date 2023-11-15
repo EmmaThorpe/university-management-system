@@ -47,7 +47,7 @@ public class StudentController{
                 stuUI.materials(getAllLectureMaterials(stuUI.getID()));
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(null);
+                stuUI.displayPDF(null, "LECTURER NOTES");
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
