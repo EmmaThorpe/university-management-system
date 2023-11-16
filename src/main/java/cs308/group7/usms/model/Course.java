@@ -103,15 +103,17 @@ public class Course {
      */
     public List<Module> getModules(boolean sem1, boolean sem2, int year) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
-        String semester1 = (sem1) ? "1" : "0";
-        String semester2 = (sem2) ? "1" : "0";
+
+        List<String> conditionsList = new ArrayList<>();
+        conditionsList.add("Module.ModuleID = Curriculum.ModuleID");
+        conditionsList.add("Curriculum.CourseID = " + db.sqlString(courseID));
+        conditionsList.add("Curriculum.Year = " + year);
+        if (sem1) conditionsList.add("Curriculum.Semester1 = 1");
+        if (sem2) conditionsList.add("Curriculum.Semester2 = 1");
+
         try {
-            CachedRowSet result = db.select(new String[]{"Curriculum", "Module"}, new String[]{"Module.ModuleID"},
-                                            new String[]{"Module.ModuleID = Curriculum.ModuleID",
-                                                         "Curriculum.CourseID = " + db.sqlString(courseID),
-                                                         "Curriculum.Semester1 = " + semester1,
-                                                         "Curriculum.Semester2 = " + semester2,
-                                                         "Curriculum.Year = " + year});
+            // https://stackoverflow.com/a/9572820/13460028
+            CachedRowSet result = db.select(new String[]{"Curriculum", "Module"}, new String[]{"Module.ModuleID"}, conditionsList.toArray(new String[0]));
 
             List<Module> moduleList = new ArrayList<>();
             while(result.next()){

@@ -34,7 +34,7 @@ public class ManagerController{
         switch (page){
             case "DASHBOARD":
                 manUI.dashboard();
-                buttons =manUI.getCurrentButtons();
+                buttons = manUI.getCurrentButtons();
                 buttons.get("MANAGE MODULES").setOnAction((event)->pageSetter("MANAGE MODULES", false));
                 buttons.get("MANAGE COURSES").setOnAction((event)->pageSetter("MANAGE COURSES", false));
                 buttons.get("MANAGE SIGN-UP WORKFLOW").setOnAction((event)->pageSetter("MANAGE SIGN-UP WORKFLOW", false));
@@ -164,7 +164,6 @@ public class ManagerController{
 
     /**
      * Gets a list of all courses
-     *
      * @return List containing a map of course info
      */
     public List<Map<String, String>> getCourses(){
@@ -230,18 +229,30 @@ public class ManagerController{
 
 
     /**
-     * Gets a list of all lecturers with no current class
+     * Gets a list of all lecturers
      *
      * @return List of maps containing the name and the id of all lecturers
      */
-    // TODO: ask about this. can lecturers have no class rn?
     public List<Map<String, String>> getFreeLecturers(){
-        List<Map<String, String>> lecturers = new ArrayList<>();
-        Map<String, String> temp = new HashMap<>();
-        temp.put("Id", "GOAT");
-        temp.put("Name","Theresa May");
-        lecturers.add(temp);
-        return lecturers;
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Lecturer"}, new String[]{"UserID"}, null);
+            List<Map<String, String>> lecturers = new ArrayList<>();
+
+            while(result.next()){
+                Lecturer lec = new Lecturer(result.getString("UserID"));
+                Map<String, String> lecturerDetailsMap = new HashMap<String, String>();
+                lecturerDetailsMap.put("Id", lec.getLecturerID());
+                lecturerDetailsMap.put("Qualification", lec.getQualification());
+
+                lecturers.add(lecturerDetailsMap);
+            }
+
+            return lecturers;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -324,7 +335,6 @@ public class ManagerController{
     /**Takes in a userID and activates the user
      * @param userID
      */
-    // TODO: ask about this. userID is always null. why?
     public void activateUser(String userID) {
         System.out.println(userID);
         try {
@@ -341,14 +351,27 @@ public class ManagerController{
         catch(SQLException e){
             throw new RuntimeException(e);
         }
-
     }
 
     /**Takes in a userID and deactivates the user
      * @param userID
      */
-    // TODO: ask about this. can users be deactivated rn?
     public void deactivateUser(String userID){
+        System.out.println(userID);
+        try {
+            User u = new User(userID);
+            boolean success = u.setDeactivated();
+
+            if (success) {
+                pageSetter("MANAGE ACCOUNTS", false);
+                manUI.makeNotificationModal("Account successfully deactivated", true);
+            } else {
+                manUI.makeNotificationModal("Error deactivating account", false);
+            }
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
         System.out.println(userID);
     }
 
@@ -356,7 +379,7 @@ public class ManagerController{
      * @param userID
      * @param password
      */
-    // TODO: erm password stuff is unclear rn
+    // TODO: erm password stuff
     public void resetPassword(String userID, String password){
         System.out.println(userID + " " +password);
     }
@@ -378,7 +401,6 @@ public class ManagerController{
      * @param lecturerID
      * @param moduleID
      */
-    // TODO: ask about this and others below. no usages so don't know how to test? how do u make the button do button things
     public void assignLecturerModule(String lecturerID, String moduleID){
         try {
             Lecturer l = new Lecturer(lecturerID);
@@ -408,12 +430,14 @@ public class ManagerController{
     /**Assign a module to a course
      * @param courseID
      * @param moduleID
+     * @param sem1
+     * @param sem2
+     * @param year
      */
-    // TODO: ask about this. if there's no input how is it known which semester/year the module goes in?
-    public void assignModuleCourse(String courseID, String moduleID){
+    public void assignModuleCourse(String courseID, String moduleID, Boolean sem1, Boolean sem2, int year){
         try {
             Course c = new Course(courseID);
-            //c.addModule(moduleID, );
+            c.addModule(moduleID, sem1, sem2, year);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -445,7 +469,26 @@ public class ManagerController{
      * @param code
      * @param name
      * @param description
+     * @param levelOfStudy
+     * @param length
      */
+    public void addCourse(String code, String name, String description, String levelOfStudy, int length, String deptNo){
+        DatabaseConnection db = App.getDatabaseConnection();
+
+        HashMap<String, String> values = new HashMap<>();
+        values.put("CourseID", db.sqlString(code));
+        values.put("Name", db.sqlString(name));
+        values.put("Description", db.sqlString(description));
+        values.put("LevelOfStudy", db.sqlString(levelOfStudy));
+        values.put("AmountOfYears", db.sqlString(String.valueOf(length)));
+        values.put("DeptNo", db.sqlString(deptNo));
+
+        try{
+            db.insert("Course", values);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     public void addCourse(String code, String name, String description, String level, String length){
         System.out.println(code + " " +name +" "+description +" "+level +" "+length);
     }
@@ -466,98 +509,110 @@ public class ManagerController{
      * @param name
      * @param credit
      */
-    public void addModule(String code, String name, String description, String credit){
-        System.out.println(code + " " +name +" "+description +" "+credit);
+    public void addModule(String code, String name, String description, int credit){
+        DatabaseConnection db = App.getDatabaseConnection();
+
+        HashMap<String, String> values = new HashMap<>();
+        values.put("ModuleID", db.sqlString(code));
+        values.put("Name", db.sqlString(name));
+        values.put("Description", db.sqlString(description));
+        values.put("Credit", String.valueOf(credit));
+
+        try{
+            db.insert("Module", values);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
+        /**Edits a module
+         * @param code
+         * @param name
+         * @param credit
+         */
+        public void editModule(String oldCode, String code, String name, String description, String credit){
+            System.out.println(oldCode+" "+code + " " +name +" "+description +" "+credit);
+        }
 
-    /**Edits a module
-     * @param code
-     * @param name
-     * @param credit
-     */
-    public void editModule(String oldCode, String code, String name, String description, String credit){
-        System.out.println(oldCode+" "+code + " " +name +" "+description +" "+credit);
+        /**
+         * @return A list of a map containing all the details of each activated business rules
+         */
+        public List<Map<String, String>> getActivatedBusinessRules(){
+            Map<String, String> temp = new HashMap<>();
+            ArrayList<Map<String, String>> tempList = new ArrayList<>();
+
+            temp.put("Id", "abc");
+            temp.put("Type", "NUMBER OF RESITS");
+            temp.put("Value", "2");
+            tempList.add(temp);
+
+            return tempList;
+        }
+
+
+        /**
+         * @return Get a map containing an id of a business rule along with a list of ids of courses/modules it is associated with
+         * Can combine with above function if that is easier
+         */
+        public Map<String, List<String>> getAssociatedOfRules(){
+            Map<String, List<String>> temp = new HashMap<>();
+            ArrayList<String> tempList = new ArrayList<>();
+
+            tempList.add("CS103");
+            tempList.add("CS104");
+
+            temp.put("abc", tempList);
+
+            return temp;
+        }
+
+
+        /**
+         * @return Map of courses with a map of whether or not they have a rule set for the 2 different rule types
+         */
+        public Map<String, Map <String,Boolean>> getCourseRulesMap(){
+            Map<String, Map<String,Boolean>> temp = new HashMap<>();
+            Map<String,Boolean> tempRules = new HashMap<>();
+
+            tempRules.put("Max Number Of Resits", false);
+            tempRules.put("Number of Compensated Classes", false);
+
+            temp.put("SE1", tempRules);
+
+
+            tempRules.put("Max Number Of Resits", true);
+            tempRules.put("Number of Compensated Classes", true);
+
+            temp.put("SE2", tempRules);
+
+            return temp;
+        }
+
+
+        /**
+         * @return A map containing module id's and if they have a rule set to them or not
+         */
+        public Map<String, Boolean> getModuleRulesMap(){
+            Map<String,Boolean> temp = new HashMap<>();
+
+            temp.put("CS103", false);
+
+            return temp;
+        }
+
+
+        public void addBusinessRuleCourse(String type, int value, List<String> courses){
+            System.out.println(type +" "+ value + " " +courses.toString());
+        }
+
+
+        public void addBusinessRuleModule(int value, List<String> modules){
+            System.out.println(value + " " +modules.toString());
+        }
+
+        // TODO: check diagram for all the other methods i probably forgot about
+
     }
-
-
-    /**
-     * @return A list of a map containing all the details of each activated business rules
-     */
-    public List<Map<String, String>> getActivatedBusinessRules(){
-        Map<String, String> temp = new HashMap<>();
-        ArrayList<Map<String, String>> tempList = new ArrayList<>();
-
-        temp.put("Id", "abc");
-        temp.put("Type", "NUMBER OF RESITS");
-        temp.put("Value", "2");
-        tempList.add(temp);
-
-        return tempList;
-    }
-
-
-
-    /**
-     * @return Get a map containing an id of a business rule along with a list of ids of courses/modules it is associated with
-     * Can combine with above function if that is easier
-     */
-    public Map<String, List<String>> getAssociatedOfRules(){
-        Map<String, List<String>> temp = new HashMap<>();
-        ArrayList<String> tempList = new ArrayList<>();
-
-        tempList.add("CS103");
-        tempList.add("CS104");
-
-        temp.put("abc", tempList);
-
-        return temp;
-    }
-
-
-    /**
-     * @return Map of courses with a map of whether or not they have a rule set for the 2 different rule types
-     */
-    public Map<String, Map <String,Boolean>> getCourseRulesMap(){
-        Map<String, Map<String,Boolean>> temp = new HashMap<>();
-        Map<String,Boolean> tempRules = new HashMap<>();
-
-        tempRules.put("Max Number Of Resits", false);
-        tempRules.put("Number of Compensated Classes", false);
-
-        temp.put("SE1", tempRules);
-
-
-        tempRules.put("Max Number Of Resits", true);
-        tempRules.put("Number of Compensated Classes", true);
-
-        temp.put("SE2", tempRules);
-
-        return temp;
-    }
-
-
-    /**
-     * @return A map containing module id's and if they have a rule set to them or not
-     */
-    public Map<String, Boolean> getModuleRulesMap(){
-        Map<String,Boolean> temp = new HashMap<>();
-
-        temp.put("CS103", false);
-
-        return temp;
-    }
-
-
-    public void addBusinessRuleCourse(String type, int value, List<String> courses){
-        System.out.println(type +" "+ value + " " +courses.toString());
-    }
-
-
-    public void addBusinessRuleModule(int value, List<String> modules){
-        System.out.println(value + " " +modules.toString());
-    }
-
-    // TODO: check diagram for all the other methods i probably forgot about
 
 }

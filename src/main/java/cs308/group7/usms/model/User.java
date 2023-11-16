@@ -120,6 +120,22 @@ public class User {
         }
     }
 
+    /**
+     * Sets the user to deactivated
+     * @return Whether the operation was successful
+     */
+    public boolean setDeactivated() {
+        DatabaseConnection db = App.getDatabaseConnection();
+        HashMap<String, String> values = new HashMap<>();
+        values.put("Activated", "FALSE");
+        try {
+            return activated = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
+        } catch (SQLException e) {
+            System.out.println("Failed to set user " + userID + " to activated!");
+            return false;
+        }
+    }
+
     public void changePassword(String newPass) {
         // TODO: Implement this
     }
