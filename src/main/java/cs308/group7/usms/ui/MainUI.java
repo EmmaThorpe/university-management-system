@@ -116,6 +116,24 @@ public class MainUI {
         return panel;
     }
 
+    protected VBox makeTopPanel(VBox content) {
+        content.setPadding(new Insets(10));
+        content.setSpacing(20.0);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("top-panel");
+
+        return panel;
+    }
+
+    protected VBox makeBottomPanel(VBox content) {
+        content.setPadding(new Insets(20));
+        content.setSpacing(20.0);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("bottom-panel");
+
+        return panel;
+    }
+
     protected VBox makePanelWithAction(VBox content, Button action) {
         content.setPadding(new Insets(20));
 
@@ -138,6 +156,16 @@ public class MainUI {
         content.fitToWidthProperty().set(true);
         VBox panel = new VBox(content);
         panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
+    protected VBox makeScrollableBottomPanel(ScrollPane content) {
+        content.setPadding(new Insets(20));
+        content.fitToHeightProperty().set(true);
+        content.fitToWidthProperty().set(true);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("bottom-panel");
 
         return panel;
     }

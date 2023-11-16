@@ -28,14 +28,18 @@ public class StudentController{
             case "DASHBOARD":
                 stuUI.dashboard();
                 buttons =stuUI.getCurrentButtons();
+                buttons.get("VIEW DECISION").setOnAction((event)->pageSetter("VIEW DECISION", false));
                 buttons.get("VIEW COURSE").setOnAction((event)->pageSetter("VIEW COURSE", false));
                 buttons.get("VIEW MODULES").setOnAction((event)->pageSetter("VIEW MODULES", false));
                 buttons.get("OPEN FILE").setOnAction((event)->pageSetter("OPEN PDF", false));
 
-
                 Map<String, Node> currFields = stuUI.getCurrentFields();
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
+                break;
+            case "VIEW DECISION":
+                stuUI.decision(getCurriculumInfo());
+                buttons = stuUI.getCurrentButtons();
                 break;
             case "VIEW COURSE":
                 stuUI.course(getCourseInfo());

@@ -261,7 +261,7 @@
     -fx-border-color: -color-ter;
 }
 
-.card, .card-toggle, .panel, .list-button {
+.card, .card-toggle, .panel, .top-panel, .bottom-panel, .list-button {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
@@ -291,6 +291,16 @@
     -fx-max-width: 500;
     -fx-max-height: 450;
     -fx-min-height: 450;
+}
+
+.top-panel {
+    -fx-min-height: 50;
+    -fx-max-height: 50;
+}
+
+.bottom-panel {
+    -fx-min-height: 400;
+    -fx-max-height: 400;
 }
 
 .card-toggle {

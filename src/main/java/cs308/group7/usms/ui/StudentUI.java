@@ -65,6 +65,47 @@ public class StudentUI extends UserUI{
     }
 
     /**
+     * Decision Dashboard
+     **/
+
+    public void decision(List<Map<String, String>> moduleList) {
+        resetCurrentValues();
+
+        inputButton("VIEW MATERIALS");
+
+        VBox topPanel = makeTopPanel(new VBox(new Text("hello world")));
+
+        VBox moduleDetails = new VBox(new VBox());
+
+        VBox rightActionPanel = makeBottomPanel(new VBox());
+        rightActionPanel.getChildren().add(0, moduleDetails);
+        rightActionPanel.setVisible(false);
+
+        VBox leftActionPanel = decisionButtons(moduleList, rightActionPanel, moduleDetails);
+        threePanelLayout(leftActionPanel, rightActionPanel, topPanel, "Modules");
+    }
+
+    private VBox decisionButtons(List<Map<String, String>> moduleList, VBox rightPanel, VBox moduleDetails){
+        VBox panel = new VBox();
+        HBox tempButton;
+        for (Map<String, String> module : moduleList) {
+            tempButton = makeModuleListButton(
+                    module.get("Id"),
+                    module.get("Name"),
+                    module.get("Credit")
+            );
+            tempButton.setOnMouseClicked(pickModule(module.get("Id"), module, rightPanel, moduleDetails));
+            panel.getChildren().add(tempButton);
+        }
+
+        panel.setSpacing(20.0);
+        panel.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane courseListPanel = new ScrollPane(panel);
+        return makeScrollableBottomPanel(courseListPanel);
+    }
+
+    /**
      * Modules Dashboard
      **/
 
@@ -103,7 +144,6 @@ public class StudentUI extends UserUI{
         ScrollPane courseListPanel = new ScrollPane(panel);
         return makeScrollablePanel(courseListPanel);
     }
-
 
     private EventHandler pickModule(String id, Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {

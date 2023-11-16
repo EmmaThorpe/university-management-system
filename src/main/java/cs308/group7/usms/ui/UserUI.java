@@ -166,6 +166,33 @@ public class UserUI extends MainUI{
         currScene = new Scene(root);
     }
 
+    protected void threePanelLayout(VBox left, VBox right, VBox top, String title){
+
+        HBox toolbar = makeToolbar(title);
+
+        HBox topActionPanel = new HBox(top);
+        HBox bottomActionPanel = new HBox(left, right);
+
+        topActionPanel.setAlignment(Pos.TOP_CENTER);
+        HBox.setHgrow(topActionPanel, Priority.ALWAYS);
+
+        VBox actionPanel = new VBox(topActionPanel, bottomActionPanel);
+
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
 
     /**
         Module Elements
