@@ -18,6 +18,8 @@ import org.icepdf.core.pobjects.Document;
 import org.icepdf.core.pobjects.Page;
 import org.icepdf.core.util.GraphicsRenderingHints;
 import org.jpedal.PdfDecoderFX;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -68,24 +70,20 @@ public class StudentUI extends UserUI{
      * Decision Dashboard
      **/
 
-    public void decision(List<Map<String, String>> moduleList) {
+    public void decision(List<Map<String, String>> moduleList, List<Map<String,String>> markList, String decision) {
         resetCurrentValues();
 
-        inputButton("VIEW MATERIALS");
+        VBox topPanel = makeTopPanel(decisionDisplay(decision));
 
-        VBox topPanel = makeTopPanel(new VBox(new Text("hello world")));
-
-        VBox moduleDetails = new VBox(new VBox());
-
-        VBox rightActionPanel = makeBottomPanel(new VBox());
-        rightActionPanel.getChildren().add(0, moduleDetails);
+        VBox rightActionPanel = makeScrollableBottomPanel(new ScrollPane());
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = decisionButtons(moduleList, rightActionPanel, moduleDetails);
-        threePanelLayout(leftActionPanel, rightActionPanel, topPanel, "Modules");
+        VBox leftActionPanel = decisionButtons(moduleList, markList, rightActionPanel);
+        threePanelLayout(leftActionPanel, rightActionPanel, topPanel, "Decision");
     }
 
-    private VBox decisionButtons(List<Map<String, String>> moduleList, VBox rightPanel, VBox moduleDetails){
+    private VBox decisionButtons(List<Map<String, String>> moduleList, List<Map<String,String>> markList,
+                                 VBox rightPanel){
         VBox panel = new VBox();
         HBox tempButton;
         for (Map<String, String> module : moduleList) {
@@ -94,16 +92,45 @@ public class StudentUI extends UserUI{
                     module.get("Name"),
                     module.get("Credit")
             );
-            tempButton.setOnMouseClicked(pickModule(module.get("Id"), module, rightPanel, moduleDetails));
+            tempButton.setOnMouseClicked(pickModuleMark(module.get("Id"), markList, rightPanel));
             panel.getChildren().add(tempButton);
         }
 
         panel.setSpacing(20.0);
         panel.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane courseListPanel = new ScrollPane(panel);
-        return makeScrollableBottomPanel(courseListPanel);
+        ScrollPane moduleListPanel = new ScrollPane(panel);
+        return makeScrollableBottomPanel(moduleListPanel);
     }
+
+    private EventHandler pickModuleMark(String id, List<Map<String, String>> markList,
+                                        VBox rightPanel){
+        return event -> {
+            VBox markListItems = new VBox();
+            for (Map<String, String> mark : markList) {
+                if (mark.get("moduleID").equals(id)) {
+                    HBox listItem = makeMarkList(
+                            mark.get("moduleID"),
+                            mark.get("lab"),
+                            mark.get("exam"),
+                            mark.get("attempt"),
+                            mark.get("grade")
+                    );
+                    markListItems.getChildren().add(listItem);
+                }
+            }
+
+            markListItems.setSpacing(20.0);
+            markListItems.setPadding(new Insets(10, 2, 10, 2));
+
+            ScrollPane markListPanel = new ScrollPane(markListItems);
+            rightPanel.getChildren().set(0, (markListPanel));
+            rightPanel.setVisible(true);
+        };
+    }
+
+
+
 
     /**
      * Modules Dashboard

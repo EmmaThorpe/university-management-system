@@ -38,7 +38,7 @@ public class StudentController{
 
                 break;
             case "VIEW DECISION":
-                stuUI.decision(getCurriculumInfo());
+                stuUI.decision(getModules(), getMarks(), "AWARD");
                 buttons = stuUI.getCurrentButtons();
                 break;
             case "VIEW COURSE":
@@ -46,7 +46,7 @@ public class StudentController{
                 buttons = stuUI.getCurrentButtons();
                 break;
             case "VIEW MODULES":
-                stuUI.modules(getCurriculumInfo());
+                stuUI.modules(getModules());
                 buttons =stuUI.getCurrentButtons();
                 buttons.get("VIEW MATERIALS").setOnAction(event -> pageSetter("MATERIALS", false));
                 break;
@@ -198,6 +198,45 @@ public class StudentController{
             System.out.println("Failed to get decision for student " + studentID + "!: " + e.getMessage());
             return "Unable to load student decision.";
         }
+    }
+
+    /**
+     * Dummy for getting a student's marks for all their modules
+     */
+    public List<Map<String, String>> getMarks() {
+        List<Map<String, String>> marks = new ArrayList<>();
+        Map<String, String> temp = new HashMap<>();
+        temp.put("moduleID", "CS308");
+        temp.put("lab", "96");
+        temp.put("exam", "80");
+        temp.put("attempt", "2");
+        temp.put("grade", "PASS");
+        marks.add(temp);
+
+        Map<String, String> temp2 = new HashMap<>();
+        temp2.put("moduleID", "CS308");
+        temp2.put("lab", "30");
+        temp2.put("exam", "20");
+        temp2.put("attempt", "1");
+        temp2.put("grade", "FAIL");
+        marks.add(temp2);
+        return marks;
+    }
+
+    /**
+     * Dummy for getting a student's modules
+     */
+    public List<Map<String, String>> getModules(){
+        List<Map<String, String>> modules = new ArrayList<>();
+        HashMap temp = new HashMap<String, String>();
+        temp.put("Id","CS308");
+        temp.put("Name", "Building Software Systems");
+        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
+        temp.put("Credit", "20");
+        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
+
+        modules.add(temp);
+        return modules;
     }
 
 }

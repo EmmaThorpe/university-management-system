@@ -338,7 +338,7 @@
     -fx-padding: 2px 15px;
     -fx-text-alignment: center;
     -fx-background-insets: 0, 0, -1, 0;
-    -fx-min-width: 50;
+    -fx-min-width: 60;
     -fx-border-radius: 100em;
     -fx-background-radius: 100em;
     -fx-font-family: "Noto Sans";
@@ -403,4 +403,27 @@
 
 .notice-text {
     -fx-fill: -color-ter;
+}
+
+.decision-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
+
+.decision-award {
+    -fx-fill: -color-sec;
+}
+
+.decision-withdraw {
+    -fx-fill: -color-pri;
+}
+
+.decision-resit {
+    -fx-fill: -color-ter;
+}
+
+.decision-na {
+    -fx-fill: -color-light-grey;
 }
