@@ -118,7 +118,7 @@ public class Module {
     }
 
     /**
-     * Gets the material of the module for a given week
+     * Gets the students of a module in a given timeframe
      * @return The result of the query
      * @throws SQLException If the query fails
      */

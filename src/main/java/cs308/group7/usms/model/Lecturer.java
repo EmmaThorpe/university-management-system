@@ -2,6 +2,7 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
+import org.jetbrains.annotations.Nullable;
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
@@ -41,8 +42,11 @@ public class Lecturer extends User {
     }
 
 
+    public String getLecturerID() { return this.getUserID(); };
+
     public String getQualification() { return qualification; }
 
+    @Nullable
     public Module getModule() throws SQLException {
         try {
             return new Module(moduleID);

@@ -47,8 +47,8 @@ public class ManagerController{
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers(), getCourses(), getModules());
                 buttons = manUI.getCurrentButtons();
-                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getSelectedVal()));
-                buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getSelectedVal()));
+                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(userID/*change to actual userid*/));
+                buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(userID/*change to actual userid*/));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
             case "STUDENT DECISION":
@@ -114,7 +114,6 @@ public class ManagerController{
 
     /**
      * Gets a list of all courses
-     *
      * @return List containing a map of course info
      */
     public List<Map<String, String>> getCourses(){
@@ -180,18 +179,30 @@ public class ManagerController{
 
 
     /**
-     * Gets a list of all lecturers with no current class
+     * Gets a list of all lecturers
      *
      * @return List of maps containing the name and the id of all lecturers
      */
-    // TODO: ask about this. can lecturers have no class rn?
     public List<Map<String, String>> getFreeLecturers(){
-        List<Map<String, String>> lecturers = new ArrayList<>();
-        Map<String, String> temp = new HashMap<>();
-        temp.put("Id", "GOAT");
-        temp.put("Name","Theresa May");
-        lecturers.add(temp);
-        return lecturers;
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Lecturer"}, new String[]{"UserID"}, null);
+            List<Map<String, String>> lecturers = new ArrayList<>();
+
+            while(result.next()){
+                Lecturer lec = new Lecturer(result.getString("UserID"));
+                Map<String, String> lecturerDetailsMap = new HashMap<String, String>();
+                lecturerDetailsMap.put("Id", lec.getLecturerID());
+                lecturerDetailsMap.put("Qualification", lec.getQualification());
+
+                lecturers.add(lecturerDetailsMap);
+            }
+
+            return lecturers;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -201,9 +212,7 @@ public class ManagerController{
     /**Takes in a userID and activates the user
      * @param userID
      */
-    // TODO: ask about this. userID is always null. why?
     public void activateUser(String userID) {
-        System.out.println(userID);
         try {
             User u = new User(userID);
             boolean success = u.setActivated();
@@ -218,22 +227,34 @@ public class ManagerController{
         catch(SQLException e){
             throw new RuntimeException(e);
         }
-
     }
 
     /**Takes in a userID and deactivates the user
      * @param userID
      */
-    // TODO: ask about this. can users be deactivated rn?
     public void deactivateUser(String userID){
+        System.out.println(userID);
+        try {
+            User u = new User(userID);
+            boolean success = u.setDeactivated();
 
+            if (success) {
+                pageSetter("MANAGE ACCOUNTS", false);
+                manUI.makeNotificationModal("Account successfully deactivated", true);
+            } else {
+                manUI.makeNotificationModal("Error deactivating account", false);
+            }
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**Takes in a userID and password, and sets the selected user's password to be the set password
      * @param userID
      * @param password
      */
-    // TODO: erm password stuff is unclear rn
+    // TODO: erm password stuff
     public void resetPassword(String userID, String password){
 
     }
@@ -254,7 +275,6 @@ public class ManagerController{
      * @param lecturerID
      * @param moduleID
      */
-    // TODO: ask about this and others below. no usages so don't know how to test? how do u make the button do button things
     public void assignLecturerModule(String lecturerID, String moduleID){
         try {
             Lecturer l = new Lecturer(lecturerID);
@@ -282,12 +302,14 @@ public class ManagerController{
     /**Assign a module to a course
      * @param courseID
      * @param moduleID
+     * @param sem1
+     * @param sem2
+     * @param year
      */
-    // TODO: ask about this. if there's no input how is it known which semester/year the module goes in?
-    public void assignModuleCourse(String courseID, String moduleID){
+    public void assignModuleCourse(String courseID, String moduleID, Boolean sem1, Boolean sem2, int year){
         try {
             Course c = new Course(courseID);
-            //c.addModule(moduleID, );
+            c.addModule(moduleID, sem1, sem2, year);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -317,10 +339,26 @@ public class ManagerController{
      * @param code
      * @param name
      * @param description
+     * @param levelOfStudy
+     * @param length
      */
-    // TODO: ask about these two. the inputted information isn't enough to fully populate the database; where does the other info come from? are these just to be added in?
-    public void addCourse(String code, String name, String description){
+    public void addCourse(String code, String name, String description, String levelOfStudy, int length, String deptNo){
+        DatabaseConnection db = App.getDatabaseConnection();
 
+        HashMap<String, String> values = new HashMap<>();
+        values.put("CourseID", db.sqlString(code));
+        values.put("Name", db.sqlString(name));
+        values.put("Description", db.sqlString(description));
+        values.put("LevelOfStudy", db.sqlString(levelOfStudy));
+        values.put("AmountOfYears", db.sqlString(String.valueOf(length)));
+        values.put("DeptNo", db.sqlString(deptNo));
+
+        try{
+            db.insert("Course", values);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -329,8 +367,21 @@ public class ManagerController{
      * @param name
      * @param credit
      */
-    public void addModule(String code, String name, int credit){
+    public void addModule(String code, String name, String description, int credit){
+        DatabaseConnection db = App.getDatabaseConnection();
 
+        HashMap<String, String> values = new HashMap<>();
+        values.put("ModuleID", db.sqlString(code));
+        values.put("Name", db.sqlString(name));
+        values.put("Description", db.sqlString(description));
+        values.put("Credit", String.valueOf(credit));
+
+        try{
+            db.insert("Module", values);
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     // TODO: check diagram for all the other methods i probably forgot about
