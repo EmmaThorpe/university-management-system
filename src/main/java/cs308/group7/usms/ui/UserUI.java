@@ -223,10 +223,10 @@ public class UserUI extends MainUI{
 
     //used by both managers and lecturers
     protected VBox editModule(Map<String, String> currentModule) {
-        VBox setCode = inputFieldSetValue("Code", currentModule.get("Id"));
-        VBox setName = inputFieldSetValue("Edit Name", currentModule.get("Name"));
-        VBox setDesc = inputFieldLongSetValue("Edit Description", currentModule.get("Description"));
-        VBox setCredit = inputFieldSetValue("Edit Credits", currentModule.get("Credit"));
+        VBox setCode = inputFieldSetValue("EDIT CODE", currentModule.get("Id"));
+        VBox setName = inputFieldSetValue("EDIT NAME", currentModule.get("Name"));
+        VBox setDesc = inputFieldLongSetValue("EDIT DESCRIPTION", currentModule.get("Description"));
+        VBox setCredit = inputFieldSetValue("EDIT CREDITS", currentModule.get("Credit"));
 
         VBox container = new VBox(setCode, setName, setDesc, setCredit);
         return container;

@@ -86,7 +86,7 @@ public class ManagerUI extends UserUI{
 
         makeModal(assign,"ASSIGN LECTURER",  assignModule(moduleList),  false);
         makeModal(reset,"RESET USER PASSWORD",  resetPass(true), true);
-        makeModal(enrol,"ENROL STUDENT MODAL", enrolCourse(coursesList), false);
+        makeModal(enrol,"ENROL STUDENT", enrolCourse(coursesList), false);
 
         VBox accountDetails = new VBox(new VBox());
 
@@ -184,7 +184,7 @@ public class ManagerUI extends UserUI{
         for (Map<String, String> c : courses) {
             courseNames.add(c.get("Name"));
         }
-        VBox setCourse = dropdownField("Course to enrol to",
+        VBox setCourse = dropdownField("COURSE TO ENROL TO",
                 courseNames);
 
         VBox container = new VBox(setCourse);
@@ -209,7 +209,6 @@ public class ManagerUI extends UserUI{
 
     public void studentDecision(Map<String, String> currStudent, List<Map<String, String>> markList,
                                 String decisionRec, String decisionReason) {
-        resetCurrentValues();
 
         Button issueDecBtn = inputButton("ISSUE DECISION");
 
@@ -253,8 +252,7 @@ public class ManagerUI extends UserUI{
 
         VBox decisionInfo = infoContainer(decisionDisplay(currStudent.get("Id"), decisionRec, decisionReason));
 
-        VBox setDecision = dropdownField("Decision to issue",
-                awardOptions);
+        VBox setDecision = dropdownField("DECISION TO ISSUE", awardOptions);
 
         VBox container = new VBox(decisionInfo, setDecision);
         return container;
@@ -287,9 +285,9 @@ public class ManagerUI extends UserUI{
         Button edit = inputButton("EDIT COURSE");
         Button assign = inputButton("ASSIGN MODULE TO COURSE");
 
-        makeModal( add, "add", addCourse(),  false);
-        makeModal( edit, "edit", new VBox(),  false);
-        makeModal(assign, "assign", assignCourseModule(moduleList), false);
+        makeModal( add, "ADD", addCourse(),  false);
+        makeModal( edit, "EDIT", new VBox(),  false);
+        makeModal(assign, "ASSIGN", assignCourseModule(moduleList), false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -335,6 +333,8 @@ public class ManagerUI extends UserUI{
         return event -> {
             courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
 
+            currentValues.put("ID",tempCourse.get("Id"));
+
             ArrayList<Button> courseBtnsList = new ArrayList<>();
 
             courseBtnsList.add(currentButtons.get("EDIT COURSE"));
@@ -351,7 +351,7 @@ public class ManagerUI extends UserUI{
 
             VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
 
-            setModalContent(currentModals.get("edit"), editCourse(tempCourse));
+            setModalContent(currentModals.get("EDIT"), editCourse(tempCourse));
 
             rightPanel.getChildren().set(0, courseDetails);
             rightPanel.getChildren().set(1, courseActionsDisplay);
@@ -365,22 +365,22 @@ public class ManagerUI extends UserUI{
      * Course Dashboard - modals
      **/
     private VBox addCourse() {
-        VBox setCode = inputField("Code", false);
-        VBox setName = inputField("Name", false);
-        VBox setDesc = inputFieldLong("Description");
-        VBox setLevel = inputField("Level of Study", false);
-        VBox setYears = inputField("Length of course", false);
+        VBox setCode = inputField("CODE", false);
+        VBox setName = inputField("NAME", false);
+        VBox setDesc = inputFieldLong("DESCRIPTION");
+        VBox setLevel = inputField("LEVEL OF STUDY", false);
+        VBox setYears = inputField("LENGTH OF COURSE", false);
 
         VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);
         return container;
     }
 
     private VBox editCourse(Map<String, String> currentCourse) {
-        VBox setCode = inputFieldSetValue("Code", currentCourse.get("Id"));
-        VBox setName = inputFieldSetValue("Edit Name", currentCourse.get("Name"));
-        VBox setDesc = inputFieldLongSetValue("Edit Description", currentCourse.get("Description"));
-        VBox setLevel = inputFieldSetValue("Edit Level of Study", currentCourse.get("Level"));
-        VBox setYear = inputFieldSetValue("Edit Length of Course", currentCourse.get("Years"));
+        VBox setCode = inputFieldSetValue("EDIT CODE", currentCourse.get("Id"));
+        VBox setName = inputFieldSetValue("EDIT NAME", currentCourse.get("Name"));
+        VBox setDesc = inputFieldLongSetValue("EDIT DESCRIPTION", currentCourse.get("Description"));
+        VBox setLevel = inputFieldSetValue("EDIT LEVEL OF STUDY", currentCourse.get("Level"));
+        VBox setYear = inputFieldSetValue("EDIT LENGTH OF COURSE", currentCourse.get("Years"));
 
         VBox container = new VBox(setCode, setName, setDesc, setLevel, setYear);
         return container;
@@ -392,12 +392,16 @@ public class ManagerUI extends UserUI{
         for (Map<String, String> m : modules) {
             moduleNames.add(m.get("Name"));
         }
-        VBox setCourse = dropdownField("Module to assign to",
+        VBox setCourse = dropdownField("MODULE TO ASSIGN TO",
                 moduleNames);
 
         VBox container = new VBox(setCourse);
         return container;
     }
+
+
+
+
 
     /**
      * Modules Dashboard
@@ -410,9 +414,9 @@ public class ManagerUI extends UserUI{
         Button assign = inputButton("ASSIGN MODULE TO LECTURER");
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
-        makeModal(add, "add", addModule(), false);
-        makeModal( edit, "edit", new VBox(), false);
-        makeModal( assign, "assign", assignModuleLecturers(lecturerList), false);
+        makeModal(add, "ADD", addModule(), false);
+        makeModal( edit, "EDIT", new VBox(), false);
+        makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
 
         VBox moduleDetails = new VBox(new VBox());
 
@@ -448,6 +452,8 @@ public class ManagerUI extends UserUI{
         return event -> {
             moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
 
+            currentValues.put("ID",tempModule.get("Id"));
+
             ArrayList<Button> moduleBtnsList = new ArrayList<>();
 
             moduleBtnsList.add(currentButtons.get("ASSIGN MODULE TO LECTURER"));
@@ -462,7 +468,7 @@ public class ManagerUI extends UserUI{
             moduleBtnView.setSpacing(20.0);
             moduleBtnView.setPadding(new Insets(10));
 
-            setModalContent(currentModals.get("edit"), editModule(tempModule));
+            setModalContent(currentModals.get("EDIT"), editModule(tempModule));
 
             VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
 
@@ -476,10 +482,10 @@ public class ManagerUI extends UserUI{
      * Module Dashboard - modals
      **/
     private VBox addModule() {
-        VBox setCode = inputField("Code", false);
-        VBox setName = inputField("Name", false);
-        VBox setDesc = inputFieldLong("Description");
-        VBox setCredits = inputField("Credits", false);
+        VBox setCode = inputField("CODE", false);
+        VBox setName = inputField("NAME", false);
+        VBox setDesc = inputFieldLong("DESCRIPTION");
+        VBox setCredits = inputField("CREDITS", false);
 
         VBox container = new VBox(setCode, setName, setDesc, setCredits);
         return container;
@@ -491,12 +497,19 @@ public class ManagerUI extends UserUI{
         for (Map<String, String> lec : lecturers) {
             lecturersList.add(lec.get("Name"));
         }
-        VBox setCourse = dropdownField("Lecturer to assign to",
-                lecturersList);
+        VBox setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
 
         VBox container = new VBox(setCourse);
         return container;
     }
+
+
+
+
+
+
+
+
 
     /**
      * Signup workflow Dashboard
@@ -547,6 +560,8 @@ public class ManagerUI extends UserUI{
 
     private EventHandler pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
+
+            currentValues.put("ID", user.get("userID"));
             accDetails.getChildren().set(0, infoContainer(userDetailDisplay(
                     user.get("userID"),
                     user.get("managerID"),
