@@ -209,61 +209,74 @@ public class ManagerUI extends UserUI{
      * Account dashboard - pages
      **/
 
-    /** WIP
-    public void studentDecision(Student currStudent, List<Module> moduleList, List<Mark> markList) throws SQLException {
+    public void studentDecision(Map<String, String> currStudent, List<Map<String, String>> markList,
+                                String decisionRec, String decisionReason) {
         resetCurrentValues();
-        HBox toolbar = makeToolbar("Accounts: Issue Student Decision");
 
-        VBox panel = new VBox();
+        Button issueDecBtn = inputButton("ISSUE DECISION");
 
-        for (Module module : moduleList) {
-            List<Student> moduleSem1 = module.getStudents(true, false, currStudent.getYearOfStudy());
-            List<Student> moduleSem2 =module.getStudents(false, true, currStudent.getYearOfStudy());
-            if (moduleSem1.contains(currStudent) || moduleSem2.contains(currStudent)) {
-                panel.getChildren().add(makeMarkList(currStudent.getMark(module.getModuleID(), latestAttempt) ,
-                        module.getName()));
-            }
+        makeModal(issueDecBtn, "ISSUE STUDENT DECISION",
+                decisionAction(currStudent, decisionRec, decisionReason),
+                false);
+
+        VBox DecisionActionPanel = makePanelWithAction(
+                markListDisplay(markList),
+                issueDecBtn
+        );
+
+        singlePanelLayout(DecisionActionPanel, "Accounts: Student Decision");
+    }
+
+    private VBox markListDisplay(List<Map<String, String>> markList) {
+        VBox markListItems = new VBox();
+
+        for (Map<String, String> mark : markList) {
+            HBox listItem = makeMarkList(
+                    mark.get("moduleID"),
+                    mark.get("lab"),
+                    mark.get("exam"),
+                    mark.get("attempt"),
+                    mark.get("grade")
+            );
+            markListItems.getChildren().add(listItem);
         }
 
-        VBox mainActionPanel = makePanel(panel);
-        mainActionPanel.setAlignment(Pos.CENTER);
+        markListItems.setSpacing(20.0);
+        markListItems.setPadding(new Insets(10, 2, 10, 2));
 
-        HBox actionPanel = new HBox(mainActionPanel);
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        return markListItems;
     }
 
-    public makeMarkList (Mark mark) {
-            Double examValue = mark.getExamMark();
-            String examMark = examValue.toString() + "%";
+    private VBox decisionAction(Map<String, String> currStudent, String decisionRec, String decisionReason) {
+        List<String> awardOptions = new ArrayList<String>();
+        awardOptions.add("AWARD");
+        awardOptions.add("RESIT");
+        awardOptions.add("WITHDRAWAL");
 
-            Double labValue = mark.getLabMark();
-            String labMark = labValue.toString() + "%";
+        VBox decisionInfo = infoContainer(decisionDisplay(currStudent.get("Id"), decisionRec, decisionReason));
 
-            Integer attemptValue = mark.getAttemptNo();
-            String attemptNo = attemptValue.toString();
+        VBox setDecision = dropdownField("Decision to issue",
+                awardOptions);
 
-            HBox examDisplay = listDetail("EXAM", examMark);
-            HBox labDisplay = listDetail("LAB", labMark);
-            HBox attemptDisplay = listDetail("ATTEMPT NUMBER", attemptNo);
-
-            VBox markDetails = new VBox(examDisplay, labDisplay, attemptDisplay);
-
-            markDetails.setSpacing(5.0);
-            HBox listButton = makeListButton(mark.getModuleID(), new FontIcon(FontAwesomeSolid.AWARD), markDetails);
-            return listButton;
+        VBox container = new VBox(decisionInfo, setDecision);
+        return container;
     }
-     */
+
+    protected VBox decisionDisplay(String studentID, String decisionRec, String decisionReason) {
+        Text idTitle = new Text(studentID);
+        idTitle.getStyleClass().add("info-box-title");
+
+        VBox row = new VBox(
+                listDetail("RECOMMENDED DECISION", decisionRec)
+        );
+
+        if (!(decisionReason.isEmpty())) {
+            row.getChildren().add(infoDetailLong("REASON", decisionReason));
+        }
+
+        row.setSpacing(5);
+        return new VBox(idTitle, row);
+    }
 
     /**
      * Course Dashboard

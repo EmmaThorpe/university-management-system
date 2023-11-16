@@ -283,10 +283,4 @@ public class StudentUI extends UserUI{
         };
     }
 
-
-
-
-
-
-
 }

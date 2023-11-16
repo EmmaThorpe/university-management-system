@@ -350,14 +350,14 @@ public class UserUI extends MainUI{
         markDetails.setSpacing(5.0);
 
         HBox attemptDisplay = listDetail("ATTEMPT", attempt);
-        HBox activatedDisplay = new HBox();
+        HBox gradeDisplay = new HBox();
         if (grade.equals("PASS")) {
-            activatedDisplay.getChildren().add(activeDetail(grade, true));
+            gradeDisplay.getChildren().add(activeDetail(grade, true));
         } else {
-            activatedDisplay.getChildren().add(activeDetail(grade, false));
+            gradeDisplay.getChildren().add(activeDetail(grade, false));
         }
 
-        HBox decisionDetails = new HBox(attemptDisplay, activatedDisplay);
+        HBox decisionDetails = new HBox(attemptDisplay, gradeDisplay);
         decisionDetails.setSpacing(5.0);
 
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.AWARD);

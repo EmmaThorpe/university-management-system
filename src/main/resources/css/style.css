@@ -339,6 +339,7 @@
     -fx-text-alignment: center;
     -fx-background-insets: 0, 0, -1, 0;
     -fx-min-width: 60;
+    -fx-max-height: 10;
     -fx-border-radius: 100em;
     -fx-background-radius: 100em;
     -fx-font-family: "Noto Sans";

@@ -47,7 +47,8 @@ public class ManagerController{
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
             case "STUDENT DECISION":
-               // manUI.studentDecision(getMarks(manUI.getSelectedVal()));
+                manUI.studentDecision(getSelectedStudent(), getStudentMarks(), getDecisionRec().get(0),
+                        getDecisionRec().get(1));
                 buttons =manUI.getCurrentButtons();
                 break;
             case "MANAGE COURSES":
@@ -184,8 +185,81 @@ public class ManagerController{
         return lecturers;
     }
 
+    /**
+     * Get the student selected from the accounts action
+     *
+     * @return Map of that student's information
+     */
 
+    //dummy values!
+    public Map<String, String> getSelectedStudent() {
+        Map<String, String> temp = new HashMap<>();
+        temp.put("userID", "stu1");
+        temp.put("managerID", "mng1");
+        temp.put("forename", "john");
+        temp.put("surname", "smith");
+        temp.put("email", "johnsmith@mail.com");
+        temp.put("DOB", "14-04-2000");
+        temp.put("gender", "man");
+        temp.put("userType", "STUDENT");
+        temp.put("activated", "ACTIVATED");
+        temp.put("courseID", "G600");
+        temp.put("YearOfStudy", "1");
+        return temp;
+    }
 
+    /**
+     * Get marks for a selected student
+     *
+     * @return List of maps containing the mark fields for each mark
+     */
+
+    //dummy
+    public List<Map<String, String>> getStudentMarks() {
+        List<Map<String, String>> marks = new ArrayList<>();
+        Map<String, String> temp = new HashMap<>();
+        temp.put("moduleID", "CS308");
+        temp.put("lab", "96");
+        temp.put("exam", "80");
+        temp.put("attempt", "2");
+        temp.put("grade", "PASS");
+        marks.add(temp);
+
+        Map<String, String> temp2 = new HashMap<>();
+        temp2.put("moduleID", "CS312");
+        temp2.put("lab", "30");
+        temp2.put("exam", "20");
+        temp2.put("attempt", "1");
+        temp2.put("grade", "FAIL");
+        marks.add(temp2);
+
+        Map<String, String> temp3 = new HashMap<>();
+        temp3.put("moduleID", "CS316");
+        temp3.put("lab", "50");
+        temp3.put("exam", "49");
+        temp3.put("attempt", "1");
+        temp3.put("grade", "PASS");
+        marks.add(temp3);
+        return marks;
+    }
+
+    /**
+     * Recommends a student's decision based on the business rules activated and their marks, with a reason
+     *
+     * @return An arraylist of strings where the first element (key) has the decision made and the second (value) has
+     * the
+     * reason for
+     * the
+     * decision (this return value can be altered but the reason and the award type must be accessible as
+     * seperate strings to be passed into the issueStudentDecision method)
+     */
+    //dummy
+    public ArrayList<String> getDecisionRec() {
+        ArrayList<String> temp = new ArrayList<>();
+        temp.add("RESIT");
+        temp.add("Failed CS312");
+        return temp;
+    }
 
 
     /**Takes in a userID and activates the user

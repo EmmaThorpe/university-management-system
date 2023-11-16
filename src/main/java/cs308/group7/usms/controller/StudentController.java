@@ -183,7 +183,6 @@ public class StudentController{
         temp.put("Lecture", false);
         tempList.add(temp);
 
-
         return tempList;
     }
 
