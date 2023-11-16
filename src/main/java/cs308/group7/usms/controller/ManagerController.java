@@ -4,6 +4,9 @@ import cs308.group7.usms.model.User;
 import cs308.group7.usms.ui.ManagerUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 import java.sql.Date;
@@ -43,36 +46,53 @@ public class ManagerController{
                 buttons =manUI.getCurrentButtons();
                 buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID")));
                 buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
-                buttons.get("RESET PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), manUI.getCurrentFields().get("NEW PASSWORD").getAccessibleText()));
-                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), manUI.getCurrentFields().get("MODULE TO ASSIGN").getAccessibleText()));
+                buttons.get("RESET USER PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
+                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
+                buttons.get("ENROL STUDENT").setOnAction((event)-> assignStudentCourse(manUI.getValues().get("UserID"), ((ComboBox)manUI.getCurrentFields().get("COURSE TO ENROL TO")).getValue().toString()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
+
             case "STUDENT DECISION":
                 manUI.studentDecision(getSelectedStudent(), getStudentMarks(), getDecisionRec().get(0),
                         getDecisionRec().get(1));
                 buttons =manUI.getCurrentButtons();
+                buttons.get("ISSUE STUDENT DECISION").setOnAction(event-> issueStudentDecision(manUI.getValues().get("UserID"), ((ComboBox)manUI.getCurrentFields().get("DECISION TO ISSUE")).getValue().toString()));
                 break;
+
             case "MANAGE COURSES":
                 manUI.courses(getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
+                buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("LENGTH OF COURSE")).getText()));
+                buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText()));
+                buttons.get("ASSIGN").setOnAction((event)-> assignModuleCourse(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString()));
                 break;
+
             case "MANAGE MODULES":
                 manUI.modules(getModules(), getFreeLecturers());
                 buttons =manUI.getCurrentButtons();
+                buttons.get("ADD").setOnAction(event-> addModule(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("CREDITS")).getText()));
+                buttons.get("EDIT").setOnAction((event)-> editModule(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT CREDITS")).getText()));
+                buttons.get("ASSIGN").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("LECTURER TO ASSIGN TO")).getValue().toString()));
                 break;
+
             case "MANAGE SIGN-UP WORKFLOW":
                 manUI.signups(getUnapprovedUsers(getUsers()));
                 buttons =manUI.getCurrentButtons();
+                buttons.get("APPROVE SIGN UP").setOnAction((event)-> activateUser(manUI.getValues().get("ID")));
+
                 break;
+
             case "MANAGE BUSINESS RULES":
                 manUI.manageBusinessRules(getActivatedBusinessRules(), getAssociatedOfRules());
                 buttons = manUI.getCurrentButtons();
                 buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
                 break;
+
             case "ADD BUSINESS RULE":
                 manUI.addBusinessRule(getCourseRulesMap(), getModuleRulesMap());
                 buttons = manUI.getCurrentButtons();
                 break;
+
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
@@ -292,7 +312,7 @@ public class ManagerController{
      * @param userID
      */
     public void deactivateUser(String userID){
-
+        System.out.println(userID);
     }
 
     /**Takes in a userID and password, and sets the selected user's password to be the set password
@@ -300,7 +320,7 @@ public class ManagerController{
      * @param password
      */
     public void resetPassword(String userID, String password){
-
+        System.out.println(userID + " " +password);
     }
 
 
@@ -310,6 +330,7 @@ public class ManagerController{
      */
     public void changePassword(String userID, String newPass){
         // password changing
+        System.out.println(userID + " " +newPass);
         pageSetter("DASHBOARD", false);
 
     }
@@ -328,7 +349,7 @@ public class ManagerController{
      * @param courseID
      */
     public void assignStudentCourse(String studentID, String courseID){
-
+        System.out.println(studentID +" "+ courseID);
     }
 
     /**Assign a module to a course
@@ -336,7 +357,7 @@ public class ManagerController{
      * @param moduleID
      */
     public void assignModuleCourse(String courseID, String moduleID){
-
+        System.out.println(courseID + " " +moduleID);
     }
 
     /**Issue a student with a decision
@@ -344,7 +365,7 @@ public class ManagerController{
      * @param decision
      */
     public void issueStudentDecision(String studentID, String decision){
-
+        System.out.println(studentID + " " +decision);
     }
 
     /**Add a new course
@@ -352,8 +373,18 @@ public class ManagerController{
      * @param name
      * @param description
      */
-    public void addCourse(String code, String name, String description){
+    public void addCourse(String code, String name, String description, String level, String length){
+        System.out.println(code + " " +name +" "+description +" "+level +" "+length);
+    }
 
+
+    /**Edits a course
+     * @param code
+     * @param name
+     * @param description
+     */
+    public void editCourse(String oldCode, String code, String name, String description, String level, String length){
+        System.out.println(oldCode+" "+code + " " +name +" "+description +" "+level +" "+length);
     }
 
 
@@ -362,8 +393,18 @@ public class ManagerController{
      * @param name
      * @param credit
      */
-    public void addModule(String code, String name, int credit){
+    public void addModule(String code, String name, String description, String credit){
+        System.out.println(code + " " +name +" "+description +" "+credit);
+    }
 
+
+    /**Edits a module
+     * @param code
+     * @param name
+     * @param credit
+     */
+    public void editModule(String oldCode, String code, String name, String description, String credit){
+        System.out.println(oldCode+" "+code + " " +name +" "+description +" "+credit);
     }
 
 
@@ -426,6 +467,16 @@ public class ManagerController{
         temp.put("CS103", false);
 
         return temp;
+    }
+
+
+    public void AddBusinessRuleCourse(String type, int value, ArrayList<String> courses){
+
+    }
+
+
+    public void AddBusinessRuleModule(String type, int value, ArrayList<String> modules){
+
     }
 
 }
