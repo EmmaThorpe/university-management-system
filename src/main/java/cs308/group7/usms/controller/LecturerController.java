@@ -6,8 +6,10 @@ import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ public class LecturerController{
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULE", false));
                 buttons.get("GIVE MARK").setOnAction((event)->pageSetter("GIVE MARK", false));
+                buttons.get("CHECK MATERIAL").setOnAction((event)->pageSetter("MATERIALS", false));
                 Map<String, Node> currFields = lecUI.getCurrentFields();
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
@@ -45,6 +48,21 @@ public class LecturerController{
             case "GIVE MARK":
                 lecUI.mark(getEnrolledStudents());
                 buttons =lecUI.getCurrentButtons();
+                break;
+
+            case "MATERIALS":
+                lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+                buttons = lecUI.getCurrentButtons();
+                Map<String, String> currValues = lecUI.getValues();
+                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(currValues.get("WEEK")), Integer.parseInt(currValues.get("SEMESTER")), "Lecture", lecUI.uploadFile()));
+                buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(currValues.get("WEEK")), Integer.parseInt(currValues.get("SEMESTER")), "Lab", lecUI.uploadFile()));
+
+                break;
+            case "OPEN PDF":
+                lecUI.displayPDF(null, "LECTURER NOTES");
+                buttons = lecUI.getCurrentButtons();
                 break;
 
         }
@@ -78,16 +96,163 @@ public class LecturerController{
         temp.put("Name", "Building Software Systems");
         temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
         temp.put("Credit", "20");
+        temp.put("Semesters", "1&2");
         temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
         return temp;
     }
 
 
-    /**Update materials for a module
-     * @param Materials (Whatever the pdf data type is)
+    /**Updates the module material for a class
+     * @param week - the week the material is for
+     * @param semester - the semester the material is for
+     * @param type - the type of the material (lab or lecture)
+     * @param file - file to be uploaded
      */
-    public void updateModuleMaterial(String Materials){
+    public void updateModuleMaterial(int week, int semester, String type, File file){
+
     }
+
+
+    /** Get if weekly lecture materials for a module exist or not
+     * @param moduleID
+     * @return List of map containing if lab materials and lecture materials exist (goes from weeks 1-12) (1-24 if 2 semesters)
+     */
+    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID){
+
+        Map<String, Boolean> temp = new HashMap<>();
+        ArrayList<Map<String, Boolean>> tempList = new ArrayList<>();
+
+        temp.put("Lab", true);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", true);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+
+
+        return tempList;
+    }
+
+
 
     /**Gets all the students in the lecturer's module
      * @return List of maps with user fields and their values (eg: forename, "john")

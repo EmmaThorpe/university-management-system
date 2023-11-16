@@ -34,6 +34,12 @@ public class MainUI {
 
     protected Map<String, Dialog> currentModals;
 
+    protected Map<String, String> currentValues;
+
+    public Map<String, String> getValues(){
+        return currentValues;
+    }
+
 
     /**  Display the first scene and shows the stage
      */
@@ -66,6 +72,7 @@ public class MainUI {
         currentText = new HashMap<>();
         currentButtons = new HashMap<>();
         currentModals = new HashMap<>();
+        currentValues =  new HashMap<>();
     }
 
 
@@ -104,6 +111,29 @@ public class MainUI {
         VBox title = new VBox(iconStack, titleName);
         title.setAlignment(Pos.TOP_CENTER);
         return title;
+    }
+
+
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        icon.getStyleClass().add("card-graphic");
+        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName.toLowerCase());
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
+    }
+
+
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        ToggleButton op = new ToggleButton(operatorNameDisplay);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName);
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
     }
 
 

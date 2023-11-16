@@ -51,8 +51,11 @@ public class StudentController{
                 buttons.get("VIEW MATERIALS").setOnAction(event -> pageSetter("MATERIALS", false));
                 break;
             case "MATERIALS":
-                stuUI.materials(getAllLectureMaterials(stuUI.getID()), getTwoSems("s"));
+                stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), getTwoSems(stuUI.getValues().get("ID")));
                 buttons = stuUI.getCurrentButtons();
+                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+
                 break;
             case "OPEN PDF":
                 stuUI.displayPDF(null, "LECTURER NOTES");
@@ -164,13 +167,24 @@ public class StudentController{
     /**
      * Get all lecture material for a module.
      * @param moduleID
-     * @return ??? List<Map<String, ??? >>
-     * @deprecated When the new format is implemented, this should probably be removed.
-     *             Returning all PDFs from the database is likely to be intensive and unnecessary.
-     *             (this will work fine if you're just wanting the Material objects though, since it'll only load the PDFs when they're needed)
+     * @return List of map containing if lab materials and lecture materials exist
      */
-    public List<Map<String, String>> getAllLectureMaterials(String moduleID){
-        return null;
+    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID){
+
+        Map<String, Boolean> temp = new HashMap<>();
+        ArrayList<Map<String, Boolean>> tempList = new ArrayList<>();
+
+        temp.put("Lab", true);
+        temp.put("Lecture", true);
+        tempList.add(temp);
+
+        temp = new HashMap<>();
+        temp.put("Lab", false);
+        temp.put("Lecture", false);
+        tempList.add(temp);
+
+
+        return tempList;
     }
 
 
