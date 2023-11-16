@@ -178,9 +178,6 @@ public class LecturerUI extends UserUI{
             leftActionPanel = weekButtons(Integer.parseInt(semesters), materialList, rightActionPanel, materialDetails);
         }
 
-
-
-
         twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
 
 
@@ -206,8 +203,6 @@ public class LecturerUI extends UserUI{
 
 
     private VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
-
-
         ToggleGroup semSelected = new ToggleGroup();
         ToggleButton sem1 = setToggleOption(semSelected, "Semester 1");
         ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
@@ -250,6 +245,10 @@ public class LecturerUI extends UserUI{
 
         return new VBox(semOptions, makeScrollablePanel(weekListPanel));
     }
+
+
+
+
 
     protected ChangeListener<Toggle> toggleSem(ToggleGroup semSelected, ScrollPane weekContent, VBox sem1Content, VBox sem2Content, VBox rightPanel){
         return (observableValue, currentToggle, newToggle) -> {

@@ -65,6 +65,7 @@ public class LecturerController{
                 buttons = lecUI.getCurrentButtons();
                 break;
 
+
         }
         buttons.get("LOG OUT").setOnAction(event -> lecUI.hideStage());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
@@ -298,4 +299,6 @@ public class LecturerController{
     public void updateStudentExamMark(String studentID, int attNo, Double Mark){
 
     }
+
+
 }

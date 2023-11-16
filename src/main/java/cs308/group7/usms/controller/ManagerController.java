@@ -34,7 +34,6 @@ public class ManagerController{
                 buttons.get("MANAGE ACCOUNTS").setOnAction((event)->pageSetter("MANAGE ACCOUNTS", false));
                 buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
 
-
                 Map<String, Node> currFields = manUI.getCurrentFields();
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
 
@@ -42,8 +41,10 @@ public class ManagerController{
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers(), getCourses(), getModules());
                 buttons =manUI.getCurrentButtons();
-                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getSelectedVal()));
-                buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getSelectedVal()));
+                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID")));
+                buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
+                buttons.get("RESET PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), manUI.getCurrentFields().get("NEW PASSWORD").getAccessibleText()));
+                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), manUI.getCurrentFields().get("MODULE TO ASSIGN").getAccessibleText()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
             case "STUDENT DECISION":
@@ -62,6 +63,15 @@ public class ManagerController{
             case "MANAGE SIGN-UP WORKFLOW":
                 manUI.signups(getUnapprovedUsers(getUsers()));
                 buttons =manUI.getCurrentButtons();
+                break;
+            case "MANAGE BUSINESS RULES":
+                manUI.manageBusinessRules(getActivatedBusinessRules(), getAssociatedOfRules());
+                buttons = manUI.getCurrentButtons();
+                buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
+                break;
+            case "ADD BUSINESS RULE":
+                manUI.addBusinessRule(getCourseRulesMap(), getModuleRulesMap());
+                buttons = manUI.getCurrentButtons();
                 break;
         }
         buttons.get("LOG OUT").setOnAction(event -> manUI.hideStage());
@@ -310,7 +320,7 @@ public class ManagerController{
      * @param moduleID
      */
     public void assignLecturerModule(String lecturerID, String moduleID){
-
+        System.out.println(lecturerID +" "+moduleID);
     }
 
     /** Assign a student to a course
@@ -354,6 +364,68 @@ public class ManagerController{
      */
     public void addModule(String code, String name, int credit){
 
+    }
+
+
+    /**
+     * @return A list of a map containing all the details of each activated business rules
+     */
+    public List<Map<String, String>> getActivatedBusinessRules(){
+        Map<String, String> temp = new HashMap<>();
+        ArrayList<Map<String, String>> tempList = new ArrayList<>();
+
+        temp.put("Id", "abc");
+        temp.put("Type", "NUMBER OF RESITS");
+        temp.put("Value", "2");
+        tempList.add(temp);
+
+        return tempList;
+    }
+
+
+
+    /**
+     * @return Get a map containing an id of a business rule along with a list of ids of courses/modules it is associated with
+     * Can combine with above function if that is easier
+     */
+    public Map<String, List<String>> getAssociatedOfRules(){
+        Map<String, List<String>> temp = new HashMap<>();
+        ArrayList<String> tempList = new ArrayList<>();
+
+        tempList.add("CS103");
+        tempList.add("CS104");
+
+        temp.put("abc", tempList);
+
+        return temp;
+    }
+
+
+    /**
+     * @return Map of courses with a map of whether or not they have a rule set for the 2 different rule types
+     */
+    public Map<String, Map <String,Boolean>> getCourseRulesMap(){
+        Map<String, Map<String,Boolean>> temp = new HashMap<>();
+        Map<String,Boolean> tempRules = new HashMap<>();
+
+        tempRules.put("Max Number Of Resits", false);
+        tempRules.put("Number of Compensated Classes", false);
+
+        temp.put("SE1", tempRules);
+
+        return temp;
+    }
+
+
+    /**
+     * @return A map containing module id's and if they have a rule set to them or not
+     */
+    public Map<String, Boolean> getModuleRulesMap(){
+        Map<String,Boolean> temp = new HashMap<>();
+
+        temp.put("CS103", false);
+
+        return temp;
     }
 
 }
