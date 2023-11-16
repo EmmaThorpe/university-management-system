@@ -119,7 +119,6 @@ public class StudentUI extends UserUI{
                     markListItems.getChildren().add(listItem);
                 }
             }
-
             markListItems.setSpacing(20.0);
             markListItems.setPadding(new Insets(10, 2, 10, 2));
 
