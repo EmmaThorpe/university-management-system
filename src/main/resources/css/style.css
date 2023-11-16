@@ -388,6 +388,12 @@
     -fx-text-alignment: center;
 }
 
+.pagination-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-size: 15;
+    -fx-padding: 10;
+}
+
 .notfi-graphic {
     -fx-icon-color: -color-ter;
     -fx-icon-size: 20;

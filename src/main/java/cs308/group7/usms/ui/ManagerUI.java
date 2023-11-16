@@ -582,22 +582,14 @@ public class ManagerUI extends UserUI{
 
     public void manageBusinessRules(List<Map<String, String>> activatedBusinessRules, Map<String, List<String>> associatedOfRules){
         resetCurrentValues();
-        HBox toolbar = makeToolbar("MANAGE BUSINESS RULES");
-
         Button addRuleBtn = inputButton("ADD BUSINESS RULE");
 
+        VBox actionPanel = makePanelWithAction(
+                listOfRules(activatedBusinessRules, associatedOfRules),
+                addRuleBtn
+        );
 
-        VBox actionPanel = listOfRules(activatedBusinessRules, associatedOfRules);
-        actionPanel.setAlignment(Pos.CENTER);
-
-        BorderPane root = new BorderPane(new VBox(actionPanel, new VBox(addRuleBtn)));
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        singlePanelLayout(actionPanel, "MANAGE BUSINESS RULES");
     }
 
 
@@ -613,13 +605,10 @@ public class ManagerUI extends UserUI{
             panelActivated.getChildren().add(tempRule);
         }
 
-
         panelActivated.setSpacing(20.0);
         panelActivated.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane weekListPanel = new ScrollPane(panelActivated);
-
-        return new VBox(makeScrollablePanel(weekListPanel));
+        return panelActivated;
     }
 
 
@@ -644,7 +633,6 @@ public class ManagerUI extends UserUI{
 
         VBox activatedDetails = new VBox(typeDisplay, associatedDisplay, activatedDisplay);
 
-
         activatedDetails.setSpacing(5.0);
 
         HBox listButton = new HBox(activatedDetails);
@@ -662,35 +650,32 @@ public class ManagerUI extends UserUI{
 
     public void addBusinessRule(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         resetCurrentValues();
-        HBox toolbar = makeToolbar("ADD BUSINESS RULES");
+
+        Button addRuleBtn = inputButton("ADD BUSINESS RULE");
 
         Button setCourseBtn = inputButton("SET COURSE RULE");
         Button setModuleBtn = inputButton("SET MODULE RULE");
 
-
         VBox actionPanel = rulesForm(courseList, moduleList, setCourseBtn, setModuleBtn);
         actionPanel.setAlignment(Pos.CENTER);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        singlePanelLayout(actionPanel, "ADD BUSINESS RULES");
     }
 
 
     private VBox rulesForm(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, Button course, Button module){
+
+        HBox ruleSelector = new HBox();
+
         ToggleGroup rulesSelected = new ToggleGroup();
         ToggleButton rules1 = setToggleOption(rulesSelected, "Course Rules");
         ToggleButton rules2 = setToggleOption(rulesSelected, "Module Rules");
         rules1.setSelected(true);
+        ruleSelector.getChildren().add(rules1);
+        ruleSelector.getChildren().add(rules2);
 
         HBox.setHgrow(rules1, Priority.ALWAYS);
         HBox.setHgrow(rules2, Priority.ALWAYS);
-
 
         List types = new ArrayList<>();
         types.add("Max Number Of Resits");
@@ -699,10 +684,8 @@ public class ManagerUI extends UserUI{
         VBox courseValue = textAndField("VALUE", passwordCheck(true));
         VBox moduleValue = textAndField("VALUE", passwordCheck(true));
 
-
         VBox panelCourse = new VBox(setRules, courseValue, course);
         VBox panelModule = new VBox(new Text("Type: Max Number Of Resits"), moduleValue, module);
-
 
         panelCourse.setSpacing(20.0);
         panelCourse.setPadding(new Insets(10, 2, 10, 2));
@@ -710,24 +693,27 @@ public class ManagerUI extends UserUI{
         panelModule.setSpacing(20.0);
         panelModule.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane rulePanel = new ScrollPane(panelCourse);
+        VBox rulePanel = makeScrollablePart(panelCourse);
 
-        rulesSelected.selectedToggleProperty().addListener(toggleRules(rulesSelected, rulePanel, panelCourse, panelModule));
+        rulesSelected.selectedToggleProperty().addListener(toggleRules(rulePanel, panelCourse, panelModule));
 
-
-        return new VBox(new HBox(rules1, rules2), makeScrollablePanel(rulePanel));
+        return makePanel(new VBox( ruleSelector, rulePanel));
     }
 
 
 
-    protected ChangeListener<Toggle> toggleRules(ToggleGroup ruleSelected, ScrollPane ruleContent, VBox courseContent, VBox moduleContent){
-        return (observableValue, currentToggle, newToggle) -> {
-            if (ruleSelected.getSelectedToggle().getUserData() == "Course Rules"){
-                ruleContent.contentProperty().set(courseContent);
-            } else {
-                ruleContent.contentProperty().set(moduleContent);
-
+    protected ChangeListener<Toggle> toggleRules(VBox ruleContent, VBox courseContent, VBox moduleContent){
+        return (observableValue, previousToggle, newToggle) -> {
+            if (newToggle == null) {
+                previousToggle.setSelected(true);
+            } else if (newToggle != null && previousToggle != null) {
+                if (newToggle.getUserData() == "Course Rules"){
+                    ruleContent.getChildren().set(0, courseContent);
+                } else {
+                    ruleContent.getChildren().set(0, moduleContent);
+                }
             }
+
         };
 
     }

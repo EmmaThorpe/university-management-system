@@ -73,7 +73,7 @@ public class LoginUI extends MainUI{
 
         ScrollPane fieldScroll = new ScrollPane(formFields);
 
-        userSelected.selectedToggleProperty().addListener(toggleUser(userSelected, fieldScroll, qualificationField));
+        userSelected.selectedToggleProperty().addListener(toggleUser(fieldScroll, qualificationField));
 
         Button Submit = inputButton("SUBMIT");
 
@@ -167,25 +167,26 @@ public class LoginUI extends MainUI{
 
     }
 
-
-
-    protected ChangeListener<Toggle> toggleUser(ToggleGroup userSelected, ScrollPane formContent, VBox qualificationField){
-        return (observableValue, currentToggle, newToggle) -> {
-            if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
-                VBox fields = (VBox) formContent.getContent();
-                fields.getChildren().add(qualificationField);
-                formContent.contentProperty().set(fields);
-                checkValidFields("STUDENT", false);
-            } else {
-                VBox fields = (VBox) formContent.getContent();
-                fields.getChildren().remove(qualificationField);
-                formContent.contentProperty().set(fields);
-                checkValidFields("STUDENT", true);
-
+    protected ChangeListener<Toggle> toggleUser(ScrollPane formContent, VBox qualificationField) {
+        return (observableValue, previousToggle, newToggle) -> {
+            if (newToggle == null) {
+                previousToggle.setSelected(true);
+            } else if (newToggle != null && previousToggle != null) {
+                if (newToggle.getUserData() == "lecturer") {
+                    VBox fields = (VBox) formContent.getContent();
+                    fields.getChildren().add(qualificationField);
+                    formContent.contentProperty().set(fields);
+                    checkValidFields("STUDENT", false);
+                } else {
+                    VBox fields = (VBox) formContent.getContent();
+                    fields.getChildren().remove(qualificationField);
+                    formContent.contentProperty().set(fields);
+                    checkValidFields("STUDENT", true);
+                }
             }
         };
-
     }
+
 
 
 }

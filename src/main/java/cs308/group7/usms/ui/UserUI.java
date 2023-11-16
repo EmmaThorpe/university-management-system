@@ -399,28 +399,42 @@ public class UserUI extends MainUI{
         Document pdf = showPage();
 
         int amount = pdf.getNumberOfPages()-1;
-        Text pageNo = inputText("PAGE NO");
+
+        Text pageNo = paginationText("PAGE NO");
 
         currentText.get("PAGE NO").setText("1");
         pdfImg = new ImageView(pdfToImg(pdf, 0));
 
+        Text pageDisplay = new Text("PAGE");
+        pageDisplay.getStyleClass().add("pagination-text");
+        HBox paginationDisplay = new HBox(pageDisplay, pageNo);
+        paginationDisplay.setSpacing(5);
+
         Button backBtn = inputButton("<-");
+        backBtn.getStyleClass().add("panel-button-1");
+
         Button forwardBtn = inputButton("->");
+        forwardBtn.getStyleClass().add("panel-button-2");
 
         backBtn.setOnAction(event -> backPage(pdf));
         forwardBtn.setOnAction(event -> forwardPage(pdf, amount));
 
-        BorderPane root = new BorderPane();
+        VBox pdfDisplay = new VBox(new ScrollPane(pdfImg));
+        BorderPane root = new BorderPane(pdfDisplay);
         HBox toolbar = makeToolbar(type);
 
         root.setTop(toolbar);
+        root.setBottom(paginationDisplay);
+
         root.setLeft(backBtn);
         root.setRight(forwardBtn);
-        root.setBottom(pageNo);
 
-        root.setCenter(new ScrollPane(pdfImg));
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(pdfDisplay, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
         currScene = new Scene(root);
-
     }
 
 
@@ -440,6 +454,13 @@ public class UserUI extends MainUI{
             pdfImg.setImage(pdfToImg(pdf, page));
             currentText.get("PAGE NO").setText(String.valueOf(page+1));
         }
+    }
+
+    protected Text paginationText(String text){
+        Text inputText = new Text();
+        inputText.getStyleClass().add("pagination-text");
+        currentText.put(text, inputText);
+        return inputText;
     }
 
 
