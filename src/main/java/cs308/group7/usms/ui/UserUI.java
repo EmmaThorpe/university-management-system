@@ -171,12 +171,13 @@ public class UserUI extends MainUI{
         topActionPanel.setAlignment(Pos.TOP_CENTER);
         HBox.setHgrow(topActionPanel, Priority.ALWAYS);
 
+        bottomActionPanel.setAlignment(Pos.CENTER);
+        bottomActionPanel.setSpacing(20.0);
+        HBox.setHgrow(bottomActionPanel, Priority.ALWAYS);
+
         VBox actionPanel = new VBox(topActionPanel, bottomActionPanel);
 
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
+        actionPanel.setSpacing(10);
 
         BorderPane root = new BorderPane(actionPanel);
         root.setTop(toolbar);
@@ -187,7 +188,6 @@ public class UserUI extends MainUI{
 
         currScene = new Scene(root);
     }
-
 
     /**
         Module Elements
@@ -338,6 +338,57 @@ public class UserUI extends MainUI{
 
         row.setSpacing(5);
         return new VBox(idTitle, row);
+    }
+
+    //mark and decision elements
+    protected HBox makeMarkList(String moduleID, String lab, String exam, String attempt,
+                                String grade) {
+        HBox examDisplay = listDetail("EXAM" , exam);
+        HBox labDisplay = listDetail("LAB" , lab);
+
+        HBox markDetails = new HBox(labDisplay, examDisplay);
+        markDetails.setSpacing(5.0);
+
+        HBox attemptDisplay = listDetail("ATTEMPT NUMBER", attempt);
+        HBox activatedDisplay = new HBox();
+        if (grade.equals("PASS")) {
+            activatedDisplay.getChildren().add(activeDetail(grade, true));
+        } else {
+            activatedDisplay.getChildren().add(activeDetail(grade, false));
+        }
+
+        HBox decisionDetails = new HBox(attemptDisplay, activatedDisplay);
+        decisionDetails.setSpacing(5.0);
+
+        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.AWARD);
+
+        VBox studentMarkDetails = new VBox(markDetails, decisionDetails);
+        studentMarkDetails.setSpacing(5.0);
+
+        HBox listButton = makeListButton(moduleID, appGraphic, studentMarkDetails);
+        return listButton;
+    }
+
+    protected VBox decisionDisplay(String decision) {
+        Text title = new Text("DECISION: ");
+        Text decisionMade = new Text(decision);
+        decisionMade.getStyleClass().add("decision-text");
+        title.getStyleClass().add("decision-text");
+
+        if (decision.equals("AWARD")) {
+            decisionMade.getStyleClass().add("decision-award");
+        } else if (decision.equals("WITHDRAWAL")) {
+            decisionMade.getStyleClass().add("decision-withdraw");
+        } else if (decision.equals("RESIT")) {
+            decisionMade.getStyleClass().add("decision-resit");
+        } else {
+            decisionMade.getStyleClass().add("decision-na");
+        }
+
+        HBox decisionDisplay = new HBox(title, decisionMade);
+        decisionDisplay.setSpacing(5);
+        return new VBox(decisionDisplay);
+
     }
 
     //PDF viewer
