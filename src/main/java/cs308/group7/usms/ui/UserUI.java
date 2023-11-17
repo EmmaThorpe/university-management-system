@@ -30,6 +30,8 @@ public class UserUI extends MainUI{
 
     private ImageView pdfImg;
 
+    /* FORM */
+
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
         VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
@@ -71,6 +73,110 @@ public class UserUI extends MainUI{
 
     }
 
+    /** Checks the length of a field in a form
+     * @param minLength - the minimum allowed amount of characters
+     * @param maxLength - the maximum allowed amount of characters
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     */
+    protected ChangeListener<String> lengthCheck(int minLength, int maxLength, String field,
+                                                 String fieldName, String model,
+                                                 String manipulation){
+        return (obs, oldText, newText) -> {
+            if (newText.length() < minLength || newText.length() >maxLength) {
+                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minLength)
+                        + " and " + String.valueOf(maxLength) + " characters long");
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, false, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, false, manipulation);
+                        break;
+                }
+                }
+            else {
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, true, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, true, manipulation);
+                        break;
+                }
+            }
+        };
+    }
+
+    /** Checks that a field in a form is within a number range
+     * @param minValue - the minimum number value for the field
+     * @param maxValue - the maximum number value for the field
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     */
+    protected ChangeListener<String> rangeCheck(int minValue, int maxValue, String field,
+                                                 String fieldName, String model,
+                                                 String manipulation){
+        return (obs, oldText, newText) -> {
+            if (Integer.parseInt(newText) < minValue || Integer.parseInt(newText) >maxValue) {
+                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minValue)
+                        + " and " + String.valueOf(maxValue));
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, false, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, false, manipulation);
+                        break;
+                }
+            }
+            else {
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, true, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, true, manipulation);
+                        break;
+                }
+            }
+        };
+    }
+
+    /** Checks that a field in a form has been filled out
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     */
+    protected ChangeListener<String> presenceCheck(String field,
+                                                String fieldName, String model,
+                                                String manipulation){
+        return (obs, oldText, newText) -> {
+            if (newText.isEmpty()) {
+                currentText.get(field).setText(fieldName + " is required");
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, false, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, false, manipulation);
+                        break;
+                }
+            }
+            else {
+                switch (model) {
+                    case "COURSE":
+                        checkValidCourseFields(field, true, manipulation);
+                        break;
+                    case "MODULE":
+                        checkValidModuleFields(field, true, manipulation);
+                        break;
+                }
+            }
+        };
+    }
 
     private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
         boolean disabled;
@@ -85,6 +191,29 @@ public class UserUI extends MainUI{
 
     }
 
+    private void checkValidModuleFields(String type, Boolean value, String manipulation){
+        boolean disabled;
+        validFields.put(type, value);
+        disabled = !validFields.get(manipulation + " CODE")
+                || !validFields.get(manipulation + " NAME")
+                || !validFields.get(manipulation + " DESCRIPTION")
+                || !validFields.get(manipulation + " CREDITS")
+        ;
+        currentButtons.get(manipulation + " MODULE").setDisable(disabled);
+    }
+    private void checkValidCourseFields(String type, Boolean value, String manipulation){
+        boolean disabled;
+        validFields.put(type, value);
+        disabled = !validFields.get(manipulation + " CODE")
+                || !validFields.get(manipulation + " NAME")
+                || !validFields.get(manipulation + " DESCRIPTION")
+                || !validFields.get(manipulation + " LEVEL OF STUDY")
+                || !validFields.get(manipulation + " LENGTH OF COURSE")
+        ;
+        currentButtons.get(manipulation + " COURSE").setDisable(disabled);
+    }
+
+    /* LAYOUT */
 
     protected HBox makeToolbar(String role) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);

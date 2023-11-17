@@ -365,11 +365,11 @@ public class ManagerUI extends UserUI{
      * Course Dashboard - modals
      **/
     private VBox addCourse() {
-        VBox setCode = inputField("CODE", false);
-        VBox setName = inputField("NAME", false);
-        VBox setDesc = inputFieldLong("DESCRIPTION");
-        VBox setLevel = inputField("LEVEL OF STUDY", false);
-        VBox setYears = inputField("LENGTH OF COURSE", false);
+        VBox setCode = inputField("ADD CODE", false);
+        VBox setName = inputField("ADD NAME", false);
+        VBox setDesc = inputFieldLong("ADD DESCRIPTION");
+        VBox setLevel = inputField("ADD LEVEL OF STUDY", false);
+        VBox setYears = inputField("ADD LENGTH OF COURSE", false);
 
         VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);
         return container;
@@ -482,10 +482,10 @@ public class ManagerUI extends UserUI{
      * Module Dashboard - modals
      **/
     private VBox addModule() {
-        VBox setCode = inputField("CODE", false);
-        VBox setName = inputField("NAME", false);
-        VBox setDesc = inputFieldLong("DESCRIPTION");
-        VBox setCredits = inputField("CREDITS", false);
+        VBox setCode = inputField("ADD CODE", false);
+        VBox setName = inputField("ADD NAME", false);
+        VBox setDesc = inputFieldLong("ADD DESCRIPTION");
+        VBox setCredits = inputField("ADD CREDITS", false);
 
         VBox container = new VBox(setCode, setName, setDesc, setCredits);
         return container;
@@ -502,14 +502,6 @@ public class ManagerUI extends UserUI{
         VBox container = new VBox(setCourse);
         return container;
     }
-
-
-
-
-
-
-
-
 
     /**
      * Signup workflow Dashboard
