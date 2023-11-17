@@ -568,6 +568,60 @@ public class MainUI {
         return new VBox(label, field, inputText);
     }
 
+    protected VBox longTextAndField(String text, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextArea field=new TextArea();
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
+
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextField field=new TextField(value);
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
+    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextArea field=new TextArea(value);
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
+
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
     protected Button inputButton(String text){
         Button button = new Button(text);
         currentButtons.put(text, button);

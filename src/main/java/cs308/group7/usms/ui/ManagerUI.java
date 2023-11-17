@@ -365,24 +365,34 @@ public class ManagerUI extends UserUI{
      * Course Dashboard - modals
      **/
     private VBox addCourse() {
-        VBox setCode = inputField("ADD CODE", false);
-        VBox setName = inputField("ADD NAME", false);
-        VBox setDesc = inputFieldLong("ADD DESCRIPTION");
-        VBox setLevel = inputField("ADD LEVEL OF STUDY", false);
-        VBox setYears = inputField("ADD LENGTH OF COURSE", false);
+        VBox setCode = textAndField("ADD CODE",
+                presenceCheck("ADD CODE", "Code", "COURSE", "ADD"));
+        VBox setName = textAndField("ADD NAME",
+                presenceCheck("ADD NAME", "Name", "COURSE", "ADD"));
+        VBox setDesc = longTextAndField("ADD DESCRIPTION",
+                presenceCheck("ADD DESCRIPTION", "Description", "COURSE", "ADD"));
+        VBox setLevel = textAndField("ADD LEVEL OF STUDY",
+                presenceCheck("ADD LEVEL OF STUDY", "Level of study", "COURSE", "ADD"));
+        VBox setYears = textAndField("ADD LENGTH OF COURSE",
+                rangeCheck(1, 5, "ADD LENGTH OF COURSE", "Length of course", "COURSE", "ADD"));
 
         VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);
         return container;
     }
 
     private VBox editCourse(Map<String, String> currentCourse) {
-        VBox setCode = inputFieldSetValue("EDIT CODE", currentCourse.get("Id"));
-        VBox setName = inputFieldSetValue("EDIT NAME", currentCourse.get("Name"));
-        VBox setDesc = inputFieldLongSetValue("EDIT DESCRIPTION", currentCourse.get("Description"));
-        VBox setLevel = inputFieldSetValue("EDIT LEVEL OF STUDY", currentCourse.get("Level"));
-        VBox setYear = inputFieldSetValue("EDIT LENGTH OF COURSE", currentCourse.get("Years"));
+        VBox setCode = setTextAndField("ADD CODE", currentCourse.get("Id"),
+                presenceCheck("ADD CODE", "Code", "COURSE", "ADD"));
+        VBox setName = setTextAndField("ADD NAME", currentCourse.get("Name"),
+                presenceCheck("EDIT NAME", "Name", "COURSE", "EDIT"));
+        VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentCourse.get("Description"),
+                presenceCheck("EDIT DESCRIPTION", "Description", "COURSE", "EDIT"));
+        VBox setLevel = setTextAndField("EDIT LEVEL OF STUDY", currentCourse.get("Level"),
+                presenceCheck("EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"));
+        VBox setYears = setTextAndField("EDIT LENGTH OF COURSE", currentCourse.get("Years"),
+                rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"));
 
-        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYear);
+        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);
         return container;
     }
 
@@ -482,10 +492,14 @@ public class ManagerUI extends UserUI{
      * Module Dashboard - modals
      **/
     private VBox addModule() {
-        VBox setCode = inputField("ADD CODE", false);
-        VBox setName = inputField("ADD NAME", false);
-        VBox setDesc = inputFieldLong("ADD DESCRIPTION");
-        VBox setCredits = inputField("ADD CREDITS", false);
+        VBox setCode = textAndField("ADD CODE",
+                presenceCheck("ADD CODE", "Code", "MODULE", "ADD"));
+        VBox setName = textAndField("ADD NAME",
+                presenceCheck("ADD NAME", "Name", "MODULE", "ADD"));
+        VBox setDesc = longTextAndField("ADD DESCRIPTION",
+                presenceCheck("ADD DESCRIPTION", "Description", "MODULE", "ADD"));
+        VBox setCredits = textAndField("ADD CREDITS",
+                rangeCheck(10, 60,"ADD CREDITS", "Credits", "MODULE", "ADD"));
 
         VBox container = new VBox(setCode, setName, setDesc, setCredits);
         return container;

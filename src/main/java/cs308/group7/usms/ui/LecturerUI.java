@@ -153,12 +153,28 @@ public class LecturerUI extends UserUI{
      **/
 
     private VBox setLabMark(Map<String, String> currentStudent) {
-        VBox setMark = inputFieldSetValue("LAB MARK", currentStudent.get("labMark"));
+        VBox setMark = setTextAndField("LAB MARK", currentStudent.get("labMark"),
+                markCheck(
+                        0.0,
+                        100.0,
+                        "LAB MARK",
+                        "Lab mark",
+                        "MARK",
+                        "LAB")
+        );
         return setMark;
     }
 
     private VBox setExamMark(Map<String, String> currentStudent) {
-        VBox setMark = inputFieldSetValue("EXAM MARK", currentStudent.get("examMark"));
+        VBox setMark = setTextAndField("EXAM MARK", currentStudent.get("examMark"),
+                markCheck(
+                        0.0,
+                        100.0,
+                        "EXAM MARK",
+                        "Exam mark",
+                        "MARK",
+                        "EXAM")
+        );
         return setMark;
     }
 

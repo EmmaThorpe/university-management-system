@@ -79,12 +79,13 @@ public class UserUI extends MainUI{
      * @param field - the field the validation is occuring on
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
      */
     protected ChangeListener<String> lengthCheck(int minLength, int maxLength, String field,
                                                  String fieldName, String model,
                                                  String manipulation){
         return (obs, oldText, newText) -> {
-            if (newText.length() < minLength || newText.length() >maxLength) {
+            if (newText.isEmpty() || newText.length() < minLength || newText.length() >maxLength) {
                 currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minLength)
                         + " and " + String.valueOf(maxLength) + " characters long");
                 switch (model) {
@@ -97,6 +98,7 @@ public class UserUI extends MainUI{
                 }
                 }
             else {
+                currentText.get(field).setText("");
                 switch (model) {
                     case "COURSE":
                         checkValidCourseFields(field, true, manipulation);
@@ -115,12 +117,16 @@ public class UserUI extends MainUI{
      * @param field - the field the validation is occuring on
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
      */
     protected ChangeListener<String> rangeCheck(int minValue, int maxValue, String field,
                                                  String fieldName, String model,
                                                  String manipulation){
         return (obs, oldText, newText) -> {
-            if (Integer.parseInt(newText) < minValue || Integer.parseInt(newText) >maxValue) {
+            if (newText.isEmpty()
+                    || !(newText.matches("\\d+"))
+                    || Integer.parseInt(newText) < minValue
+                    || Integer.parseInt(newText) >maxValue) {
                 currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minValue)
                         + " and " + String.valueOf(maxValue));
                 switch (model) {
@@ -133,6 +139,7 @@ public class UserUI extends MainUI{
                 }
             }
             else {
+                currentText.get(field).setText("");
                 switch (model) {
                     case "COURSE":
                         checkValidCourseFields(field, true, manipulation);
@@ -145,10 +152,44 @@ public class UserUI extends MainUI{
         };
     }
 
+    /** Checks that a field in a form is within the mark format
+     * @param minValue - the minimum mark value for that field
+     * @param maxValue - the maximum mark value for that field
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param markType - the type of mark being set (eg: "EXAM", "LAB")
+     */
+    protected ChangeListener<String> markCheck(double minValue, double maxValue, String field,
+                                                String fieldName, String model,
+                                                String markType){
+        return (obs, oldText, newText) -> {
+            if (newText.isEmpty()
+                    || !(newText.matches("\\d+"))
+                    || Double.parseDouble(newText) < minValue
+                    || Double.parseDouble(newText) >maxValue) {
+                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minValue)
+                        + " and " + String.valueOf(maxValue));
+                switch (model) {
+                    case "MARK":
+                        checkValidMarkFields(field, false, markType);
+                }
+            }
+            else {
+                currentText.get(field).setText("");
+                switch (model) {
+                    case "MARK":
+                        checkValidMarkFields(field, true, markType);
+                }
+            }
+        };
+    }
+
     /** Checks that a field in a form has been filled out
      * @param field - the field the validation is occuring on
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
      */
     protected ChangeListener<String> presenceCheck(String field,
                                                 String fieldName, String model,
@@ -166,6 +207,7 @@ public class UserUI extends MainUI{
                 }
             }
             else {
+                currentText.get(field).setText("");
                 switch (model) {
                     case "COURSE":
                         checkValidCourseFields(field, true, manipulation);
@@ -199,7 +241,7 @@ public class UserUI extends MainUI{
                 || !validFields.get(manipulation + " DESCRIPTION")
                 || !validFields.get(manipulation + " CREDITS")
         ;
-        currentButtons.get(manipulation + " MODULE").setDisable(disabled);
+        currentButtons.get(manipulation).setDisable(disabled);
     }
     private void checkValidCourseFields(String type, Boolean value, String manipulation){
         boolean disabled;
@@ -210,7 +252,14 @@ public class UserUI extends MainUI{
                 || !validFields.get(manipulation + " LEVEL OF STUDY")
                 || !validFields.get(manipulation + " LENGTH OF COURSE")
         ;
-        currentButtons.get(manipulation + " COURSE").setDisable(disabled);
+        currentButtons.get(manipulation).setDisable(disabled);
+    }
+
+    private void checkValidMarkFields(String type, Boolean value, String markType){
+        boolean disabled;
+        validFields.put(type, value);
+        disabled = !validFields.get( markType + " MARK");
+        currentButtons.get("ASSIGN " + markType +  " MARK").setDisable(disabled);
     }
 
     /* LAYOUT */
@@ -352,10 +401,14 @@ public class UserUI extends MainUI{
 
     //used by both managers and lecturers
     protected VBox editModule(Map<String, String> currentModule) {
-        VBox setCode = inputFieldSetValue("EDIT CODE", currentModule.get("Id"));
-        VBox setName = inputFieldSetValue("EDIT NAME", currentModule.get("Name"));
-        VBox setDesc = inputFieldLongSetValue("EDIT DESCRIPTION", currentModule.get("Description"));
-        VBox setCredit = inputFieldSetValue("EDIT CREDITS", currentModule.get("Credit"));
+        VBox setCode = setTextAndField("EDIT CODE", currentModule.get("Id"),
+                presenceCheck("EDIT CODE", "Code", "MODULE", "EDIT"));
+        VBox setName = setTextAndField("EDIT NAME", currentModule.get("Name"),
+                presenceCheck("EDIT NAME", "Name", "MODULE", "EDIT"));
+        VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentModule.get("Description"),
+                presenceCheck("EDIT DESCRIPTION", "Description", "MODULE", "EDIT"));
+        VBox setCredit = setTextAndField("EDIT CREDITS", currentModule.get("Credit"),
+                rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"));
 
         VBox container = new VBox(setCode, setName, setDesc, setCredit);
         return container;

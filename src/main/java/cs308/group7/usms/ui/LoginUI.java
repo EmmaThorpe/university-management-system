@@ -90,8 +90,6 @@ public class LoginUI extends MainUI{
         createScene("SIGN UP", formContent, formBtns);
     }
 
-
-
     private void checkValidFields(String type, Boolean value){
         validFields.put(type, value);
         if(value && (validFields.get("QUALIFICATION") || validFields.get("STUDENT"))){
