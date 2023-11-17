@@ -185,41 +185,6 @@ public class UserUI extends MainUI{
         };
     }
 
-    /** Checks that a field in a form has been filled out
-     * @param field - the field the validation is occuring on
-     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
-     * @param model - the model the form is within (eg: "COURSE", "MODULE")
-     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
-     */
-    protected ChangeListener<String> presenceCheck(String field,
-                                                String fieldName, String model,
-                                                String manipulation){
-        return (obs, oldText, newText) -> {
-            if (newText.isEmpty()) {
-                currentText.get(field).setText(fieldName + " is required");
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, false, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, false, manipulation);
-                        break;
-                }
-            }
-            else {
-                currentText.get(field).setText("");
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, true, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, true, manipulation);
-                        break;
-                }
-            }
-        };
-    }
-
     private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
         boolean disabled;
         validFields.put(type, value);
@@ -402,11 +367,11 @@ public class UserUI extends MainUI{
     //used by both managers and lecturers
     protected VBox editModule(Map<String, String> currentModule) {
         VBox setCode = setTextAndField("EDIT CODE", currentModule.get("Id"),
-                presenceCheck("EDIT CODE", "Code", "MODULE", "EDIT"));
+                lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"));
         VBox setName = setTextAndField("EDIT NAME", currentModule.get("Name"),
-                presenceCheck("EDIT NAME", "Name", "MODULE", "EDIT"));
+                lengthCheck(1,50,"EDIT NAME", "Name", "MODULE", "EDIT"));
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentModule.get("Description"),
-                presenceCheck("EDIT DESCRIPTION", "Description", "MODULE", "EDIT"));
+                lengthCheck(1,100,"EDIT DESCRIPTION", "Description", "MODULE", "EDIT"));
         VBox setCredit = setTextAndField("EDIT CREDITS", currentModule.get("Credit"),
                 rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"));
 

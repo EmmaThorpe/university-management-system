@@ -285,7 +285,7 @@ public class ManagerUI extends UserUI{
         Button edit = inputButton("EDIT COURSE");
         Button assign = inputButton("ASSIGN MODULE TO COURSE");
 
-        makeModal( add, "ADD", addCourse(),  false);
+        makeModal( add, "ADD", addCourse(),  true);
         makeModal( edit, "EDIT", new VBox(),  false);
         makeModal(assign, "ASSIGN", assignCourseModule(moduleList), false);
 
@@ -366,13 +366,13 @@ public class ManagerUI extends UserUI{
      **/
     private VBox addCourse() {
         VBox setCode = textAndField("ADD CODE",
-                presenceCheck("ADD CODE", "Code", "COURSE", "ADD"));
+                lengthCheck(1, 5,"ADD CODE", "Code", "COURSE", "ADD"));
         VBox setName = textAndField("ADD NAME",
-                presenceCheck("ADD NAME", "Name", "COURSE", "ADD"));
+                lengthCheck(1,50,"ADD NAME", "Name", "COURSE", "ADD"));
         VBox setDesc = longTextAndField("ADD DESCRIPTION",
-                presenceCheck("ADD DESCRIPTION", "Description", "COURSE", "ADD"));
+                lengthCheck(1,100,"ADD DESCRIPTION", "Description", "COURSE", "ADD"));
         VBox setLevel = textAndField("ADD LEVEL OF STUDY",
-                presenceCheck("ADD LEVEL OF STUDY", "Level of study", "COURSE", "ADD"));
+                lengthCheck(1,20,"ADD LEVEL OF STUDY", "Level of study", "COURSE", "ADD"));
         VBox setYears = textAndField("ADD LENGTH OF COURSE",
                 rangeCheck(1, 5, "ADD LENGTH OF COURSE", "Length of course", "COURSE", "ADD"));
 
@@ -382,13 +382,13 @@ public class ManagerUI extends UserUI{
 
     private VBox editCourse(Map<String, String> currentCourse) {
         VBox setCode = setTextAndField("ADD CODE", currentCourse.get("Id"),
-                presenceCheck("ADD CODE", "Code", "COURSE", "ADD"));
+                lengthCheck(1, 5, "ADD CODE", "Code", "COURSE", "ADD"));
         VBox setName = setTextAndField("ADD NAME", currentCourse.get("Name"),
-                presenceCheck("EDIT NAME", "Name", "COURSE", "EDIT"));
+                lengthCheck(1, 50,"EDIT NAME", "Name", "COURSE", "EDIT"));
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentCourse.get("Description"),
-                presenceCheck("EDIT DESCRIPTION", "Description", "COURSE", "EDIT"));
+                lengthCheck(1, 100, "EDIT DESCRIPTION", "Description", "COURSE", "EDIT"));
         VBox setLevel = setTextAndField("EDIT LEVEL OF STUDY", currentCourse.get("Level"),
-                presenceCheck("EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"));
+                lengthCheck(1, 20, "EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"));
         VBox setYears = setTextAndField("EDIT LENGTH OF COURSE", currentCourse.get("Years"),
                 rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"));
 
@@ -424,7 +424,7 @@ public class ManagerUI extends UserUI{
         Button assign = inputButton("ASSIGN MODULE TO LECTURER");
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
-        makeModal(add, "ADD", addModule(), false);
+        makeModal(add, "ADD", addModule(), true);
         makeModal( edit, "EDIT", new VBox(), false);
         makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
 
@@ -493,11 +493,11 @@ public class ManagerUI extends UserUI{
      **/
     private VBox addModule() {
         VBox setCode = textAndField("ADD CODE",
-                presenceCheck("ADD CODE", "Code", "MODULE", "ADD"));
+                lengthCheck(1, 5, "ADD CODE", "Code", "MODULE", "ADD"));
         VBox setName = textAndField("ADD NAME",
-                presenceCheck("ADD NAME", "Name", "MODULE", "ADD"));
+                lengthCheck(1, 50, "ADD NAME", "Name", "MODULE", "ADD"));
         VBox setDesc = longTextAndField("ADD DESCRIPTION",
-                presenceCheck("ADD DESCRIPTION", "Description", "MODULE", "ADD"));
+                lengthCheck(1, 100, "ADD DESCRIPTION", "Description", "MODULE", "ADD"));
         VBox setCredits = textAndField("ADD CREDITS",
                 rangeCheck(10, 60,"ADD CREDITS", "Credits", "MODULE", "ADD"));
 
