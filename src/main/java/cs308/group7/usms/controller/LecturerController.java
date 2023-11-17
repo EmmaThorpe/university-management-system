@@ -6,6 +6,8 @@ import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -44,20 +46,48 @@ public class LecturerController{
             case "VIEW MODULE":
                 lecUI.module(getModuleInformation());
                 buttons =lecUI.getCurrentButtons();
+                buttons.get("EDIT").setOnAction((event)-> editModule(
+                        lecUI.getValues().get("ID"),
+                        ((TextField)lecUI.getCurrentFields().get("EDIT CODE")).getText(),
+                        ((TextField)lecUI.getCurrentFields().get("EDIT NAME")).getText(),
+                        ((TextArea)lecUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(),
+                        ((TextField)lecUI.getCurrentFields().get("EDIT CREDITS")).getText()
+                        )
+                );
                 break;
             case "GIVE MARK":
                 lecUI.mark(getEnrolledStudents());
                 buttons =lecUI.getCurrentButtons();
+                buttons.get("ASSIGN LAB MARK").setOnAction(
+                        (event)->
+                                updateStudentLabMark(
+                                        lecUI.getValues().get("StudentID"),
+                                        // NOTE: assuming that
+                                        // attempt number should not be a lecturer's concern when setting
+                                        // a student's
+                                        // mark and the attempt number should be controlled on controller
+                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("LAB MARK")).getText())
+                                )
+                );
+                buttons.get("ASSIGN EXAM MARK").setOnAction(
+                        (event)->
+                                updateStudentExamMark(
+                                        lecUI.getValues().get("StudentID"),
+                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("EXAM MARK")).getText())
+                                )
+                );
+
                 break;
 
             case "MATERIALS":
                 lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
                 buttons = lecUI.getCurrentButtons();
-                Map<String, String> currValues = lecUI.getValues();
                 buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
                 buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(currValues.get("WEEK")), Integer.parseInt(currValues.get("SEMESTER")), "Lecture", lecUI.uploadFile()));
-                buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(currValues.get("WEEK")), Integer.parseInt(currValues.get("SEMESTER")), "Lab", lecUI.uploadFile()));
+                buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lecture", lecUI.uploadFile()));
+                buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lab", lecUI.uploadFile()));
 
                 break;
             case "OPEN PDF":
@@ -84,6 +114,7 @@ public class LecturerController{
      * @param newPass
      */
     public boolean changePassword(String oldPass, String newPass){
+        System.out.println(oldPass + " " + newPass);
         return true;
     }
 
@@ -100,17 +131,6 @@ public class LecturerController{
         temp.put("Semesters", "1&2");
         temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
         return temp;
-    }
-
-
-    /**Updates the module material for a class
-     * @param week - the week the material is for
-     * @param semester - the semester the material is for
-     * @param type - the type of the material (lab or lecture)
-     * @param file - file to be uploaded
-     */
-    public void updateModuleMaterial(int week, int semester, String type, File file){
-
     }
 
 
@@ -248,15 +268,13 @@ public class LecturerController{
         temp.put("Lecture", true);
         tempList.add(temp);
 
-
-
         return tempList;
     }
 
 
 
-    /**Gets all the students in the lecturer's module
-     * @return List of maps with user fields and their values (eg: forename, "john")
+    /**Gets all the students in the lecturer's module alongisde their current scoring for the lecturer's module
+     * @return List of maps with user fields and their values (eg: forename, "john"), including mark fields and values
      */
     public List<Map<String, String>> getEnrolledStudents(){
         List<Map<String, String>> enrolled = new ArrayList<>();
@@ -273,31 +291,54 @@ public class LecturerController{
         temp.put("courseID", "G600");
         temp.put("YearOfStudy", "1");
         temp.put("decision", "Award");
+        //mark fields and values
         temp.put("labMark", "69");
         temp.put("examMark", "72");
+        temp.put("attemptNo", "1");
         enrolled.add(temp);
         return enrolled;
     }
 
 
+    /**Updates the module material for a class
+     * @param week - the week the material is for
+     * @param semester - the semester the material is for
+     * @param type - the type of the material (lab or lecture)
+     * @param file - file to be uploaded
+     */
+    public void updateModuleMaterial(int week, int semester, String type, File file){
+        System.out.println(String.valueOf (week) + " " + String.valueOf (semester) + " " + String.valueOf (file) );
+    }
 
     /**Updates the student lab mark
      * @param studentID
      * @param attNo
-     * @param Mark
+     * @param mark
      */
-    public void updateStudentLabMark(String studentID, int attNo, Double Mark){
-
+    public void updateStudentLabMark(String studentID, int attNo, Double mark){
+        System.out.println(studentID + " " + String.valueOf (attNo) + " " + String.valueOf (mark) );
     }
 
 
     /**Updates the student exam mark
      * @param studentID
      * @param attNo
-     * @param Mark
+     * @param mark
      */
-    public void updateStudentExamMark(String studentID, int attNo, Double Mark){
+    public void updateStudentExamMark(String studentID, int attNo, Double mark){
+        System.out.println(studentID + " " + String.valueOf (attNo) + " " + String.valueOf (mark) );
+    }
 
+    /**Edits a module
+     * @param code
+     * @param name
+     * @param credit
+     */
+
+    //note - same method is present in managerController - should this be moved to a shared controller
+    //where both can use it?
+    public void editModule(String oldCode, String code, String name, String description, String credit){
+        System.out.println(oldCode+" "+code + " " +name +" "+description +" "+credit);
     }
 
 

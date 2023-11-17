@@ -52,6 +52,10 @@ public class LecturerUI extends UserUI{
 
     /* Module dashboard */
     public void module(Map<String, String> lecturerModule){
+        resetCurrentValues();
+        currentValues = new HashMap<>();
+        currentValues.put("ID", lecturerModule.get("Id"));
+
         Button update = inputButton("UPDATE MODULE INFORMATION");
         makeModal(update, "edit", editModule(lecturerModule),  false);
         VBox modulePanel = makePanelWithAction(
@@ -108,6 +112,10 @@ public class LecturerUI extends UserUI{
 
     private EventHandler pickStudent(Map<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
+            currentValues = new HashMap<>();
+            currentValues.put("StudentID", user.get("userID"));
+            currentValues.put("AttemptNo", user.get("attemptNo"));
+
             accDetails.getChildren().set(0, infoContainer(studentMarkDisplay(
                     user.get("userID"),
                     user.get("forename"),
@@ -145,12 +153,12 @@ public class LecturerUI extends UserUI{
      **/
 
     private VBox setLabMark(Map<String, String> currentStudent) {
-        VBox setMark = inputFieldSetValue("Lab Mark", currentStudent.get("labMark"));
+        VBox setMark = inputFieldSetValue("LAB MARK", currentStudent.get("labMark"));
         return setMark;
     }
 
     private VBox setExamMark(Map<String, String> currentStudent) {
-        VBox setMark = inputFieldSetValue("Exam Mark", currentStudent.get("examMark"));
+        VBox setMark = inputFieldSetValue("EXAM MARK", currentStudent.get("examMark"));
         return setMark;
     }
 
