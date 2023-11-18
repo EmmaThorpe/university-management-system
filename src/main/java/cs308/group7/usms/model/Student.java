@@ -14,7 +14,8 @@ public class Student extends User {
     public enum StudentDecision {
         AWARD,
         RESIT,
-        WITHDRAWAL
+        WITHDRAWAL,
+        NO_DECISION
     }
 
     private String courseID;
@@ -142,6 +143,7 @@ public class Student extends User {
             case AWARD -> "Award";
             case RESIT -> "Resit";
             case WITHDRAWAL -> "Withdrawal";
+            case NO_DECISION -> "No Decision";
         };
     }
 
@@ -153,6 +155,7 @@ public class Student extends User {
             case "Award" -> StudentDecision.AWARD;
             case "Resit" -> StudentDecision.RESIT;
             case "Withdrawal" -> StudentDecision.WITHDRAWAL;
+            case "No Decision" -> StudentDecision.NO_DECISION;
             default -> throw new IllegalArgumentException("Invalid decision string!");
         };
     }
@@ -174,6 +177,12 @@ public class Student extends User {
      * @return Whether the withdrawal was issued successfully
      */
     public boolean issueWithdrawal() { return setDecision(StudentDecision.WITHDRAWAL); }
+
+    /**
+     * Issues an unset decision to the student
+     * @return Whether the unset decision was issued successfully
+     */
+    public boolean issueNoDecision() { return setDecision(StudentDecision.NO_DECISION); }
 
     private boolean setDecision(StudentDecision decision) {
         Map<String, String> values = new HashMap<>();

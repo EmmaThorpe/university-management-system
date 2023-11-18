@@ -261,7 +261,7 @@
     -fx-border-color: -color-ter;
 }
 
-.card, .card-toggle, .panel, .list-button {
+.card, .card-toggle, .panel, .top-panel, .bottom-panel, .list-button {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
@@ -291,6 +291,16 @@
     -fx-max-width: 500;
     -fx-max-height: 450;
     -fx-min-height: 450;
+}
+
+.top-panel {
+    -fx-min-height: 50;
+    -fx-max-height: 50;
+}
+
+.bottom-panel {
+    -fx-min-height: 400;
+    -fx-max-height: 400;
 }
 
 .card-toggle {
@@ -328,7 +338,8 @@
     -fx-padding: 2px 15px;
     -fx-text-alignment: center;
     -fx-background-insets: 0, 0, -1, 0;
-    -fx-min-width: 50;
+    -fx-min-width: 60;
+    -fx-max-height: 10;
     -fx-border-radius: 100em;
     -fx-background-radius: 100em;
     -fx-font-family: "Noto Sans";
@@ -377,6 +388,12 @@
     -fx-text-alignment: center;
 }
 
+.pagination-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-size: 15;
+    -fx-padding: 10;
+}
+
 .notfi-graphic {
     -fx-icon-color: -color-ter;
     -fx-icon-size: 20;
@@ -389,4 +406,31 @@
 
 .notfi-text {
     -fx-fill: -color-dark-grey;
+}
+
+.notice-text {
+    -fx-fill: -color-ter;
+}
+
+.decision-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
+
+.decision-award {
+    -fx-fill: -color-sec;
+}
+
+.decision-withdraw {
+    -fx-fill: -color-pri;
+}
+
+.decision-resit {
+    -fx-fill: -color-ter;
+}
+
+.decision-na {
+    -fx-fill: -color-light-grey;
 }

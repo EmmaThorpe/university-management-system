@@ -73,7 +73,7 @@ public class LoginUI extends MainUI{
 
         ScrollPane fieldScroll = new ScrollPane(formFields);
 
-        userSelected.selectedToggleProperty().addListener(toggleUser(userSelected, fieldScroll, qualificationField));
+        userSelected.selectedToggleProperty().addListener(toggleUser(fieldScroll, qualificationField));
 
         Button Submit = inputButton("SUBMIT");
 
@@ -89,8 +89,6 @@ public class LoginUI extends MainUI{
 
         createScene("SIGN UP", formContent, formBtns);
     }
-
-
 
     private void checkValidFields(String type, Boolean value){
         validFields.put(type, value);
@@ -126,7 +124,7 @@ public class LoginUI extends MainUI{
     protected ChangeListener<String> emailCheck(){
         return (obs, oldText, newText) -> {
             if (!EmailValidator.getInstance().isValid(newText)) {
-                currentText.get("EMAIL").setText("Not Valid Email Format");
+                currentText.get("EMAIL").setText("Not a valid Email format");
                 checkValidFields("EMAIL", false);
             } else if (newText.length() > 20) {
                 currentText.get("EMAIL").setText("Emails must be less than or equal to 20 character");
@@ -167,36 +165,28 @@ public class LoginUI extends MainUI{
 
     }
 
-
-
-    protected ChangeListener<Toggle> toggleUser(ToggleGroup userSelected, ScrollPane formContent, VBox qualificationField){
-        return (observableValue, currentToggle, newToggle) -> {
-            if (userSelected.getSelectedToggle().getUserData() == "lecturer") {
-                VBox fields = (VBox) formContent.getContent();
-                fields.getChildren().add(qualificationField);
-                formContent.contentProperty().set(fields);
-                checkValidFields("STUDENT", false);
-            } else {
-                VBox fields = (VBox) formContent.getContent();
-                fields.getChildren().remove(qualificationField);
-                formContent.contentProperty().set(fields);
-                checkValidFields("STUDENT", true);
-
+    protected ChangeListener<Toggle> toggleUser(ScrollPane formContent, VBox qualificationField) {
+        return (observableValue, previousToggle, newToggle) -> {
+            if (newToggle == null) {
+                previousToggle.setSelected(true);
+            } else if (newToggle != null && previousToggle != null) {
+                if (newToggle.getUserData() == "lecturer") {
+                    VBox fields = (VBox) formContent.getContent();
+                    fields.getChildren().add(qualificationField);
+                    formContent.contentProperty().set(fields);
+                    checkValidFields("STUDENT", false);
+                } else {
+                    VBox fields = (VBox) formContent.getContent();
+                    fields.getChildren().remove(qualificationField);
+                    formContent.contentProperty().set(fields);
+                    checkValidFields("STUDENT", true);
+                }
             }
         };
-
     }
 
-    private ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
-        String operatorNameDisplay = operatorName.toUpperCase();
-        icon.getStyleClass().add("card-graphic");
-        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
-        op.setToggleGroup(group);
-        op.setUserData(operatorName.toLowerCase());
-        op.setContentDisplay(ContentDisplay.TOP);
-        op.getStyleClass().add("card-toggle");
-        return op;
-    }
+
+
 }
 
 

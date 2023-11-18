@@ -34,6 +34,12 @@ public class MainUI {
 
     protected Map<String, Dialog> currentModals;
 
+    protected Map<String, String> currentValues;
+
+    public Map<String, String> getValues(){
+        return currentValues;
+    }
+
 
     /**  Display the first scene and shows the stage
      */
@@ -66,6 +72,7 @@ public class MainUI {
         currentText = new HashMap<>();
         currentButtons = new HashMap<>();
         currentModals = new HashMap<>();
+        currentValues =  new HashMap<>();
     }
 
 
@@ -107,10 +114,66 @@ public class MainUI {
     }
 
 
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        icon.getStyleClass().add("card-graphic");
+        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName.toLowerCase());
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
+    }
+
+
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        ToggleButton op = new ToggleButton(operatorNameDisplay);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName);
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
+    }
+
+
     protected VBox makePanel(VBox content) {
         content.setPadding(new Insets(20));
         content.setSpacing(20.0);
         VBox panel = new VBox(content);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
+    protected VBox makeTopPanel(VBox content) {
+        content.setPadding(new Insets(10));
+        content.setSpacing(20.0);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("top-panel");
+
+        return panel;
+    }
+
+    protected VBox makeBottomPanel(VBox content) {
+        content.setPadding(new Insets(20));
+        content.setSpacing(20.0);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("bottom-panel");
+
+        return panel;
+    }
+
+    protected VBox makePanelWithAction(VBox content, Button action) {
+        content.setPadding(new Insets(20));
+
+        HBox btnContainer = new HBox(action);
+        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
+        btnContainer.setPadding(new Insets(0, 0, 20, 0));
+
+        VBox panel = new VBox(content, btnContainer);
+
+        panel.setSpacing(5);
         panel.getStyleClass().add("panel");
 
         return panel;
@@ -123,6 +186,16 @@ public class MainUI {
         content.fitToWidthProperty().set(true);
         VBox panel = new VBox(content);
         panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
+    protected VBox makeScrollableBottomPanel(ScrollPane content) {
+        content.setPadding(new Insets(20));
+        content.fitToHeightProperty().set(true);
+        content.fitToWidthProperty().set(true);
+        VBox panel = new VBox(content);
+        panel.getStyleClass().add("bottom-panel");
 
         return panel;
     }
@@ -379,61 +452,6 @@ public class MainUI {
         return detail;
     }
 
-
-    /**
-     *
-     this component is not in use right now but its purpose was to be
-     for any object, to get all its field names and values and
-     then display it as we see account details in manager
-     the problem was though accessing the field values as
-     the model here is not specific and therefore i
-     dont know how to call the get corresponding
-     get methods for each field, even though i figured
-     out how to get the name.
-     leaving it here to see if i can figure it out because
-     successfully implementing this would mean a lot less duped
-     code - fiona
-     */
-    protected VBox makePanelDetailDisplay(Object model) {
-        Field[] modelFields = model.getClass().getDeclaredFields();
-
-        Text idTitle = new Text(
-                model.getClass().getDeclaredFields()[0].getName()
-        );
-
-        int fieldNum = model.getClass().getDeclaredFields().length;
-        int fieldNumCutOffPoint = fieldNum / 2;
-
-        VBox row1 = new VBox();
-        VBox row2 = new VBox();
-
-        for (int i = 1; i < fieldNum; i++) {
-            Field currField = model.getClass().getDeclaredFields()[i];
-            if (i < fieldNumCutOffPoint) {
-                row1.getChildren().add(
-                        listDetail(
-                                currField.getName().toUpperCase(),
-                                "hi"
-                        )
-                );
-            } else {
-                row2.getChildren().add(
-                        listDetail(
-                                currField.getName().toUpperCase(),
-                                "world"
-                        )
-                );
-            }
-        }
-
-        row1.setSpacing(5);
-        row2.setSpacing(5);
-        HBox rows = new HBox(row1, row2);
-        return new VBox(idTitle, rows);
-    }
-
-
-
     public void createScene(String top, Pane mainContent, Pane bottom){
         VBox title = setTitle(top);
 
@@ -527,9 +545,13 @@ public class MainUI {
 
 
 
-    protected Text inputText(String text){
+
+
+
+    protected Text inputText(String name){
         Text inputText = new Text();
-        currentText.put(text, inputText);
+        inputText.getStyleClass().add("notice-text");
+        currentText.put(name, inputText);
         return inputText;
     }
 
@@ -537,6 +559,61 @@ public class MainUI {
         Label label=new Label(text);
         TextField field=new TextField();
         Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
+    protected VBox longTextAndField(String text, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextArea field=new TextArea();
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
+
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextField field=new TextField(value);
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
+
+        currentFields.put(text, field);
+        currentText.put(text, inputText);
+
+        field.textProperty().addListener(listener);
+
+        validFields.put(text, false);
+
+        return new VBox(label, field, inputText);
+    }
+
+    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
+        Label label=new Label(text);
+        TextArea field=new TextArea(value);
+        field.setWrapText(true);
+        field.setPrefRowCount(4);
+
+        Text inputText = new Text();
+        inputText.getStyleClass().add("notice-text");
 
         currentFields.put(text, field);
         currentText.put(text, inputText);
