@@ -662,8 +662,6 @@ public class ManagerUI extends UserUI{
         return listButton;
     }
 
-
-
     public void addBusinessRule(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         resetCurrentValues();
 
@@ -675,7 +673,6 @@ public class ManagerUI extends UserUI{
 
         singlePanelLayout(actionPanel, "ADD BUSINESS RULES");
     }
-
 
     private VBox rulesForm(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, Button course, Button module){
 
@@ -717,12 +714,8 @@ public class ManagerUI extends UserUI{
         HBox courseButtons = new HBox(addCourse, removeCourse);
         VBox coursePanel = new VBox(courseDropdown, courseButtons);
 
-
-
-
         Button removeModule = inputButton("REMOVE MODULE");
         removeModule.setOnAction(event -> removeDropdown(moduleDropdown, "MODULE"));
-
 
         Button addModule = inputButton("ADD MODULE");
         addModule.setOnAction(event -> addDropdown(moduleDropdown, courseList, moduleList, "MODULE"));
@@ -743,7 +736,7 @@ public class ManagerUI extends UserUI{
         panelModule.setSpacing(20.0);
         panelModule.setPadding(new Insets(10, 2, 10, 2));
 
-        VBox rulePanel = makeScrollablePart(panelCourse);
+        ScrollPane rulePanel = new ScrollPane(panelCourse);
 
         rulesSelected.selectedToggleProperty().addListener(toggleRules(rulePanel, panelCourse, panelModule));
 
@@ -757,8 +750,10 @@ public class ManagerUI extends UserUI{
         }
 
         VBox dropdown = dropdownField(name, fields);
-
-        ((ComboBox) currentFields.get(name)).setOnAction(checkCourse(courseList));
+        Label dropdownLabel = (Label) dropdown.getChildren().get(0);
+        String dropdownFieldName = dropdownLabel.getText();
+        ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
+        dropdownBox.valueProperty().addListener(onDropdownChange(dropdownFieldName, "COURSE"));
         return dropdown;
     }
 
@@ -769,10 +764,13 @@ public class ManagerUI extends UserUI{
         for(String module: moduleList.keySet()){
             fields.add(module);
         }
-        return dropdownField(name, fields);
+        VBox dropdown = dropdownField(name, fields);
+        Label dropdownLabel = (Label) dropdown.getChildren().get(0);
+        String dropdownFieldName = dropdownLabel.getText();
+        ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
+        dropdownBox.valueProperty().addListener(onDropdownChange(dropdownFieldName, "MODULE"));
+        return dropdown;
     }
-
-
 
     private void addDropdown(VBox panel, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, String type){
         String newVal = String.valueOf(Integer.parseInt(currentValues.get("AMOUNT OF "+type))+1);
@@ -789,7 +787,6 @@ public class ManagerUI extends UserUI{
 
         checkRulesValidity(type);
     }
-
 
     private void removeDropdown(VBox panel, String type){
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
@@ -812,7 +809,7 @@ public class ManagerUI extends UserUI{
         ArrayList<String> valuesChecked = new ArrayList<>();
         String currentCheck;
         for(int i=1; i<=val; i++) {
-            currentCheck = ((ComboBox) currentFields.get(type + " " + val)).getValue().toString();
+            currentCheck = ((ComboBox) currentFields.get(type + " " + i)).getValue().toString();
             if (valuesChecked.contains(currentCheck)) {
                 currentText.get(type + " CHECK").setText("ERROR: CANNOT HAVE REPEATING " + type + "S");
                 currentButtons.get("SET " + type + " RULE").setDisable(true);
@@ -821,38 +818,34 @@ public class ManagerUI extends UserUI{
             valuesChecked.add(currentCheck);
         }
 
-
         currentText.get(type+" CHECK").setText("");
         currentButtons.get("SET COURSE RULE").setDisable(false);
 
     }
 
-    private EventHandler<ActionEvent> checkCourse(Map<String, Map<String, Boolean>> courseList){
-        return event -> {
-            String type = ((ComboBox) currentFields.get("RULE TYPE")).getValue().toString();
-            //if(courseList.get(newVal).get(type)){
-            //}
-            checkRulesValidity("COURSE");
-        };
-
-    }
-
-
-
-    protected ChangeListener<Toggle> toggleRules(VBox ruleContent, VBox courseContent, VBox moduleContent){
+    protected ChangeListener<Toggle> toggleRules(ScrollPane ruleContent, VBox courseContent, VBox moduleContent){
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {
                 previousToggle.setSelected(true);
             } else if (newToggle != null && previousToggle != null) {
                 if (newToggle.getUserData() == "Course Rules"){
-                    ruleContent.getChildren().set(0, courseContent);
+                    ruleContent.setContent(courseContent);
                 } else {
-                    ruleContent.getChildren().set(0, moduleContent);
+                    ruleContent.setContent(moduleContent);
                 }
             }
 
         };
 
+    }
+
+    protected ChangeListener<String> onDropdownChange(String fieldChanged, String type){
+        return (observableValue, previousSelect, newSelect) -> {
+            ComboBox dropdown = (ComboBox) currentFields.get(fieldChanged);
+            dropdown.setValue(newSelect);
+            currentFields.replace(fieldChanged, dropdown);
+            checkRulesValidity(type);
+        };
     }
 
 
