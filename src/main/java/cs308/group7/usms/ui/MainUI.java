@@ -545,10 +545,13 @@ public class MainUI {
 
 
 
-    protected Text inputText(String text){
+
+
+
+    protected Text inputText(String name){
         Text inputText = new Text();
         inputText.getStyleClass().add("notice-text");
-        currentText.put(text, inputText);
+        currentText.put(name, inputText);
         return inputText;
     }
 

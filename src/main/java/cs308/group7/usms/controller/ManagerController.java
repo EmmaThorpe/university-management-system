@@ -91,6 +91,8 @@ public class ManagerController{
             case "ADD BUSINESS RULE":
                 manUI.addBusinessRule(getCourseRulesMap(), getModuleRulesMap());
                 buttons = manUI.getCurrentButtons();
+                buttons.get("SET COURSE RULE").setOnAction(event -> addBusinessRuleCourse(((ComboBox)manUI.getCurrentFields().get("RULE TYPE")).getValue().toString(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("COURSE VALUE")).getText()), manUI.getRulesAppliedTo("COURSE")));
+                buttons.get("SET MODULE RULE").setOnAction(event -> addBusinessRuleModule(Integer.parseInt(((TextField)manUI.getCurrentFields().get("MODULE VALUE")).getText()), manUI.getRulesAppliedTo("MODULE")));
                 break;
 
         }
@@ -153,7 +155,7 @@ public class ManagerController{
     /**Gets all the users that are still to be approved ( are inactive)
      * @return List of maps with user fields and their values (eg: forename, "john")
      */
-    public List < HashMap <String, String> > getUnapprovedUsers(List<HashMap<String, String>> users) {
+    public List <HashMap <String, String> > getUnapprovedUsers(List<HashMap<String, String>> users) {
         List<HashMap<String, String>> unapprovedUsers = new ArrayList<HashMap<String, String>>();
         for (HashMap<String, String> user : users ) {
             if (user.get("activated").equals("DEACTIVATED")) {
@@ -179,6 +181,7 @@ public class ManagerController{
         temp.put("Years", "4");
 
         courses.add(temp);
+
         return courses;
     }
 
@@ -197,6 +200,7 @@ public class ManagerController{
         temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
 
         modules.add(temp);
+
         return modules;
     }
 
@@ -454,6 +458,12 @@ public class ManagerController{
 
         temp.put("SE1", tempRules);
 
+
+        tempRules.put("Max Number Of Resits", true);
+        tempRules.put("Number of Compensated Classes", true);
+
+        temp.put("SE2", tempRules);
+
         return temp;
     }
 
@@ -470,13 +480,13 @@ public class ManagerController{
     }
 
 
-    public void AddBusinessRuleCourse(String type, int value, ArrayList<String> courses){
-
+    public void addBusinessRuleCourse(String type, int value, List<String> courses){
+        System.out.println(type +" "+ value + " " +courses.toString());
     }
 
 
-    public void AddBusinessRuleModule(String type, int value, ArrayList<String> modules){
-
+    public void addBusinessRuleModule(int value, List<String> modules){
+        System.out.println(value + " " +modules.toString());
     }
 
 }

@@ -1,8 +1,8 @@
 package cs308.group7.usms.ui;
 
-import cs308.group7.usms.model.*;
-import cs308.group7.usms.model.Module;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,12 +15,7 @@ import javafx.scene.text.Text;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ManagerUI extends UserUI{
 
@@ -672,8 +667,6 @@ public class ManagerUI extends UserUI{
     public void addBusinessRule(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         resetCurrentValues();
 
-        Button addRuleBtn = inputButton("ADD BUSINESS RULE");
-
         Button setCourseBtn = inputButton("SET COURSE RULE");
         Button setModuleBtn = inputButton("SET MODULE RULE");
 
@@ -701,12 +694,48 @@ public class ManagerUI extends UserUI{
         List types = new ArrayList<>();
         types.add("Max Number Of Resits");
         types.add("Number of Compensated Classes");
-        VBox setRules = dropdownField("RULE TYPE:", types);
-        VBox courseValue = textAndField("VALUE", passwordCheck(true));
-        VBox moduleValue = textAndField("VALUE", passwordCheck(true));
+        VBox setRules = dropdownField("RULE TYPE", types);
 
-        VBox panelCourse = new VBox(setRules, courseValue, course);
-        VBox panelModule = new VBox(new Text("Type: Max Number Of Resits"), moduleValue, module);
+        VBox courseValue = textAndField("COURSE VALUE", valueCheck());
+        VBox moduleValue = textAndField("MODULE VALUE", valueCheck());
+
+        VBox courseDropdown = new VBox(courseDropdown("COURSE 1", courseList));
+        VBox moduleDropdown = new VBox(moduleDropdown("MODULE 1", moduleList));
+        currentValues.put("AMOUNT OF COURSE", "1");
+        currentValues.put("AMOUNT OF MODULE", "1");
+
+
+        Button removeCourse = inputButton("REMOVE COURSE");
+        removeCourse.setOnAction(event -> removeDropdown(courseDropdown, "COURSE"));
+
+
+        Button addCourse = inputButton("ADD COURSE");
+        addCourse.setOnAction(event -> addDropdown(courseDropdown, courseList, moduleList, "COURSE"));
+
+        removeCourse.setDisable(true);
+
+        HBox courseButtons = new HBox(addCourse, removeCourse);
+        VBox coursePanel = new VBox(courseDropdown, courseButtons);
+
+
+
+
+        Button removeModule = inputButton("REMOVE MODULE");
+        removeModule.setOnAction(event -> removeDropdown(moduleDropdown, "MODULE"));
+
+
+        Button addModule = inputButton("ADD MODULE");
+        addModule.setOnAction(event -> addDropdown(moduleDropdown, courseList, moduleList, "MODULE"));
+
+        removeModule.setDisable(true);
+
+        HBox moduleButtons = new HBox(addModule, removeModule);
+        VBox modulePanel = new VBox(moduleDropdown, moduleButtons);
+
+
+        VBox panelCourse = new VBox(setRules, courseValue, coursePanel, new VBox(inputText("COURSE CHECK"), course));
+
+        VBox panelModule = new VBox(setRules, moduleValue, modulePanel, new VBox(inputText("MODULE CHECK"), module));
 
         panelCourse.setSpacing(20.0);
         panelCourse.setPadding(new Insets(10, 2, 10, 2));
@@ -719,6 +748,93 @@ public class ManagerUI extends UserUI{
         rulesSelected.selectedToggleProperty().addListener(toggleRules(rulePanel, panelCourse, panelModule));
 
         return makePanel(new VBox( ruleSelector, rulePanel));
+    }
+
+    private VBox courseDropdown(String name, Map<String, Map<String, Boolean>> courseList){
+        ArrayList<String> fields = new ArrayList<>();
+        for(String course: courseList.keySet()){
+            fields.add(course);
+        }
+
+        VBox dropdown = dropdownField(name, fields);
+
+        ((ComboBox) currentFields.get(name)).setOnAction(checkCourse(courseList));
+        return dropdown;
+    }
+
+
+
+    private VBox moduleDropdown(String name, Map<String, Boolean> moduleList){
+        ArrayList<String> fields = new ArrayList<>();
+        for(String module: moduleList.keySet()){
+            fields.add(module);
+        }
+        return dropdownField(name, fields);
+    }
+
+
+
+    private void addDropdown(VBox panel, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, String type){
+        String newVal = String.valueOf(Integer.parseInt(currentValues.get("AMOUNT OF "+type))+1);
+
+        if(type.equals("COURSE")){
+            panel.getChildren().add(courseDropdown(type+ " " +newVal, courseList));
+        }else{
+            panel.getChildren().add(moduleDropdown(type+ " " +newVal, moduleList));
+        }
+
+        currentButtons.get("REMOVE "+type).setDisable(false);
+
+        currentValues.put("AMOUNT OF "+type, newVal);
+
+        checkRulesValidity(type);
+    }
+
+
+    private void removeDropdown(VBox panel, String type){
+        int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
+
+        panel.getChildren().remove(val-1);
+        currentFields.remove(type+val);
+
+        if(val-1 ==1){
+            currentButtons.get("REMOVE "+type).setDisable(true);
+        }
+
+
+        currentValues.put("AMOUNT OF "+type, String.valueOf(val-1));
+
+        checkRulesValidity(type);
+    }
+
+    private void checkRulesValidity(String type){
+        int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
+        ArrayList<String> valuesChecked = new ArrayList<>();
+        String currentCheck;
+        for(int i=1; i<=val; i++) {
+            currentCheck = ((ComboBox) currentFields.get(type + " " + val)).getValue().toString();
+            if (valuesChecked.contains(currentCheck)) {
+                currentText.get(type + " CHECK").setText("ERROR: CANNOT HAVE REPEATING " + type + "S");
+                currentButtons.get("SET " + type + " RULE").setDisable(true);
+                return;
+            }
+            valuesChecked.add(currentCheck);
+        }
+
+
+        currentText.get(type+" CHECK").setText("");
+        currentButtons.get("SET COURSE RULE").setDisable(false);
+
+    }
+
+    private EventHandler<ActionEvent> checkCourse(Map<String, Map<String, Boolean>> courseList){
+        return event -> {
+            String type = ((ComboBox) currentFields.get("RULE TYPE")).getValue().toString();
+            //if(courseList.get(newVal).get(type)){
+            //}
+            checkRulesValidity("COURSE");
+        };
+
     }
 
 
@@ -739,4 +855,22 @@ public class ManagerUI extends UserUI{
 
     }
 
+
+    public List<String> getRulesAppliedTo(String type){
+        List<String> appliedTo = new ArrayList<>();
+        int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
+        for(int i=1; i<=val; i++){
+            appliedTo.add(((ComboBox) currentFields.get(type +" " + val)).getValue().toString());
+        }
+        return appliedTo;
+    }
+
+    private ChangeListener valueCheck(){
+        return new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object o, Object t1) {
+
+            }
+        };
+    }
 }
