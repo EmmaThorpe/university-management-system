@@ -2,9 +2,10 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
+import cs308.group7.usms.model.businessRules.BusinessRule;
+import cs308.group7.usms.model.businessRules.CourseBusinessRule;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 
@@ -48,6 +49,8 @@ public class Student extends User {
         this.decision = decision;
     }
 
+    public String getCourseID() { return courseID; }
+
     /**
      * Gets the course of the student
      * @throws SQLException If the course does not exist
@@ -76,7 +79,56 @@ public class Student extends User {
         }
     }
 
+    /**
+     * Gets the most recent mark for the given module
+     * @throws SQLException If the query fails
+     */
+    public Mark getMark(String moduleID) throws SQLException { return new Mark(this.getUserID(), moduleID); }
+
+    /**
+     * Gets the mark matching the given attempt number for the given module
+     * @throws SQLException If the query fails
+     */
     public Mark getMark(String moduleID, int attemptNumber) throws SQLException { return new Mark(this.getUserID(), moduleID, attemptNumber); }
+
+    /**
+     * Gets the number of attempts the student has made for the given module
+     * @throws SQLException If the query fails
+     */
+    public int getNumberOfAttempts(String moduleID) throws SQLException {
+        DatabaseConnection db = App.getDatabaseConnection();
+        CachedRowSet res = db.select(new String[]{"Mark"}, new String[]{"MAX(AttNo) AS MaxAttNo"}, new String[]{"ModuleID = '" + moduleID + "' AND UserID = '" + this.getUserID() + "'"});
+        res.next();
+        return res.getInt("MaxAttNo");
+    }
+
+    /**
+     * Gets the business rules that the student has failed
+     * @return The set of failed business rules, empty if none
+     * @throws SQLException If the query fails
+     */
+    public Set<BusinessRule> getFailedBusinessRules() throws SQLException {
+        Set<BusinessRule> failedRules = new HashSet<>();
+        Set<BusinessRule> checkedCourseRules = new HashSet<>();
+
+        // For each module in the course, check pass/fail for every business rule applied to its most recently achieved mark
+        Course c = this.getCourse();
+        List<Module> modules = c.getModules();
+        for (Module module : modules) {
+            Mark mark = this.getMark(module.getModuleID()); // Get the most recent mark for the module
+            for (BusinessRule rule : BusinessRule.getRules(c.getCourseID(), mark)) {
+
+                if (checkedCourseRules.stream().anyMatch(o -> rule.toString().equals(o.toString()))) continue; // skip if already checked
+
+                if (!rule.passes(this)) failedRules.add(rule);
+
+                if (rule instanceof CourseBusinessRule) checkedCourseRules.add(rule); // note checked course rules
+
+            }
+        }
+
+        return failedRules;
+    }
 
     public StudentDecision getDecision() {
         return decision;
