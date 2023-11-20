@@ -73,6 +73,7 @@ public class ManagerController{
 
             case "MANAGE MODULES":
                 manUI.modules(getModules(), getFreeLecturers());
+                buttons = manUI.getCurrentButtons();
                 buttons =manUI.getCurrentButtons();
                 buttons.get("ADD").setOnAction(event-> addModule(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("CREDITS")).getText()));
                 buttons.get("EDIT").setOnAction((event)-> editModule(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT CREDITS")).getText()));
