@@ -64,28 +64,59 @@
     -fx-border-color: -color-sec;
 }
 
-.outline-button:hover, .outline-button:pressed, .outline-button:focused {
+.outline-button:hover, .outline-button:pressed {
     -fx-background-color: -color-white;
     -fx-text-fill: -color-sec-dark;
     -fx-border-color: -color-sec-dark;
 }
 
-.text-field {
-    -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
-    -fx-background-insets: 0, 0 0 1 0;
-    -fx-border-color: -drop-shadow;
-    -fx-border-radius: 3;
+.panel .button {
+    -fx-padding: 10px 30px;
+    -fx-font-size: 18;
 }
 
-.text-field:focused {
-    -fx-border-color: -color-light-grey;
-    -fx-effect: innershadow(gaussian, -drop-shadow, 0, 0, 0, 0);
+.panel-button-1 {
+    -fx-background-color: -color-pri;
+    -fx-border-color: -color-pri;
 }
 
-.text-field:hover {
-    -fx-border-color: -color-light-grey;
+.panel-button-1:disabled, .panel-button-2:disabled {
+    -fx-opacity: 0.5;
+}
+
+
+.panel-button-1:hover, .panel-button-1:pressed, .panel-button-1:selected {
+    -fx-background-color: -color-pri-dark;
+    -fx-border-color: -color-pri-dark;
+}
+
+.panel-button-2 {
+    -fx-background-color: -color-sec;
+    -fx-border-color: -color-sec;
+}
+
+.panel-button-2:hover, .panel-button-2:pressed, .panel-button-2:selected {
+    -fx-background-color: -color-sec-dark;
+    -fx-border-color: -color-sec-dark;
+}
+
+
+.toolbar-btn {
+    -fx-background-color: -color-white;
+    -fx-opacity: 0.9;
+    -fx-text-fill: -color-pri;
+    -fx-border-color: -color-white;
+}
+
+.toolbar-btn:pressed, .toolbar-btn:hover, .toolbar-btn:focused {
+    -fx-opacity: 1;
+    -fx-effect: none;
+    -fx-translate-y: 0;
+}
+
+.logout-btn:pressed, .logout-btn:focused {
     -fx-background-color: -drop-shadow;
-    -fx-effect: innershadow(gaussian, -drop-shadow, 0, 0, 0, 0);
+    -fx-border-color: -drop-shadow;
 }
 
 .label {
@@ -95,24 +126,142 @@
     -fx-padding: 0.2em 0px;
 }
 
+.text-field, .text-area {
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-border-color: -drop-shadow;
+    -fx-padding: 5;
+    -fx-border-radius: 3;
+    -fx-border-radius: 3;
+}
+
+.combo-box-base {
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-border-color:  -drop-shadow;
+    -fx-padding: 5px 10px;
+}
+
+.combo-box-popup .list-view {
+    -fx-border-color: -color-light-grey;
+    -fx-background-color: -color-white;
+    -fx-padding: 5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.combo-box .arrow, .combo-box .arrow-button{
+    -fx-background-color: -color-sec;
+}
+
+.combo-box-popup .list-view .list-cell
+{
+    -fx-padding: 5;
+    -fx-opacity: 0.7;
+}
+
+.combo-box-popup .list-view .list-cell:hover
+{
+    -fx-opacity: 1;
+    -fx-translate-y: -2;
+}
+
+
+.text-field:hover, .combo-box-base:hover, .combo-box-base:showing  {
+    -fx-border-color: -color-light-grey;
+    -fx-background-color: -drop-shadow;
+}
+
 .login-graphic {
     -fx-icon-color: -color-white;
     -fx-icon-size: 40;
 }
 
-.login-title {
+.login-title, .info-box-title {
     -fx-fill: -color-dark-grey;
     -fx-font-family: "Poppins";
     -fx-font-weight: bold;
-    -fx-font-size: 40;
+
     -fx-padding: 0.2em 0px;
+}
+
+.login-title {
+    -fx-font-size: 40;
 }
 
 .login-back {
     -fx-fill: -color-pri;
 }
 
-.card-toggle, .card {
+.toolbar-title {
+    -fx-fill: -color-white;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 30;
+    -fx-padding: 0.2em 0px;
+}
+
+.toolbar-bar {
+    -fx-background-color: -gradient;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+}
+
+.toolbar-graphic {
+    -fx-icon-color: -gradient;
+    -fx-icon-size: 30;
+}
+
+.toolbar-back {
+    -fx-fill: -color-white;
+}
+
+.modal-graphic {
+    -fx-icon-color: -color-white;
+    -fx-icon-size: 18;
+}
+
+.modal {
+    -fx-background-color: -color-white;
+    -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-border-color: -color-light-grey;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-text-fill: -color-dark-grey;
+    -fx-max-width: 650;
+    -fx-min-width: 500;
+    -fx-padding: 5 5 20 5;
+}
+
+
+.modal-header-text {
+    -fx-fill: -color-white;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 15;
+    -fx-padding: 10;
+}
+
+.modal-header, .modal-header-suc, .modal-header-err {
+    -fx-min-width: 50;
+    -fx-padding: 10;
+}
+
+.modal-header {
+    -fx-background-color: -color-pri;
+    -fx-border-color: -color-pri;
+}
+
+.modal-header-suc {
+    -fx-background-color: -color-sec;
+    -fx-border-color: -color-sec;
+}
+
+.modal-header-err {
+    -fx-background-color: -color-ter;
+    -fx-border-color: -color-ter;
+}
+
+.card, .card-toggle, .panel, .top-panel, .bottom-panel, .list-button {
     -fx-border-radius: 10;
     -fx-effect: innershadow(gaussian, -drop-shadow, 4, 0, 0, 2);
     -fx-background-color: -color-white;
@@ -121,8 +270,37 @@
     -fx-border-color: -color-light-grey;
     -fx-padding: 5;
     -fx-text-fill: -color-dark-grey;
+}
+
+.card, .card-toggle {
+    -fx-min-width: 50;
+}
+
+.card, .card-toggle, .list-button {
+    -fx-min-height: 70;
     -fx-font-family: "Poppins";
     -fx-font-weight: normal;
+}
+
+.list-button {
+    -fx-min-width: 300;
+}
+
+.panel {
+    -fx-min-width: 400;
+    -fx-max-width: 500;
+    -fx-max-height: 450;
+    -fx-min-height: 450;
+}
+
+.top-panel {
+    -fx-min-height: 50;
+    -fx-max-height: 50;
+}
+
+.bottom-panel {
+    -fx-min-height: 400;
+    -fx-max-height: 400;
 }
 
 .card-toggle {
@@ -130,13 +308,14 @@
     -fx-min-width: 50;
 }
 
-.card-toggle:hover {
+.card-toggle:hover, .list-button:hover {
     -fx-translate-y: -2;
     -fx-effect: dropshadow(gaussian, -color-light-grey, 4, 0, 0, 2);
     -fx-background-color: -drop-shadow;
 }
 
-.card-toggle:selected, .card-toggle:selected:focused {
+.card-toggle:selected, .card-toggle:selected:focused
+,.list-button:selected, .list-button:selected:focused {
     -fx-background-color: -drop-shadow;
     -fx-border-color: -color-light-grey;
 }
@@ -144,6 +323,75 @@
 .card-graphic {
     -fx-icon-color: -color-dark-grey;
     -fx-icon-size: 20;
+}
+
+.list-graphic {
+    -fx-icon-color: -color-white;
+    -fx-icon-size: 20;
+}
+
+.list-back {
+    -fx-fill: -color-light-grey;
+}
+
+.list-active, .list-inactive, .list-detail {
+    -fx-padding: 2px 15px;
+    -fx-text-alignment: center;
+    -fx-background-insets: 0, 0, -1, 0;
+    -fx-min-width: 60;
+    -fx-max-height: 10;
+    -fx-border-radius: 100em;
+    -fx-background-radius: 100em;
+    -fx-font-family: "Noto Sans";
+    -fx-border-width: 2px;
+    -fx-text-fill: -color-dark-grey;
+}
+
+.list-active {
+    -fx-background-color: -color-sec-light;
+    -fx-border-color: -color-sec-light;
+}
+
+.list-inactive {
+    -fx-background-color: -color-ter-light;
+    -fx-border-color: -color-ter-light;
+}
+
+.list-detail {
+    -fx-background-color: -color-pri-light;
+    -fx-border-color: -color-pri-light;
+}
+
+.list-id {
+    -fx-text-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+    -fx-padding: 0.2em 0px;
+    -fx-max-width: 100;
+    -fx-wrap-text: true;
+}
+
+.info-box {
+    -fx-border-radius: 10;
+    -fx-background-color: -drop-shadow;
+    -fx-background-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: -drop-shadow;
+    -fx-padding: 5;
+    -fx-text-fill: -color-dark-grey;
+    -fx-max-width: 470;
+}
+
+.info-box-title {
+    -fx-font-size: 20;
+    -fx-text-alignment: center;
+}
+
+.pagination-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-size: 15;
+    -fx-padding: 10;
 }
 
 .notfi-graphic {
@@ -158,4 +406,31 @@
 
 .notfi-text {
     -fx-fill: -color-dark-grey;
+}
+
+.notice-text {
+    -fx-fill: -color-ter;
+}
+
+.decision-text {
+    -fx-fill: -color-dark-grey;
+    -fx-font-family: "Poppins";
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
+
+.decision-award {
+    -fx-fill: -color-sec;
+}
+
+.decision-withdraw {
+    -fx-fill: -color-pri;
+}
+
+.decision-resit {
+    -fx-fill: -color-ter;
+}
+
+.decision-na {
+    -fx-fill: -color-light-grey;
 }

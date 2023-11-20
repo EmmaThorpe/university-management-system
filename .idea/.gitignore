@@ -7,5 +7,7 @@
 /dataSources/
 /dataSources.local.xml
 
-# Temporarily excluded dataSources.xml
+# Custom exclusions
+dbnavigator.xml
+deployment.xml
 dataSources.xml

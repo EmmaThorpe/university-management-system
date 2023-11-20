@@ -1,9 +1,11 @@
 package cs308.group7.usms;
 
 import cs308.group7.usms.controller.*;
+import cs308.group7.usms.ui.MainUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class AppGUI extends Application {
@@ -13,7 +15,7 @@ public class AppGUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws SQLException {
         Map<String, String> user;
         boolean exiting = false;
         while (!exiting) {
@@ -21,13 +23,13 @@ public class AppGUI extends Application {
             user = pass.response();
             switch (user.get("role")) {
                 case "Lecturer":
-                    UIController lec = new LecturerController(user.get("UserID"));
+                    LecturerController lec = new LecturerController(user.get("UserID"));
                     break;
                 case "Student":
-                    UIController stu = new StudentController(user.get("UserID"));
+                    StudentController stu = new StudentController(user.get("UserID"));
                     break;
                 case "Manager":
-                    UIController man = new ManagerController(user.get("UserID"));
+                    ManagerController man = new ManagerController(user.get("UserID"));
                     break;
             }
         }
