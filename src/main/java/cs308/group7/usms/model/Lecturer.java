@@ -25,6 +25,10 @@ public class Lecturer extends User {
         CachedRowSet res = db.select(new String[]{"Lecturer"}, null, new String[]{"UserID = '" + userID + "'"});
         if (res.next()) {
             this.moduleID = res.getString("ModuleID");
+            if(res.wasNull()){
+                this.moduleID = null;
+            }
+
             this.qualification = res.getString("Qualification");
         } else {
             throw new SQLException("Lecturer " + userID + " does not exist!");
