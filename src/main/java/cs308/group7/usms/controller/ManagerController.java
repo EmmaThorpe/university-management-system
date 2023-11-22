@@ -135,7 +135,7 @@ public class ManagerController{
 
             while(result.next()){
                 User acc = new User(result.getString("UserID"));
-                HashMap<String, String> userDetailsMap = new HashMap<String, String>();
+                HashMap<String, String> userDetailsMap = new HashMap<>();
                 userDetailsMap.put("userID", acc.getUserID());
                 userDetailsMap.put("managerID", acc.getManager().getUserID());
                 userDetailsMap.put("forename", acc.getForename());
@@ -159,7 +159,7 @@ public class ManagerController{
      * @return List of maps with user fields and their values (eg: forename, "john")
      */
     public List <HashMap <String, String> > getUnapprovedUsers(List<HashMap<String, String>> users) {
-        List<HashMap<String, String>> unapprovedUsers = new ArrayList<HashMap<String, String>>();
+        List<HashMap<String, String>> unapprovedUsers = new ArrayList<>();
         for (HashMap<String, String> user : users ) {
             if (user.get("activated").equals("DEACTIVATED")) {
                 unapprovedUsers.add(user);
@@ -181,7 +181,7 @@ public class ManagerController{
 
             while(result.next()){
                 Course cour = new Course(result.getString("CourseID"));
-                Map<String, String> courseDetailsMap = new HashMap<String, String>();
+                Map<String, String> courseDetailsMap = new HashMap<>();
                 courseDetailsMap.put("Id", cour.getCourseID());
                 courseDetailsMap.put("Name", cour.getName());
                 courseDetailsMap.put("Description", cour.getDescription());
@@ -210,7 +210,7 @@ public class ManagerController{
 
             while(result.next()){
                 Module mod = new Module(result.getString("ModuleID"));
-                Map<String, String> moduleDetailsMap = new HashMap<String, String>();
+                Map<String, String> moduleDetailsMap = new HashMap<>();
                 moduleDetailsMap.put("Id", mod.getModuleID());
                 moduleDetailsMap.put("Name", mod.getName());
                 moduleDetailsMap.put("Description", mod.getDescription());
@@ -248,7 +248,7 @@ public class ManagerController{
 
             while(result.next()){
                 Lecturer lec = new Lecturer(result.getString("UserID"));
-                Map<String, String> lecturerDetailsMap = new HashMap<String, String>();
+                Map<String, String> lecturerDetailsMap = new HashMap<>();
                 lecturerDetailsMap.put("Id", lec.getLecturerID());
                 lecturerDetailsMap.put("Qualification", lec.getQualification());
 
@@ -256,6 +256,33 @@ public class ManagerController{
             }
 
             return lecturers;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Gets a list of all departments
+     *
+     * @return List of maps containing the name and the department no. of all departments
+     */
+    public List<Map<String, String>> getDepartments(){
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Department"}, null, null);
+            List<Map<String, String>> departments = new ArrayList<>();
+
+            while(result.next()){
+                Map<String, String> depDetailsMap = new HashMap<>();
+                depDetailsMap.put("Id", String.valueOf(result.getInt("DeptNo")));
+                depDetailsMap.put("Name", result.getString("Name"));
+
+                departments.add(depDetailsMap);
+            }
+
+            return departments;
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -662,7 +689,7 @@ public class ManagerController{
                 List<Map<String, String>> rules = new ArrayList<>();
 
                 while(result.next()){
-                    Map<String, String> ruleDetailsMap = new HashMap<String, String>();
+                    Map<String, String> ruleDetailsMap = new HashMap<>();
 
                     boolean active = result.getBoolean("Active");
                     if(active){
@@ -731,14 +758,17 @@ public class ManagerController{
         //TODO: i should check if this should look for active rules or all rules
         public Map<String, Map <String,Boolean>> getCourseRulesMap(){
             Map<String, Map<String,Boolean>> courseRules = new HashMap<>();
-            boolean resitFlag = false;
-            boolean compFlag = false;
 
             DatabaseConnection db = App.getDatabaseConnection();
             try{
                 CachedRowSet courses = db.select(new String[]{"Course"}, new String[]{"CourseID"}, null);
                 while(courses.next()){
-                    List<BusinessRule> ruleList = CourseBusinessRule.getCourseRules(courses.getString("CourseID"), true);
+                    boolean resitFlag = false;
+                    boolean compFlag = false;
+
+                    String courseID = courses.getString("CourseID");
+
+                    List<BusinessRule> ruleList = CourseBusinessRule.getCourseRules(courseID, true);
                     Map<String,Boolean> ruleMap = new HashMap<>();
 
                     for(BusinessRule r : ruleList){
@@ -752,6 +782,8 @@ public class ManagerController{
 
                     ruleMap.put("Max Number Of Resits", resitFlag);
                     ruleMap.put("Number of Compensated Classes", compFlag);
+
+                    courseRules.put(courseID, ruleMap);
                 }
 
                 return courseRules;

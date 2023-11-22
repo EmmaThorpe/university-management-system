@@ -15,6 +15,7 @@ public class Course {
     private String description;
     private final String levelOfStudy;
     private final int amountOfYears;
+    private String department;
 
     /**
      * Creates a new Course object from the database
@@ -30,17 +31,23 @@ public class Course {
         this.description = res.getString("Description");
         this.levelOfStudy = res.getString("LevelOfStudy");
         this.amountOfYears = res.getInt("AmountOfYears");
+
+        // get department name from id
+        CachedRowSet depRes = db.select(new String[]{"Department"}, null, new String[]{"DeptNo = " + res.getInt("DeptNo")});
+        depRes.next();
+        this.department = depRes.getString("Name");
     }
 
     /**
      * Creates a new Course object from the given parameters without checking the database
      */
-    public Course(String courseID, String name, String description, String levelOfStudy, int amountOfYears) {
+    public Course(String courseID, String name, String description, String levelOfStudy, int amountOfYears, String department) {
         this.courseID = courseID;
         this.name = name;
         this.description = description;
         this.levelOfStudy = levelOfStudy;
         this.amountOfYears = amountOfYears;
+        this.department = department;
     }
 
     public String getCourseID() { return courseID; }
@@ -52,6 +59,8 @@ public class Course {
     public String getLevel() { return levelOfStudy; }
 
     public int getLength() { return amountOfYears; }
+
+    public String getDepartment() { return department; }
 
     /**
      * Sets the description of the course
@@ -180,6 +189,36 @@ public class Course {
         } catch (SQLException e) {
             System.out.println("Failed to query students.");
             throw new SQLException(e.getMessage() + " - " + courseID + "'s getStudents failed");
+        }
+    }
+
+    /**
+     * Sets the department of the course using the department's name
+     * @return Whether the operation was successful
+     */
+    public boolean setDepartment(String name) {
+        DatabaseConnection db = App.getDatabaseConnection();
+
+        try {
+            CachedRowSet result = db.select(new String[]{"Department"},
+                                            new String[]{"DeptNo"},
+                                            new String[]{"Name = " + db.sqlString(name)});
+
+            if(result.next()){
+                HashMap<String, String> values = new HashMap<>();
+                values.put("DeptNo", String.valueOf(result.getInt("DeptNo")));
+                db.update("Course", values, new String[]{"CourseID = " + db.sqlString(courseID)});
+                this.department = name;
+                return true;
+            }
+
+            System.out.println("Unknown department name!");
+            return false;
+
+        } catch (SQLException e) {
+            System.out.println("Failed to change description of course " + courseID + "!");
+            System.out.println(e.getMessage());
+            return false;
         }
     }
 }
