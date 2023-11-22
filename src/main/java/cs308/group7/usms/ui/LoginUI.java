@@ -154,7 +154,8 @@ public class LoginUI extends MainUI{
 
     protected ChangeListener<String> confirmPasswordCheck(){
         return (obs, oldText, newText) -> {
-            if (!newText.equals(currentFields.get("PASSWORD").getAccessibleText())) {
+            String passwordText = ((TextField) currentFields.get("PASSWORD")).getText();
+            if (!newText.equals(passwordText)){
                 currentText.get("CONFIRM PASSWORD").setText("Passwords must match");
                 checkValidFields("CONFIRM PASSWORD", false);
             } else {
