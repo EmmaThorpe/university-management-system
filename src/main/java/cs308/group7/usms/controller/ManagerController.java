@@ -69,7 +69,7 @@ public class ManagerController{
             case "MANAGE COURSES":
                 manUI.courses(getCourses(), getModules(), getDepartments());
                 buttons = manUI.getCurrentButtons();
-                buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("SET CODE")).getText(), ((TextField)manUI.getCurrentFields().get("SET NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("SET DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("SET LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("SET LENGTH OF COURSE")).getText()), ((ComboBox)manUI.getCurrentFields().get("SET DEPARTMENT")).getValue().toString() ));
+                buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("ADD CODE")).getText(), ((TextField)manUI.getCurrentFields().get("ADD NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("ADD DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("ADD LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("ADD LENGTH OF COURSE")).getText()), ((ComboBox)manUI.getCurrentFields().get("ADD DEPARTMENT")).getValue().toString() ));
                 buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText(), ((ComboBox)manUI.getCurrentFields().get("EDIT DEPARTMENT")).getValue().toString()));
                 // TODO UI CREW: add sems + year to assignModuleCourse
                 // TODO: I have done it in manager UI and updated the event call method as needed
@@ -103,7 +103,6 @@ public class ManagerController{
             case "ADD BUSINESS RULE":
                 manUI.addBusinessRule(getCourseRulesMap(), getModuleRulesMap());
                 buttons = manUI.getCurrentButtons();
-                // TODO UI CREW: the input ui is swapped (course is not given a type but module is) - module can't have max compensated
                 buttons.get("SET COURSE RULE").setOnAction(event -> addBusinessRuleCourse(((ComboBox)manUI.getCurrentFields().get("RULE TYPE")).getValue().toString(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("COURSE VALUE")).getText()), manUI.getRulesAppliedTo("COURSE")));
                 buttons.get("SET MODULE RULE").setOnAction(event -> addBusinessRuleModule(Integer.parseInt(((TextField)manUI.getCurrentFields().get("MODULE VALUE")).getText()), manUI.getRulesAppliedTo("MODULE")));
                 break;

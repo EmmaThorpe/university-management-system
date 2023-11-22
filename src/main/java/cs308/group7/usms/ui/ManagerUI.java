@@ -375,7 +375,7 @@ public class ManagerUI extends UserUI{
                 lengthCheck(1,20,"ADD LEVEL OF STUDY", "Level of study", "COURSE", "ADD"));
         VBox setYears = textAndField("ADD LENGTH OF COURSE",
                 rangeCheck(1, 5, "ADD LENGTH OF COURSE", "Length of course", "COURSE", "ADD"));
-        VBox setDept = dropdownField("SET DEPARTMENT", department);
+        VBox setDept = dropdownField("ADD DEPARTMENT", department);
 
         VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
         return container;
@@ -693,6 +693,9 @@ public class ManagerUI extends UserUI{
         Button setCourseBtn = inputButton("SET COURSE RULE");
         Button setModuleBtn = inputButton("SET MODULE RULE");
 
+        setCourseBtn.setDisable(true);
+        setCourseBtn.setDisable(true);
+
         VBox actionPanel = rulesForm(courseList, moduleList, setCourseBtn, setModuleBtn);
         actionPanel.setAlignment(Pos.CENTER);
 
@@ -720,8 +723,8 @@ public class ManagerUI extends UserUI{
         types.add("Number of Compensated Classes");
         VBox setRules = dropdownField("RULE TYPE", types);
 
-        VBox courseValue = textAndField("COURSE VALUE", valueCheck());
-        VBox moduleValue = textAndField("MODULE VALUE", valueCheck());
+        VBox courseValue = textAndField("COURSE VALUE", (obs, oldVal, newVal)-> checkRulesValidity("COURSE"));
+        VBox moduleValue = textAndField("MODULE VALUE", (obs, oldVal, newVal)-> checkRulesValidity("MODULE"));
 
         VBox courseDropdown = new VBox(courseDropdown("COURSE 1", courseList));
         VBox moduleDropdown = new VBox(moduleDropdown("MODULE 1", moduleList));
@@ -761,7 +764,7 @@ public class ManagerUI extends UserUI{
 
         VBox panelCourse = new VBox(setRules, courseValue, coursePanel, new VBox(inputText("COURSE CHECK"), course));
 
-        VBox panelModule = new VBox(setRules, moduleValue, modulePanel, new VBox(inputText("MODULE CHECK"), module));
+        VBox panelModule = new VBox(new Text("Max Number of Resits"), moduleValue, modulePanel, new VBox(inputText("MODULE CHECK"), module));
 
         panelCourse.setSpacing(10.0);
         panelCourse.setPadding(new Insets(10, 5, 10, 5));
@@ -786,7 +789,7 @@ public class ManagerUI extends UserUI{
         Label dropdownLabel = (Label) dropdown.getChildren().get(0);
         String dropdownFieldName = dropdownLabel.getText();
         ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
-        dropdownBox.valueProperty().addListener(onDropdownChange(dropdownFieldName, "COURSE"));
+        dropdownBox.valueProperty().addListener(onDropdownChangeCourse(dropdownFieldName, courseList));
         return dropdown;
     }
 
@@ -801,7 +804,7 @@ public class ManagerUI extends UserUI{
         Label dropdownLabel = (Label) dropdown.getChildren().get(0);
         String dropdownFieldName = dropdownLabel.getText();
         ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
-        dropdownBox.valueProperty().addListener(onDropdownChange(dropdownFieldName, "MODULE"));
+        dropdownBox.valueProperty().addListener(onDropdownChangeModule(dropdownFieldName, moduleList));
         return dropdown;
     }
 
@@ -851,8 +854,16 @@ public class ManagerUI extends UserUI{
             valuesChecked.add(currentCheck);
         }
 
+        String value = ((TextField)currentFields.get(type+" VALUE")).getText();
+
+        if((value.isEmpty() || !(value.matches("\\d+")) || Integer.parseInt(value) < 0 || Integer.parseInt(value) >5)){
+            currentText.get(type + " CHECK").setText("ERROR: VALUE MUST BE A NUMBER BETWEEN 1 AND 5");
+            currentButtons.get("SET " + type + " RULE").setDisable(true);
+            return;
+        }
+
         currentText.get(type+" CHECK").setText("");
-        currentButtons.get("SET COURSE RULE").setDisable(false);
+        currentButtons.get("SET "+type+" RULE").setDisable(false);
 
     }
 
@@ -872,12 +883,34 @@ public class ManagerUI extends UserUI{
 
     }
 
-    protected ChangeListener<String> onDropdownChange(String fieldChanged, String type){
+    protected ChangeListener<String> onDropdownChangeCourse(String fieldChanged, Map<String, Map <String,Boolean>> courseRules){
         return (observableValue, previousSelect, newSelect) -> {
             ComboBox dropdown = (ComboBox) currentFields.get(fieldChanged);
             dropdown.setValue(newSelect);
             currentFields.replace(fieldChanged, dropdown);
-            checkRulesValidity(type);
+
+            String ruleType = ((ComboBox) currentFields.get("RULE TYPE")).getValue().toString();
+
+            if(courseRules.get(newSelect).get(ruleType)){
+                makeNotificationModal("BE CAREFUL, THIS COURSE ALREADY HAS A RULE OF THE SAME TYPE.  \n REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
+            }
+
+            checkRulesValidity("COURSE");
+        };
+    }
+
+
+    protected ChangeListener<String> onDropdownChangeModule(String fieldChanged, Map <String,Boolean> moduleRules){
+        return (observableValue, previousSelect, newSelect) -> {
+            ComboBox dropdown = (ComboBox) currentFields.get(fieldChanged);
+            dropdown.setValue(newSelect);
+            currentFields.replace(fieldChanged, dropdown);
+
+            if(moduleRules.get(newSelect)){
+                makeNotificationModal("BE CAREFUL, THIS MODULE ALREADY HAS A RULE OF THE SAME TYPE.  \n REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
+            }
+
+            checkRulesValidity("COURSE");
         };
     }
 
@@ -891,12 +924,5 @@ public class ManagerUI extends UserUI{
         return appliedTo;
     }
 
-    private ChangeListener valueCheck(){
-        return new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observableValue, Object o, Object t1) {
 
-            }
-        };
-    }
 }
