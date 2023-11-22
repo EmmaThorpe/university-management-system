@@ -161,7 +161,7 @@ public class LecturerUI extends UserUI{
                         "Lab mark",
                         "MARK",
                         "LAB")
-        );
+        , true);
         return setMark;
     }
 
@@ -174,7 +174,7 @@ public class LecturerUI extends UserUI{
                         "Exam mark",
                         "MARK",
                         "EXAM")
-        );
+        , true);
         return setMark;
     }
 

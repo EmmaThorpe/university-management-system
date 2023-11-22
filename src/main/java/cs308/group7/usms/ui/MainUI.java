@@ -590,7 +590,7 @@ public class MainUI {
         return new VBox(label, field, inputText);
     }
 
-    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener){
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
         Label label=new Label(text);
         TextField field=new TextField(value);
         Text inputText = new Text();
@@ -601,12 +601,12 @@ public class MainUI {
 
         field.textProperty().addListener(listener);
 
-        validFields.put(text, false);
+        validFields.put(text, valid);
 
         return new VBox(label, field, inputText);
     }
 
-    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
+    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
         Label label=new Label(text);
         TextArea field=new TextArea(value);
         field.setWrapText(true);
@@ -620,7 +620,7 @@ public class MainUI {
 
         field.textProperty().addListener(listener);
 
-        validFields.put(text, false);
+        validFields.put(text, valid);
 
         return new VBox(label, field, inputText);
     }

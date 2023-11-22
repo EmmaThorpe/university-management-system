@@ -378,21 +378,24 @@ public class ManagerUI extends UserUI{
 
     private VBox editCourse(Map<String, String> currentCourse, List<String> department) {
         VBox setCode = setTextAndField("EDIT CODE", currentCourse.get("Id"),
-                lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "ADD"));
+                lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "EDIT"),
+                true);
         VBox setName = setTextAndField("EDIT NAME", currentCourse.get("Name"),
-                lengthCheck(1, 50,"EDIT NAME", "Name", "COURSE", "EDIT"));
+                lengthCheck(1, 50,"EDIT NAME", "Name", "COURSE", "EDIT"),
+                true);
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentCourse.get("Description"),
-                lengthCheck(1, 100, "EDIT DESCRIPTION", "Description", "COURSE", "EDIT"));
+                lengthCheck(1, 100, "EDIT DESCRIPTION", "Description", "COURSE", "EDIT"),
+                true);
         VBox setLevel = setTextAndField("EDIT LEVEL OF STUDY", currentCourse.get("Level"),
-                lengthCheck(1, 20, "EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"));
+                lengthCheck(1, 20, "EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"), true);
         VBox setYears = setTextAndField("EDIT LENGTH OF COURSE", currentCourse.get("Years"),
-                rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"));
+                rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"), true);
 
-        department.remove(currentCourse.get("Department"));
-        department.add(0, currentCourse.get("Department"));
-        VBox setDept = dropdownField("EDIT DEPARTMENT", department);
+       department.remove(currentCourse.get("Department"));
+       department.add(0, currentCourse.get("Department"));
+       VBox setDept = dropdownField("EDIT DEPARTMENT", department);
 
-        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
+        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);//, setDept);
         return container;
     }
 
