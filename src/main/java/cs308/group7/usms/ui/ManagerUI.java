@@ -684,6 +684,8 @@ public class ManagerUI extends UserUI{
         rules1.setSelected(true);
         ruleSelector.getChildren().add(rules1);
         ruleSelector.getChildren().add(rules2);
+        ruleSelector.setSpacing(20.0);
+        ruleSelector.setAlignment(Pos.BASELINE_CENTER);
 
         HBox.setHgrow(rules1, Priority.ALWAYS);
         HBox.setHgrow(rules2, Priority.ALWAYS);
@@ -703,38 +705,44 @@ public class ManagerUI extends UserUI{
 
 
         Button removeCourse = inputButton("REMOVE COURSE");
+        removeCourse.getStyleClass().add("panel-button-1");
         removeCourse.setOnAction(event -> removeDropdown(courseDropdown, "COURSE"));
 
-
         Button addCourse = inputButton("ADD COURSE");
+        addCourse.getStyleClass().add("panel-button-2");
         addCourse.setOnAction(event -> addDropdown(courseDropdown, courseList, moduleList, "COURSE"));
 
         removeCourse.setDisable(true);
 
         HBox courseButtons = new HBox(addCourse, removeCourse);
+        courseButtons.setSpacing(10.0);
+        courseButtons.setPadding(new Insets(5));
         VBox coursePanel = new VBox(courseDropdown, courseButtons);
 
         Button removeModule = inputButton("REMOVE MODULE");
+        removeModule.getStyleClass().add("panel-button-1");
         removeModule.setOnAction(event -> removeDropdown(moduleDropdown, "MODULE"));
 
         Button addModule = inputButton("ADD MODULE");
+        addModule.getStyleClass().add("panel-button-2");
         addModule.setOnAction(event -> addDropdown(moduleDropdown, courseList, moduleList, "MODULE"));
 
         removeModule.setDisable(true);
 
         HBox moduleButtons = new HBox(addModule, removeModule);
+        moduleButtons.setSpacing(10.0);
+        moduleButtons.setPadding(new Insets(5));
         VBox modulePanel = new VBox(moduleDropdown, moduleButtons);
-
 
         VBox panelCourse = new VBox(setRules, courseValue, coursePanel, new VBox(inputText("COURSE CHECK"), course));
 
         VBox panelModule = new VBox(setRules, moduleValue, modulePanel, new VBox(inputText("MODULE CHECK"), module));
 
-        panelCourse.setSpacing(20.0);
-        panelCourse.setPadding(new Insets(10, 2, 10, 2));
+        panelCourse.setSpacing(10.0);
+        panelCourse.setPadding(new Insets(10, 5, 10, 5));
 
-        panelModule.setSpacing(20.0);
-        panelModule.setPadding(new Insets(10, 2, 10, 2));
+        panelModule.setSpacing(10.0);
+        panelModule.setPadding(new Insets(10, 5, 10, 5));
 
         ScrollPane rulePanel = new ScrollPane(panelCourse);
 
