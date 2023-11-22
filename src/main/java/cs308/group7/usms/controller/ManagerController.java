@@ -17,7 +17,6 @@ import javafx.scene.control.TextField;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.sql.Date;
 
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_RESITS;
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_COMPENSATED_MODULES;
@@ -68,11 +67,10 @@ public class ManagerController{
                 break;
 
             case "MANAGE COURSES":
-                manUI.courses(getCourses(), getModules());
+                manUI.courses(getCourses(), getModules(), getDepartments());
                 buttons = manUI.getCurrentButtons();
-                // TODO UI CREW: add department number to addCourse
-                //buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("LENGTH OF COURSE")).getText())));
-                buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText()));
+                buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("SET CODE")).getText(), ((TextField)manUI.getCurrentFields().get("SET NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("SET DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("SET LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("SET LENGTH OF COURSE")).getText()), ((ComboBox)manUI.getCurrentFields().get("SET DEPARTMENT")).getValue().toString() ));
+                buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText(), ((ComboBox)manUI.getCurrentFields().get("EDIT DEPARTMENT")).getValue().toString()));
                 // TODO UI CREW: add sems + year to assignModuleCourse
                 // buttons.get("ASSIGN").setOnAction((event)-> assignModuleCourse(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString()));
                 break;
@@ -187,6 +185,7 @@ public class ManagerController{
                 courseDetailsMap.put("Description", cour.getDescription());
                 courseDetailsMap.put("Level", cour.getLevel());
                 courseDetailsMap.put("Years", String.valueOf(cour.getLength()));
+                courseDetailsMap.put("Department", "ABC1");   //todo actually make this work
                 modules.add(courseDetailsMap);
             }
 
@@ -286,6 +285,20 @@ public class ManagerController{
         catch(SQLException e){
             throw new RuntimeException(e);
         }
+    }
+
+
+    /**
+     * Gets a list of maps of department's name
+     *
+     * @return A lists containing the names of all departments
+     */
+    public List<String> getDepartments(){
+        List<String> temp = new ArrayList<>();
+        temp.add("ABC2");
+        temp.add("ABC3");
+        temp.add("ABC1");
+        return temp;
     }
 
     public String[] checkPassFail(Mark m){
@@ -589,9 +602,7 @@ public class ManagerController{
      * @param name
      * @param description
      */
-    // TODO: couldn't test this in the ui because of the following error on typing and/or submitting:
-    // Cannot invoke "java.lang.Boolean.booleanValue()" because the return value of "java.util.Map.get(Object)" is null
-    public void editCourse(String oldCode, String code, String name, String description, String level, String length){
+    public void editCourse(String oldCode, String code, String name, String description, String level, String length, String department){
         DatabaseConnection db = App.getDatabaseConnection();
         HashMap<String, String> values = new HashMap<>();
         values.put("CourseID", db.sqlString(code));
@@ -729,6 +740,7 @@ public class ManagerController{
          * @return Map of courses with a map of whether or not they have a rule set for the 2 different rule types
          */
         //TODO: i should check if this should look for active rules or all rules
+        // - It should look for active rules - matthew
         public Map<String, Map <String,Boolean>> getCourseRulesMap(){
             Map<String, Map<String,Boolean>> courseRules = new HashMap<>();
             boolean resitFlag = false;

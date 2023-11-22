@@ -394,9 +394,11 @@ public class UserUI extends MainUI{
                 listDetail("COURSE LENGTH", tempCourse.get("Years"))
         );
 
+        HBox col3 = new HBox(listDetail("Department", tempCourse.get("Department")));
+
         col1.setSpacing(5);
         col2.setSpacing(5);
-        return new VBox(idTitle, col1, col2);
+        return new VBox(idTitle, col1, col2, col3);
     }
 
     //user elements
