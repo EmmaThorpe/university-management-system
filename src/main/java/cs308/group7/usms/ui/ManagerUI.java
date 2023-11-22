@@ -1,13 +1,10 @@
 package cs308.group7.usms.ui;
 
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.geometry.Insets;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -35,27 +32,10 @@ public class ManagerUI extends UserUI{
         Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
 
-        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
-        mngBtns = stylePanelActions(mngBtns);
-
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
-        mainActionPanel.setAlignment(Pos.CENTER);
-
-        HBox actionPanel = new HBox(mainActionPanel);
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
+        createDashboard(mngBtns, toolbar);
     }
 
     /**
@@ -65,7 +45,7 @@ public class ManagerUI extends UserUI{
     public void accounts(List<HashMap<String, String>> accountList,  List<Map<String, String>> coursesList, List<Map<String, String>> moduleList)  {
         resetCurrentValues();
 
-        ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+        ArrayList<Button> accountBtnsList = new ArrayList<>();
 
         accountBtnsList.add(inputButton("ISSUE STUDENT DECISION"));
         Button assign = inputButton("ASSIGN LECTURER TO MODULE");
@@ -116,22 +96,12 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-    private EventHandler pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
+    private EventHandler<Event> pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             currentValues = new HashMap<>();
             currentValues.put("UserID", user.get("userID"));
 
-            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(
-                    user.get("userID"),
-                    user.get("managerID"),
-                    user.get("forename"),
-                    user.get("surname"),
-                    user.get("email"),
-                    user.get("DOB"),
-                    user.get("gender"),
-                    user.get("userType"),
-                    user.get("activated")
-            )));
+            setUserDetails(user, accDetails);
             ArrayList<Button> accountBtnsList = new ArrayList<>();
 
             if (user.get("userType").equals("STUDENT")) {
@@ -154,14 +124,8 @@ public class ManagerUI extends UserUI{
                 currentButtons.get("DEACTIVATE").setDisable(true);
             }
 
-            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
-            VBox accountBtnView = new VBox(accountBtns);
 
-            accountBtnView.setAlignment(Pos.CENTER);
-            accountBtnView.setSpacing(20.0);
-            accountBtnView.setPadding(new Insets(10));
-
-            VBox accountActionsDisplay = makeScrollablePart(accountBtnView);
+            VBox accountActionsDisplay = makeScrollablePart(createButtonsVBox(accountBtnsList));
 
             rightPanel.getChildren().set(0, accDetails);
             rightPanel.getChildren().set(1, accountActionsDisplay);
@@ -169,12 +133,16 @@ public class ManagerUI extends UserUI{
         };
     }
 
+    private void setUserDetails(HashMap<String, String> user, VBox accDetails) {
+        accDetails.getChildren().set(0, infoContainer(userDetailDisplay(user.get("userID"), user.get("managerID"), user.get("forename"), user.get("surname"), user.get("email"), user.get("DOB"), user.get("gender"), user.get("userType"), user.get("activated"))));
+    }
+
     /**
      * Account dashboard - modals
      **/
 
     private VBox enrolCourse(List<Map<String, String>> courses) {
-        List<String> courseNames = new ArrayList<String>();
+        List<String> courseNames = new ArrayList<>();
 
         for (Map<String, String> c : courses) {
             courseNames.add(c.get("Name"));
@@ -182,8 +150,7 @@ public class ManagerUI extends UserUI{
         VBox setCourse = dropdownField("COURSE TO ENROL TO",
                 courseNames);
 
-        VBox container = new VBox(setCourse);
-        return container;
+        return new VBox(setCourse);
     }
 
     private VBox assignModule(List<Map<String, String>> modules) {
@@ -194,8 +161,7 @@ public class ManagerUI extends UserUI{
         }
         VBox setCourse = dropdownField("MODULE TO ASSIGN", moduleNames);
 
-        VBox container = new VBox(setCourse);
-        return container;
+        return new VBox(setCourse);
     }
 
     /**
@@ -249,8 +215,7 @@ public class ManagerUI extends UserUI{
 
         VBox setDecision = dropdownField("DECISION TO ISSUE", awardOptions);
 
-        VBox container = new VBox(decisionInfo, setDecision);
-        return container;
+        return new VBox(decisionInfo, setDecision);
     }
 
     protected VBox decisionDisplay(String studentID, String decisionRec, String decisionReason) {
@@ -322,11 +287,10 @@ public class ManagerUI extends UserUI{
 
         VBox courseDetails = new VBox(levelDisplay, yearsDisplay);
         courseDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
-        return listButton;
+        return makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
     }
 
-    private EventHandler pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails,
+    private EventHandler<Event> pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails,
                                     List<String> departments, List<Map<String, String>> moduleList){
         return event -> {
             courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
@@ -338,16 +302,8 @@ public class ManagerUI extends UserUI{
             courseBtnsList.add(currentButtons.get("EDIT COURSE"));
             courseBtnsList.add(currentButtons.get("ASSIGN MODULE TO COURSE"));
 
-            Button[] courseBtns = courseBtnsList.toArray(new Button[0]);
-            courseBtns = stylePanelActions(courseBtns);
 
-            VBox courseBtnView = new VBox(courseBtns);
-
-            courseBtnView.setAlignment(Pos.CENTER);
-            courseBtnView.setSpacing(20.0);
-            courseBtnView.setPadding(new Insets(10));
-
-            VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
+            VBox courseActionsDisplay = makeScrollablePart(createButtonsVBox(courseBtnsList));
 
             setModalContent(currentModals.get("EDIT"), editCourse(tempCourse, departments));
             setModalContent(currentModals.get("ASSIGN"), assignCourseModule(moduleList,
@@ -377,8 +333,7 @@ public class ManagerUI extends UserUI{
                 rangeCheck(1, 5, "ADD LENGTH OF COURSE", "Length of course", "COURSE", "ADD"));
         VBox setDept = dropdownField("ADD DEPARTMENT", department);
 
-        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
-        return container;
+        return new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
     }
 
     private VBox editCourse(Map<String, String> currentCourse, List<String> department) {
@@ -400,15 +355,14 @@ public class ManagerUI extends UserUI{
        department.add(0, currentCourse.get("Department"));
        VBox setDept = dropdownField("EDIT DEPARTMENT", department);
 
-        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);//, setDept);
-        return container;
+        return new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
     }
 
-    // TODO UI CREW: add sems + year to assignModuleCourse
+
     private VBox assignCourseModule(List<Map<String, String>> modules, int years) {
-        List<String> moduleNames = new ArrayList<String>();
-        List<String> semOptions = new ArrayList<String>();
-        List<String> yearOptions = new ArrayList<String>();
+        List<String> moduleNames = new ArrayList<>();
+        List<String> semOptions = new ArrayList<>();
+        List<String> yearOptions = new ArrayList<>();
 
         for (Map<String, String> m : modules) {
             moduleNames.add(m.get("Name"));
@@ -428,8 +382,7 @@ public class ManagerUI extends UserUI{
         VBox setYear = dropdownField("SET YEAR",
                 yearOptions);
 
-        VBox container = new VBox(setCourse, setSem, setYear);
-        return container;
+        return new VBox(setCourse, setSem, setYear);
     }
 
 
@@ -481,7 +434,7 @@ public class ManagerUI extends UserUI{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
-    private EventHandler pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
+    private EventHandler<Event> pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {
             moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
 
@@ -492,18 +445,9 @@ public class ManagerUI extends UserUI{
             moduleBtnsList.add(currentButtons.get("ASSIGN MODULE TO LECTURER"));
             moduleBtnsList.add(currentButtons.get("UPDATE MODULE INFORMATION"));
 
-            Button[] moduleBtns = moduleBtnsList.toArray(new Button[0]);
-            moduleBtns = stylePanelActions(moduleBtns);
-
-            VBox moduleBtnView = new VBox(moduleBtns);
-
-            moduleBtnView.setAlignment(Pos.CENTER);
-            moduleBtnView.setSpacing(20.0);
-            moduleBtnView.setPadding(new Insets(10));
-
             setModalContent(currentModals.get("EDIT"), editModule(tempModule));
 
-            VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
+            VBox courseActionsDisplay = makeScrollablePart(createButtonsVBox(moduleBtnsList));
 
             rightPanel.getChildren().set(0, moduleDetails);
             rightPanel.getChildren().set(1, courseActionsDisplay);
@@ -524,20 +468,18 @@ public class ManagerUI extends UserUI{
         VBox setCredits = textAndField("ADD CREDITS",
                 rangeCheck(10, 60,"ADD CREDITS", "Credits", "MODULE", "ADD"));
 
-        VBox container = new VBox(setCode, setName, setDesc, setCredits);
-        return container;
+        return new VBox(setCode, setName, setDesc, setCredits);
     }
 
     private VBox assignModuleLecturers(List<Map<String, String>> lecturers) {
-        List<String> lecturersList = new ArrayList<String>();
+        List<String> lecturersList = new ArrayList<>();
 
         for (Map<String, String> lec : lecturers) {
             lecturersList.add(lec.get("Name"));
         }
         VBox setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
 
-        VBox container = new VBox(setCourse);
-        return container;
+        return new VBox(setCourse);
     }
 
     /**
@@ -547,7 +489,7 @@ public class ManagerUI extends UserUI{
     public void signups(List<HashMap<String, String>> accountList)  {
         resetCurrentValues();
 
-        ArrayList<Button> accountBtnsList = new ArrayList<Button>();
+        ArrayList<Button> accountBtnsList = new ArrayList<>();
 
         accountBtnsList.add(inputButton("APPROVE SIGN UP"));
 
@@ -587,22 +529,13 @@ public class ManagerUI extends UserUI{
     }
 
 
-    private EventHandler pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
+    private EventHandler<Event> pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
 
             currentValues.put("ID", user.get("userID"));
-            accDetails.getChildren().set(0, infoContainer(userDetailDisplay(
-                    user.get("userID"),
-                    user.get("managerID"),
-                    user.get("forename"),
-                    user.get("surname"),
-                    user.get("email"),
-                    user.get("DOB"),
-                    user.get("gender"),
-                    user.get("userType"),
-                    user.get("activated")
-            )));
+            setUserDetails(user, accDetails);
             ArrayList<Button> accountBtnsList = new ArrayList<>();
+
             accountBtnsList.add(currentButtons.get("APPROVE SIGN UP"));
 
             Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
@@ -718,7 +651,7 @@ public class ManagerUI extends UserUI{
         HBox.setHgrow(rules1, Priority.ALWAYS);
         HBox.setHgrow(rules2, Priority.ALWAYS);
 
-        List types = new ArrayList<>();
+        List<String> types = new ArrayList<>();
         types.add("Max Number Of Resits");
         types.add("Number of Compensated Classes");
         VBox setRules = dropdownField("RULE TYPE", types);
@@ -726,8 +659,8 @@ public class ManagerUI extends UserUI{
         VBox courseValue = textAndField("COURSE VALUE", (obs, oldVal, newVal)-> checkRulesValidity("COURSE"));
         VBox moduleValue = textAndField("MODULE VALUE", (obs, oldVal, newVal)-> checkRulesValidity("MODULE"));
 
-        VBox courseDropdown = new VBox(courseDropdown("COURSE 1", courseList));
-        VBox moduleDropdown = new VBox(moduleDropdown("MODULE 1", moduleList));
+        VBox courseDropdown = new VBox(dropdownCreator(true, "COURSE 1", courseList, null));
+        VBox moduleDropdown = new VBox(dropdownCreator(false, "MODULE 1", null, moduleList));
         currentValues.put("AMOUNT OF COURSE", "1");
         currentValues.put("AMOUNT OF MODULE", "1");
 
@@ -779,32 +712,30 @@ public class ManagerUI extends UserUI{
         return makePanel(new VBox( ruleSelector, rulePanel));
     }
 
-    private VBox courseDropdown(String name, Map<String, Map<String, Boolean>> courseList){
-        ArrayList<String> fields = new ArrayList<>();
-        for(String course: courseList.keySet()){
-            fields.add(course);
+
+
+
+
+    private VBox dropdownCreator(Boolean course, String name, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
+        ArrayList<String> fields;
+        if(course){
+            fields = new ArrayList<>(courseList.keySet());
+        }else{
+            fields = new ArrayList<>(moduleList.keySet());
         }
 
         VBox dropdown = dropdownField(name, fields);
         Label dropdownLabel = (Label) dropdown.getChildren().get(0);
         String dropdownFieldName = dropdownLabel.getText();
         ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
-        dropdownBox.valueProperty().addListener(onDropdownChangeCourse(dropdownFieldName, courseList));
-        return dropdown;
-    }
 
+        if(course){
+            dropdownBox.valueProperty().addListener(onDropdownChangeCourse(dropdownFieldName, courseList));
 
+        }else{
+            dropdownBox.valueProperty().addListener(onDropdownChangeModule(dropdownFieldName, moduleList));
 
-    private VBox moduleDropdown(String name, Map<String, Boolean> moduleList){
-        ArrayList<String> fields = new ArrayList<>();
-        for(String module: moduleList.keySet()){
-            fields.add(module);
         }
-        VBox dropdown = dropdownField(name, fields);
-        Label dropdownLabel = (Label) dropdown.getChildren().get(0);
-        String dropdownFieldName = dropdownLabel.getText();
-        ComboBox dropdownBox = (ComboBox) dropdown.getChildren().get(1);
-        dropdownBox.valueProperty().addListener(onDropdownChangeModule(dropdownFieldName, moduleList));
         return dropdown;
     }
 
@@ -812,9 +743,9 @@ public class ManagerUI extends UserUI{
         String newVal = String.valueOf(Integer.parseInt(currentValues.get("AMOUNT OF "+type))+1);
 
         if(type.equals("COURSE")){
-            panel.getChildren().add(courseDropdown(type+ " " +newVal, courseList));
+            panel.getChildren().add(dropdownCreator(true, type+ " " +newVal, courseList, null));
         }else{
-            panel.getChildren().add(moduleDropdown(type+ " " +newVal, moduleList));
+            panel.getChildren().add(dropdownCreator(false, type+ " " +newVal, null, moduleList));
         }
 
         currentButtons.get("REMOVE "+type).setDisable(false);
@@ -871,7 +802,7 @@ public class ManagerUI extends UserUI{
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {
                 previousToggle.setSelected(true);
-            } else if (newToggle != null && previousToggle != null) {
+            } else if(previousToggle != null) {
                 if (newToggle.getUserData() == "Course Rules"){
                     ruleContent.setContent(courseContent);
                 } else {
