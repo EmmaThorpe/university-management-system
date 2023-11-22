@@ -600,17 +600,15 @@ public class ManagerUI extends UserUI{
         resetCurrentValues();
         Button addRuleBtn = inputButton("ADD BUSINESS RULE");
 
-        VBox actionPanel = makePanelWithAction(
-                listOfRules(activatedBusinessRules, associatedOfRules),
-                addRuleBtn
-        );
+        VBox actionPanel = listOfRules(activatedBusinessRules, associatedOfRules, addRuleBtn);
 
         singlePanelLayout(actionPanel, "MANAGE BUSINESS RULES");
     }
 
 
 
-    private VBox listOfRules(List<Map<String, String>> activatedBusinessRules, Map<String, List<String>> associatedOfRules){
+    private VBox listOfRules(List<Map<String, String>> activatedBusinessRules,
+                             Map<String, List<String>> associatedOfRules, Button addBtn){
 
         VBox panelActivated = new VBox();
 
@@ -624,7 +622,8 @@ public class ManagerUI extends UserUI{
         panelActivated.setSpacing(20.0);
         panelActivated.setPadding(new Insets(10, 2, 10, 2));
 
-        return panelActivated;
+        ScrollPane rules = new ScrollPane(panelActivated);
+        return makeScrollablePanelWithAction(rules, addBtn);
     }
 
 
@@ -647,17 +646,15 @@ public class ManagerUI extends UserUI{
         HBox activatedDisplay = new HBox();
         activatedDisplay.getChildren().add(activeDetail("Activated", true));
 
-        VBox activatedDetails = new VBox(typeDisplay, associatedDisplay, activatedDisplay);
+        VBox ruleDetails = new VBox(typeDisplay, associatedDisplay, activatedDisplay);
 
-        activatedDetails.setSpacing(5.0);
+        ruleDetails.setSpacing(3.0);
 
-        HBox listButton = new HBox(activatedDetails);
+        HBox listButton = new HBox(ruleDetails);
         listButton.setAlignment(Pos.CENTER);
         listButton.setSpacing(20.0);
-        listButton.setPadding(new Insets(10));
+        listButton.setPadding(new Insets(15));
         listButton.getStyleClass().add("list-button");
-
-        HBox.setHgrow(activatedDetails, Priority.ALWAYS);
 
         return listButton;
     }
