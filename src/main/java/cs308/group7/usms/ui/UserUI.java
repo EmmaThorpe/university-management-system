@@ -23,6 +23,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -661,6 +662,40 @@ public class UserUI extends MainUI{
         weekDetails.setSpacing(5.0);
         HBox listButton = makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
         return listButton;
+    }
+
+    protected void createDashboard(Button[] mngBtns, HBox toolbar){
+        mngBtns = stylePanelActions(mngBtns);
+
+        VBox mainActionPanel = makePanel(new VBox(mngBtns));
+        mainActionPanel.setAlignment(Pos.CENTER);
+
+        HBox actionPanel = new HBox(mainActionPanel);
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        BorderPane root = new BorderPane(actionPanel);
+        root.setTop(toolbar);
+        BorderPane.setMargin(toolbar, new Insets(15));
+        BorderPane.setMargin(actionPanel, new Insets(15));
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
+    protected VBox createButtonsVBox(ArrayList<Button> btnsList){
+        Button[] btns = btnsList.toArray(new Button[0]);
+        btns = stylePanelActions(btns);
+
+        VBox btnView = new VBox(btns);
+
+        btnView.setAlignment(Pos.CENTER);
+        btnView.setSpacing(20.0);
+        btnView.setPadding(new Insets(10));
+
+        return btnView;
     }
 
 
