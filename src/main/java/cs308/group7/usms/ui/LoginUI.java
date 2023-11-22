@@ -70,8 +70,8 @@ public class LoginUI extends MainUI{
         VBox formFields = new VBox(userField, emailField, nameField, passwordField, confirmPasswordField);
         formFields.setPadding(new Insets(5));
         formFields.setSpacing(5);
-
         ScrollPane fieldScroll = new ScrollPane(formFields);
+        fieldScroll.setFitToWidth(true);
 
         userSelected.selectedToggleProperty().addListener(toggleUser(fieldScroll, qualificationField));
 
@@ -84,7 +84,7 @@ public class LoginUI extends MainUI{
         returnBtn.getStyleClass().add("outline-button");
 
         VBox formContent = new VBox(fieldScroll);
-        formContent.setAlignment(Pos.BASELINE_CENTER);
+        formContent.setAlignment(Pos.CENTER);
         HBox formBtns = bottomButtons(new HBox(Submit, returnBtn));
 
         createScene("SIGN UP", formContent, formBtns);

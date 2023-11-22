@@ -46,6 +46,8 @@ public class MainUI {
     public void displayFirstScene() {
         Application.setUserAgentStylesheet(css);
         currentStage.setScene(currScene);
+        currentStage.setWidth(1196);
+        currentStage.setHeight(672);
         currentStage.showAndWait();
 
     }
@@ -55,7 +57,8 @@ public class MainUI {
      */
     public void displayScene() {
         currentStage.setScene(currScene);
-
+        currentStage.setWidth(1196);
+        currentStage.setHeight(672);
     }
 
     /**

@@ -72,7 +72,11 @@ public class ManagerController{
                 buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("SET CODE")).getText(), ((TextField)manUI.getCurrentFields().get("SET NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("SET DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("SET LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("SET LENGTH OF COURSE")).getText()), ((ComboBox)manUI.getCurrentFields().get("SET DEPARTMENT")).getValue().toString() ));
                 buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText(), ((ComboBox)manUI.getCurrentFields().get("EDIT DEPARTMENT")).getValue().toString()));
                 // TODO UI CREW: add sems + year to assignModuleCourse
-                // buttons.get("ASSIGN").setOnAction((event)-> assignModuleCourse(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString()));
+                // TODO: I have done it in manager UI and updated the event call method as needed
+                //buttons.get("ASSIGN").setOnAction((event)-> assignCourseModule(manUI.getValues().get("ID"),
+                //        ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString()),
+                //        ((ComboBox)manUI.getCurrentFields().get("SET SEMESTER")).getValue().toString()),
+                //        ((ComboBox)manUI.getCurrentFields().get("SET YEAR")).getValue().toString()));
                 break;
 
             case "MANAGE MODULES":
@@ -617,7 +621,6 @@ public class ManagerController{
             throw new RuntimeException(e);
         }
     }
-
 
     /**Add a module
      * @param code

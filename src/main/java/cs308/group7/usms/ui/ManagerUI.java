@@ -282,7 +282,7 @@ public class ManagerUI extends UserUI{
 
         makeModal( add, "ADD", addCourse(departmentList),  true);
         makeModal( edit, "EDIT", new VBox(),  false);
-        makeModal(assign, "ASSIGN", assignCourseModule(moduleList), false);
+        makeModal(assign, "ASSIGN", new VBox(), false);
 
         VBox courseDetails = new VBox(new VBox());
 
@@ -290,11 +290,13 @@ public class ManagerUI extends UserUI{
         rightActionPanel.getChildren().add(0, courseDetails);
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseDetails, departmentList);
+        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseDetails, departmentList,
+                moduleList);
         twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
     }
 
-    private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel, VBox courseDetails, List<String> departmentList){
+    private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel,
+                               VBox courseDetails, List<String> departmentList, List<Map<String, String>> moduleList){
         VBox panel = new VBox();
         HBox tempButton;
         for (Map<String, String> course : courseList) {
@@ -303,7 +305,7 @@ public class ManagerUI extends UserUI{
                     course.get("Level"),
                     course.get("Years")
             );
-            tempButton.setOnMouseClicked(pickCourse(course, rightPanel, courseDetails, departmentList));
+            tempButton.setOnMouseClicked(pickCourse(course, rightPanel, courseDetails, departmentList, moduleList));
             panel.getChildren().add(tempButton);
         }
 
@@ -324,7 +326,8 @@ public class ManagerUI extends UserUI{
         return listButton;
     }
 
-    private EventHandler pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails, List<String> departments){
+    private EventHandler pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails,
+                                    List<String> departments, List<Map<String, String>> moduleList){
         return event -> {
             courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
 
@@ -347,6 +350,8 @@ public class ManagerUI extends UserUI{
             VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
 
             setModalContent(currentModals.get("EDIT"), editCourse(tempCourse, departments));
+            setModalContent(currentModals.get("ASSIGN"), assignCourseModule(moduleList,
+                    Integer.parseInt(tempCourse.get("Years"))));
 
             rightPanel.getChildren().set(0, courseDetails);
             rightPanel.getChildren().set(1, courseActionsDisplay);
@@ -399,8 +404,11 @@ public class ManagerUI extends UserUI{
         return container;
     }
 
-    private VBox assignCourseModule(List<Map<String, String>> modules) {
+    // TODO UI CREW: add sems + year to assignModuleCourse
+    private VBox assignCourseModule(List<Map<String, String>> modules, int years) {
         List<String> moduleNames = new ArrayList<String>();
+        List<String> semOptions = new ArrayList<String>();
+        List<String> yearOptions = new ArrayList<String>();
 
         for (Map<String, String> m : modules) {
             moduleNames.add(m.get("Name"));
@@ -408,7 +416,19 @@ public class ManagerUI extends UserUI{
         VBox setCourse = dropdownField("MODULE TO ASSIGN TO",
                 moduleNames);
 
-        VBox container = new VBox(setCourse);
+        semOptions.add("Semester 1");
+        semOptions.add("Semester 2");
+        semOptions.add("Semester 1 and 2");
+        VBox setSem = dropdownField("SET SEMESTER",
+                semOptions);
+
+        for (int i = 1; i <= years; i++) {
+            yearOptions.add(String.valueOf(i));
+        }
+        VBox setYear = dropdownField("SET YEAR",
+                yearOptions);
+
+        VBox container = new VBox(setCourse, setSem, setYear);
         return container;
     }
 
