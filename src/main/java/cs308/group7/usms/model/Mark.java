@@ -223,9 +223,4 @@ public class Mark {
         return labCompensation || examCompensation;
     }
 
-    public boolean passes() throws IllegalStateException {
-        if(labMark == null || examMark == null) throw new IllegalStateException("Cannot check if mark passes if it is incomplete!");
-        return ((labMark + examMark) / 2.0) >= 40;
-    }
-
 }

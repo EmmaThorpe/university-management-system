@@ -2,11 +2,8 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
-<<<<<<< src/main/java/cs308/group7/usms/model/User.java
 import org.jetbrains.annotations.Nullable;
-=======
 import cs308.group7.usms.utils.Password;
->>>>>>> src/main/java/cs308/group7/usms/model/User.java
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.Date;
@@ -129,7 +126,6 @@ public class User {
         }
     }
 
-<<<<<<< src/main/java/cs308/group7/usms/model/User.java
     /**
      * Sets the user to deactivated
      * @return Whether the operation was successful
@@ -164,7 +160,6 @@ public class User {
         }
     }
 
-=======
     public boolean changePassword(String currentPass, String newPass) {
         final boolean AUTHORISED = Password.matches(currentPass, encryptedPassword);
         if (!AUTHORISED) {
@@ -185,7 +180,6 @@ public class User {
             System.out.println("Failed to change password for user " + userID + "!");
             return false;
         }
->>>>>>> src/main/java/cs308/group7/usms/model/User.java
     }
 
 }

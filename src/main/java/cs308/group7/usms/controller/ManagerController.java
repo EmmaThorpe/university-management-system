@@ -404,11 +404,7 @@ public class ManagerController{
                 String[] passFail;
 
                 try {
-                    if (m.passes()) {
-                        passFail = new String[]{"grade", "PASS"};
-                    } else {
-                        passFail = new String[]{"grade", "FAIL"};
-                    }
+                    passFail = new String[]{"grade", (m.passes()) ? "PASS" : "FAIL"};
                 }
                 catch(IllegalStateException e){
                     passFail = new String[]{"grade", "N/A"};
