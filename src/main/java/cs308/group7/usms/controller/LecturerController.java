@@ -36,7 +36,7 @@ public class LecturerController{
     }
 
 
-    public void pageSetter(String page, Boolean initial) throws SQLException {
+    public void pageSetter(String page, Boolean initial) {
         Map<String, Button> buttons = null;
         switch (page){
             case "DASHBOARD":
@@ -50,7 +50,9 @@ public class LecturerController{
 
                 break;
             case "VIEW MODULE":
-                lecUI.module(getModuleInformation());
+                try{
+                    lecUI.module(getModuleInformation());
+                }catch(java.sql.SQLException e){};
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("EDIT").setOnAction((event)-> editModule(
                         lecUI.getValues().get("ID"),
@@ -62,7 +64,12 @@ public class LecturerController{
                 );
                 break;
             case "GIVE MARK":
-                lecUI.mark(getEnrolledStudents());
+                try{
+                    lecUI.mark(getEnrolledStudents());
+                }catch(java.sql.SQLException e){
+
+                }
+
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("ASSIGN LAB MARK").setOnAction(
                         (event)->
@@ -88,7 +95,13 @@ public class LecturerController{
                 break;
 
             case "MATERIALS":
-                lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+                try{
+                    lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+
+                }
+                catch(java.sql.SQLException e){
+
+                }
                 buttons = lecUI.getCurrentButtons();
                 buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
                 buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
