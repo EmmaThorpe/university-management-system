@@ -52,7 +52,7 @@ public class ManagerController{
             case "MANAGE ACCOUNTS":
                 manUI.accounts(getUsers(), getCourses(), getModules());
                 buttons = manUI.getCurrentButtons();
-                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID")));
+                buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID"), userID));
                 buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
                 buttons.get("RESET USER PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
                 buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
@@ -88,13 +88,14 @@ public class ManagerController{
             case "MANAGE SIGN-UP WORKFLOW":
                 manUI.signups(getUnapprovedUsers(getUsers()));
                 buttons = manUI.getCurrentButtons();
-                buttons.get("APPROVE SIGN UP").setOnAction((event)-> activateUser(manUI.getValues().get("ID")));
+                buttons.get("APPROVE SIGN UP").setOnAction((event)-> activateUser(manUI.getValues().get("ID"), userID));
 
                 break;
 
             case "MANAGE BUSINESS RULES":
                 manUI.manageBusinessRules(getActivatedBusinessRules(), getAssociatedOfRules());
                 buttons = manUI.getCurrentButtons();
+                buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
                 buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
                 break;
 
@@ -137,7 +138,50 @@ public class ManagerController{
                 User acc = new User(result.getString("UserID"));
                 HashMap<String, String> userDetailsMap = new HashMap<>();
                 userDetailsMap.put("userID", acc.getUserID());
-                userDetailsMap.put("managerID", acc.getManager().getUserID());
+                try {
+                    User m = acc.getManager();
+                    userDetailsMap.put("managerID", m.getUserID());
+                }
+                catch(SQLException e){
+                    userDetailsMap.put("managerID", "N/A");
+                }
+                userDetailsMap.put("forename", acc.getForename());
+                userDetailsMap.put("surname", acc.getSurname());
+                userDetailsMap.put("email", acc.getEmail());
+                userDetailsMap.put("DOB", acc.getDOB().toString());
+                userDetailsMap.put("gender", acc.getGender());
+                userDetailsMap.put("userType", acc.getType().toString());
+                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
+                users.add(userDetailsMap);
+            }
+
+            return users;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** Gets all the users that the manager manages
+     * @return List of maps with user fields and their values (eg: forename, "john")
+     */
+    public List <HashMap <String, String>> getManagedUsers(String managerID) {
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, new String[]{"ManagedBy = " + db.sqlString(managerID)});
+            List<HashMap<String, String>> users = new ArrayList<>();
+
+            while(result.next()){
+                User acc = new User(result.getString("UserID"));
+                HashMap<String, String> userDetailsMap = new HashMap<>();
+                userDetailsMap.put("userID", acc.getUserID());
+                try {
+                    User m = acc.getManager();
+                    userDetailsMap.put("managerID", m.getUserID());
+                }
+                catch(SQLException e){
+                    userDetailsMap.put("managerID", "N/A");
+                }
                 userDetailsMap.put("forename", acc.getForename());
                 userDetailsMap.put("surname", acc.getSurname());
                 userDetailsMap.put("email", acc.getEmail());
@@ -200,7 +244,7 @@ public class ManagerController{
     /**
      * Gets a list of all modules
      *
-     * @return List of maps containg module info
+     * @return List of maps containing module info
      */
     public List<Map<String, String>> getModules(){
         DatabaseConnection db = App.getDatabaseConnection();
@@ -300,7 +344,14 @@ public class ManagerController{
             User acc = new User(userID);
             HashMap<String, String> user = new HashMap<>();
             user.put("userID", acc.getUserID());
-            user.put("managerID", acc.getManager().getUserID());
+            try {
+                User m = acc.getManager();
+                user.put("managerID", m.getUserID());
+            }
+            catch(SQLException e){
+                user.put("managerID", "N/A");
+            }
+
             user.put("forename", acc.getForename());
             user.put("surname", acc.getSurname());
             user.put("email", acc.getEmail());
@@ -350,7 +401,19 @@ public class ManagerController{
                 markDetailsMap.put("exam", String.valueOf(examMark));
                 markDetailsMap.put("attempt", String.valueOf(m.getAttemptNo()));
 
-                String[] passFail = checkPassFail(m);
+                String[] passFail;
+
+                try {
+                    if (m.passes()) {
+                        passFail = new String[]{"grade", "PASS"};
+                    } else {
+                        passFail = new String[]{"grade", "FAIL"};
+                    }
+                }
+                catch(IllegalStateException e){
+                    passFail = new String[]{"grade", "N/A"};
+                }
+
                 markDetailsMap.put(passFail[0], passFail[1]);
 
                 marks.add(markDetailsMap);
@@ -369,7 +432,7 @@ public class ManagerController{
      *
      * @return An arraylist of strings
      * where the first element (key) has the decision made and the second (value) has the reason for the decision
-     * (this return value can be altered but the reason and the award type must be accessible as seperate strings to be passed into the issueStudentDecision method)
+     * (this return value can be altered but the reason and the award type must be accessible as separate strings to be passed into the issueStudentDecision method)
      */
     //this thing chugs really badly i'm so sorry
     public ArrayList<String> getDecisionRec(String userID) {
@@ -452,16 +515,17 @@ public class ManagerController{
     }
 
 
-    /**Takes in a userID and activates the user
+    /**Takes in a userID and activates the user; assigns the manager to the user
      * @param userID
+     * @param managerID
      */
-    public void activateUser(String userID) {
-        System.out.println(userID);
+    public void activateUser(String userID, String managerID) {
         try {
             User u = new User(userID);
             boolean success = u.setActivated();
 
             if (success) {
+                u.setManager(managerID);
                 pageSetter("MANAGE ACCOUNTS", false);
                 manUI.makeNotificationModal("Account successfully activated", true);
             } else {
@@ -499,7 +563,6 @@ public class ManagerController{
      * @param userID
      * @param password
      */
-    // TODO: erm password stuff
     public void resetPassword(String userID, String password){
         System.out.println(userID + " " +password);
     }
@@ -681,7 +744,6 @@ public class ManagerController{
         /**
          * @return A list of a map containing all the details of each activated business rules
          */
-        // TODO model crew: i should ask if there's a better way to do these two using the business rule methods
         public List<Map<String, String>> getActivatedBusinessRules(){
             DatabaseConnection db = App.getDatabaseConnection();
             try {

@@ -2,6 +2,7 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
+import org.jetbrains.annotations.Nullable;
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.Date;
@@ -17,7 +18,7 @@ public class User {
     }
 
     private final String userID;
-    private final String managedBy;
+    private String managedBy;
     private final String forename;
     private final String surname;
     private final String email;
@@ -88,6 +89,7 @@ public class User {
      * Gets the manager of the user
      * @throws SQLException If the manager does not exist
      */
+    @Nullable
     public User getManager() throws SQLException { return new User(managedBy); }
 
     public String getForename() { return forename; }
@@ -131,7 +133,25 @@ public class User {
         try {
             return activated = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
         } catch (SQLException e) {
-            System.out.println("Failed to set user " + userID + " to activated!");
+            System.out.println("Failed to set user " + userID + " to deactivated!");
+            return false;
+        }
+    }
+
+    /**
+     * Sets the user's managedBy
+     * @return Whether the operation was successful
+     */
+    public boolean setManager(String managerID) {
+        DatabaseConnection db = App.getDatabaseConnection();
+        HashMap<String, String> values = new HashMap<>();
+        values.put("ManagedBy", db.sqlString(managerID));
+        try {
+            db.update("Users", values, new String[]{"UserID = '" + userID + "'"});
+            managedBy = managerID;
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Failed to set user " + userID + "'s manager!");
             return false;
         }
     }
