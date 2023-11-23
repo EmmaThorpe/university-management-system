@@ -210,7 +210,7 @@ public class UserUI extends MainUI{
     }
     private void checkValidCourseFields(String type, Boolean value, String manipulation){
         boolean disabled;
-        validFields.put(type, value);
+       validFields.put(type, value);
         disabled = !validFields.get(manipulation + " CODE")
                 || !validFields.get(manipulation + " NAME")
                 || !validFields.get(manipulation + " DESCRIPTION")

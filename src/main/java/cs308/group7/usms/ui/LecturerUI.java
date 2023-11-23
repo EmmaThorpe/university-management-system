@@ -139,8 +139,8 @@ public class LecturerUI extends UserUI{
 
             VBox studentActionsDisplay = makeScrollablePart(studentBtnView);
 
-            setModalContent(currentModals.get("ASSIGN LAB MARK"), setLabMark(user));
-            setModalContent(currentModals.get("ASSIGN EXAM MARK"), setExamMark(user));
+            setModalContent("ASSIGN LAB MARK", setLabMark(user));
+            setModalContent("ASSIGN EXAM MARK", setExamMark(user));
 
             rightPanel.getChildren().set(0, accDetails);
             rightPanel.getChildren().set(1, studentActionsDisplay);

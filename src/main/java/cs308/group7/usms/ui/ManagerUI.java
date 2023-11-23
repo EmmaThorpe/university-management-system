@@ -349,8 +349,8 @@ public class ManagerUI extends UserUI{
 
             VBox courseActionsDisplay = makeScrollablePart(courseBtnView);
 
-            setModalContent(currentModals.get("EDIT"), editCourse(tempCourse, departments));
-            setModalContent(currentModals.get("ASSIGN"), assignCourseModule(moduleList,
+            setModalContent("EDIT", editCourse(tempCourse, departments));
+            setModalContent("ASSIGN", assignCourseModule(moduleList,
                     Integer.parseInt(tempCourse.get("Years"))));
 
             rightPanel.getChildren().set(0, courseDetails);
@@ -400,7 +400,7 @@ public class ManagerUI extends UserUI{
        department.add(0, currentCourse.get("Department"));
        VBox setDept = dropdownField("EDIT DEPARTMENT", department);
 
-        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears);//, setDept);
+        VBox container = new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
         return container;
     }
 
@@ -431,10 +431,6 @@ public class ManagerUI extends UserUI{
         VBox container = new VBox(setCourse, setSem, setYear);
         return container;
     }
-
-
-
-
 
     /**
      * Modules Dashboard
@@ -501,7 +497,7 @@ public class ManagerUI extends UserUI{
             moduleBtnView.setSpacing(20.0);
             moduleBtnView.setPadding(new Insets(10));
 
-            setModalContent(currentModals.get("EDIT"), editModule(tempModule));
+            setModalContent("EDIT", editModule(tempModule));
 
             VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
 
@@ -892,7 +888,8 @@ public class ManagerUI extends UserUI{
             String ruleType = ((ComboBox) currentFields.get("RULE TYPE")).getValue().toString();
 
             if(courseRules.get(newSelect).get(ruleType)){
-                makeNotificationModal("BE CAREFUL, THIS COURSE ALREADY HAS A RULE OF THE SAME TYPE.  \n REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
+                makeNotificationModal(null, "BE CAREFUL, THIS COURSE ALREADY HAS A RULE OF THE SAME TYPE.  \n " +
+                        "REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
             }
 
             checkRulesValidity("COURSE");
@@ -907,7 +904,8 @@ public class ManagerUI extends UserUI{
             currentFields.replace(fieldChanged, dropdown);
 
             if(moduleRules.get(newSelect)){
-                makeNotificationModal("BE CAREFUL, THIS MODULE ALREADY HAS A RULE OF THE SAME TYPE.  \n REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
+                makeNotificationModal(null, "BE CAREFUL, THIS MODULE ALREADY HAS A RULE OF THE SAME TYPE.  \n " +
+                        "REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
             }
 
             checkRulesValidity("COURSE");

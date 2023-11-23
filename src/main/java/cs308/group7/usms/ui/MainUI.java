@@ -310,7 +310,11 @@ public class MainUI {
 
 
 
-    public void makeNotificationModal(String modalContent, boolean isSuccess) {
+    public void makeNotificationModal(String openedModal,String modalContent, boolean isSuccess) {
+        if (openedModal != null) {
+            closeOpenedModal(openedModal);
+        }
+
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -359,12 +363,17 @@ public class MainUI {
         modal.showAndWait();
     }
 
-
-
-
-    protected void setModalContent(Dialog modal, VBox updateContent){
+    protected void setModalContent(String modalName, VBox updateContent){
+        Dialog modal = currentModals.get(modalName);
         VBox modalContent = (VBox) modal.getDialogPane().getContent();
         modalContent.getChildren().set(0, updateContent);
+        currentModals.replace(modalName, modal);
+    }
+
+    protected void closeOpenedModal(String modalKey) {
+        Scene scene = currentModals.get(modalKey).getDialogPane().getScene();
+        Window currentModalWindow = currentModals.get(modalKey).getDialogPane().getScene().getWindow();
+        currentModalWindow.hide();
     }
 
     protected HBox modalButtonBar(Button action, DialogPane modal){
