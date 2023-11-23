@@ -30,8 +30,6 @@ public class MainUI {
 
     protected Map<String, Boolean> validFields;
 
-    protected Map<String, Dialog> currentModals;
-
     protected Map<String, String> currentValues;
 
     public Map<String, String> getValues(){
@@ -68,13 +66,7 @@ public class MainUI {
     }
 
 
-    public void resetCurrentValues(){
-        currentFields = new HashMap<>();
-        currentText = new HashMap<>();
-        currentButtons = new HashMap<>();
-        currentModals = new HashMap<>();
-        currentValues =  new HashMap<>();
-    }
+
 
 
     /**gets the text fields currently shown on the page being shown
@@ -96,23 +88,13 @@ public class MainUI {
 
     public Map<String, Button> getCurrentButtons(){return currentButtons;}
 
-    public Map<String, Dialog> getCurrentModals(){return currentModals;}
+
 
     /**
      * Global components to be used across multiple UIs
      **/
 
-    private VBox setTitle(String titleText) {
-        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        StackPane iconStack = makeCircleIcon(35, "login-back" ,appGraphic, "login-graphic");
 
-        Text titleName = new Text(titleText);
-        titleName.getStyleClass().add("login-title");
-
-        VBox title = new VBox(iconStack, titleName);
-        title.setAlignment(Pos.TOP_CENTER);
-        return title;
-    }
 
 
     protected ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
@@ -138,101 +120,6 @@ public class MainUI {
     }
 
 
-    protected VBox makePanel(VBox content) {
-        content.setPadding(new Insets(20));
-        content.setSpacing(20.0);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
-
-    protected VBox makeTopPanel(VBox content) {
-        content.setPadding(new Insets(10));
-        content.setSpacing(20.0);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("top-panel");
-
-        return panel;
-    }
-
-    protected VBox makePanelWithAction(VBox content, Button action) {
-        content.setPadding(new Insets(20));
-
-
-        return makePanelButtons(null, content, action);
-    }
-
-
-    protected VBox makeScrollablePanel(ScrollPane content) {
-        content.setPadding(new Insets(20));
-        content.fitToHeightProperty().set(true);
-        content.fitToWidthProperty().set(true);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
-
-    protected VBox makeScrollableBottomPanel(ScrollPane content) {
-        content.setPadding(new Insets(20));
-        content.fitToHeightProperty().set(true);
-        content.fitToWidthProperty().set(true);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("bottom-panel");
-
-        return panel;
-    }
-
-
-    protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
-        content.setPadding(new Insets(20));
-        content.fitToHeightProperty().set(true);
-        content.fitToWidthProperty().set(true);
-
-        return makePanelButtons(content, null, action);
-    }
-
-    private VBox makePanelButtons(ScrollPane contentPane, VBox contentVBox,  Button action){
-        HBox btnContainer = new HBox(action);
-        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
-        btnContainer.setPadding(new Insets(0, 0, 20, 0));
-
-        VBox panel;
-        if(contentVBox==null){
-            panel = new VBox(contentPane, btnContainer);
-        }else{
-            panel = new VBox(contentVBox, btnContainer);
-        }
-
-
-        panel.setSpacing(5);
-        panel.getStyleClass().add("panel");
-
-        return panel;
-    }
-
-    protected VBox makeScrollablePart(VBox content) {
-        ScrollPane scrollPart = new ScrollPane(content);
-        scrollPart.setPadding(new Insets(20));
-        scrollPart.fitToHeightProperty().set(true);
-        scrollPart.fitToWidthProperty().set(true);
-        return new VBox(scrollPart);
-    }
-
-
-    protected Button[] stylePanelActions (Button[] btns) {
-        int i = 0;
-        for (Button btn: btns) {
-            if (i % 2 == 0) {
-                btn.getStyleClass().add("panel-button-1");
-            } else {
-                btn.getStyleClass().add("panel-button-2");
-            }
-            i++;
-        }
-        return btns;
-    }
 
     public ComboBox makeDropdown(List<String> choices) {
         ComboBox choiceDropdown = new ComboBox();
@@ -241,6 +128,32 @@ public class MainUI {
         }
         choiceDropdown.getSelectionModel().select(0);
         return choiceDropdown;
+    }
+
+
+
+    public void createScene(String top, Pane mainContent, Pane bottom){
+        VBox title = setTitle(top);
+
+        BorderPane root = new BorderPane(mainContent);
+        root.setTop(title);
+        root.setBottom(bottom);
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
+    private VBox setTitle(String titleText) {
+        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
+        StackPane iconStack = makeCircleIcon(35, "login-back" ,appGraphic, "login-graphic");
+
+        Text titleName = new Text(titleText);
+        titleName.getStyleClass().add("login-title");
+
+        VBox title = new VBox(iconStack, titleName);
+        title.setAlignment(Pos.TOP_CENTER);
+        return title;
     }
 
     public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
@@ -252,134 +165,6 @@ public class MainUI {
         return iconStack;
     }
 
-    /*
-    Modal
-     */
-    protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
-        DialogPane modalDialog = new DialogPane();
-
-        modalDialog.getStyleClass().add("modal");
-
-        Text headerTitle = new Text(btnTxt.toUpperCase());
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox();
-        header.getStyleClass().add("modal-header");
-        header.setId("");
-
-
-        header.getChildren().add(headerTitle);
-        header.setSpacing(10);
-
-        modalDialog.setHeader(header);
-
-        Button actionBtn = inputButton(btnTxt.toUpperCase());
-
-        if(disabled){
-           actionBtn.setDisable(true);
-        }
-
-        HBox btnContainer = modalButtonBar(actionBtn, modalDialog);
-        VBox content = new VBox(modalContent, btnContainer);
-        content.setPadding(new Insets(10));
-        content.setAlignment(Pos.CENTER);
-
-        modalDialog.setContent(content);
-
-        Dialog modal = new Dialog();
-        modal.setDialogPane(modalDialog);
-        trigger.setOnAction(e -> modal.showAndWait());
-
-        Window modalWindow = modal.getDialogPane().getScene().getWindow();
-        modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
-
-        currentModals.put(btnTxt, modal);
-    }
-
-
-
-    public void makeNotificationModal(String openedModal,String modalContent, boolean isSuccess) {
-        if (openedModal != null) {
-            closeOpenedModal(openedModal);
-        }
-
-        DialogPane modalDialog = new DialogPane();
-
-        modalDialog.getStyleClass().add("modal");
-
-        Text headerTitle;
-
-        if(isSuccess){
-            headerTitle = new Text("SUCCESS");
-        }else{
-            headerTitle = new Text("ERROR");
-        }
-        headerTitle.getStyleClass().add("modal-header-text");
-        HBox header = new HBox();
-
-        FontIcon modalGraphic;
-        if (isSuccess) {
-            header.getStyleClass().add("modal-header-suc");
-            modalGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
-            modalGraphic.getStyleClass().add("modal-graphic");
-            header.getChildren().add(modalGraphic);
-            header.setId("SUCCESS");
-        } else{
-            header.getStyleClass().add("modal-header-err");
-            modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
-            modalGraphic.getStyleClass().add("modal-graphic");
-            header.getChildren().add(modalGraphic);
-            header.setId("ERROR");
-        }
-
-        header.getChildren().add(headerTitle);
-        header.setSpacing(10);
-
-        modalDialog.setHeader(header);
-        VBox content = new VBox(new Text(modalContent));
-        content.setPadding(new Insets(10));
-        content.setAlignment(Pos.CENTER);
-
-        modalDialog.setContent(content);
-
-        Dialog modal = new Dialog();
-        modal.setDialogPane(modalDialog);
-
-        Window modalWindow = modal.getDialogPane().getScene().getWindow();
-        modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
-
-        modal.showAndWait();
-    }
-
-    protected void setModalContent(String modalName, VBox updateContent){
-        Dialog modal = currentModals.get(modalName);
-        VBox modalContent = (VBox) modal.getDialogPane().getContent();
-        modalContent.getChildren().set(0, updateContent);
-        currentModals.replace(modalName, modal);
-    }
-
-    protected void closeOpenedModal(String modalKey) {
-        Scene scene = currentModals.get(modalKey).getDialogPane().getScene();
-        Window currentModalWindow = currentModals.get(modalKey).getDialogPane().getScene().getWindow();
-        currentModalWindow.hide();
-    }
-
-    protected HBox modalButtonBar(Button action, DialogPane modal){
-        ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        modal.getButtonTypes().addAll(cancelButtonType);
-
-        Button cancelButton = (Button) modal.lookupButton(cancelButtonType);
-        cancelButton.getStyleClass().add("outline-button");
-
-        HBox btnContainer = new HBox(action, cancelButton);
-
-        modal.getButtonTypes().removeAll(cancelButtonType);
-
-        btnContainer.setSpacing(10.0);
-        btnContainer.setAlignment(Pos.BOTTOM_RIGHT);
-        btnContainer.setPadding(new Insets(20, 0, 0, 0));
-        return btnContainer;
-    }
     protected HBox makeListButton(String id, FontIcon listGraphic, VBox listContent) {
         Label nameDisplay = new Label(id);
         nameDisplay.getStyleClass().add("list-id");
@@ -398,69 +183,40 @@ public class MainUI {
         return listButton;
     }
 
-    /*
-     List
-     */
-    protected HBox listDetail(String title, String content){
-        HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
-        titleDisplay.getStyleClass().add("list-detail");
 
-        Text contentDisplay =new Text(content);
+    protected VBox createButtonsVBox(ArrayList<Button> btnsList){
+        Button[] btns = btnsList.toArray(new Button[0]);
+        btns = stylePanelActions(btns);
 
-        HBox detail = new HBox(titleDisplay, contentDisplay);
-        detail.setPadding(new Insets(10));
-        detail.setSpacing(10);
+        VBox btnView = new VBox(btns);
 
-        return detail;
+        btnView.setAlignment(Pos.CENTER);
+        btnView.setSpacing(20.0);
+        btnView.setPadding(new Insets(10));
+
+        return btnView;
     }
 
-
-
-    protected HBox activeDetail(String text, Boolean isActive){
-        HBox activatedDisplay = new HBox();
-        if (isActive) {
-            activatedDisplay.getChildren().add(new Text(text));
-            activatedDisplay.getStyleClass().add("list-active");
-        } else {
-            activatedDisplay.getChildren().add(new Text(text));
-            activatedDisplay.getStyleClass().add("list-inactive");
+    protected Button[] stylePanelActions (Button[] btns) {
+        int i = 0;
+        for (Button btn: btns) {
+            if (i % 2 == 0) {
+                btn.getStyleClass().add("panel-button-1");
+            } else {
+                btn.getStyleClass().add("panel-button-2");
+            }
+            i++;
         }
-        return activatedDisplay;
+        return btns;
     }
 
-    protected VBox infoContainer(VBox content) {
-        content.setPadding(new Insets(10));
-        content.setSpacing(5);
-        VBox infoBox = new VBox(content);
-        infoBox.getStyleClass().add("info-box");
 
-        return infoBox;
-    }
+    protected HBox makeWeekButton(int weekNo) {
+        Text nameDisplay = new Text("Week " + weekNo);
 
-    protected VBox infoDetailLong(String title, String content){
-        HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
-        titleDisplay.getStyleClass().add("list-detail");
-
-        Text contentDisplay =new Text(content);
-        contentDisplay.setWrappingWidth(370);
-
-        VBox detail = new VBox(titleDisplay, contentDisplay);
-        detail.setPadding(new Insets(10));
-        detail.setSpacing(10);
-
-        return detail;
-    }
-
-    public void createScene(String top, Pane mainContent, Pane bottom){
-        VBox title = setTitle(top);
-
-        BorderPane root = new BorderPane(mainContent);
-        root.setTop(title);
-        root.setBottom(bottom);
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        VBox weekDetails = new VBox(nameDisplay);
+        weekDetails.setSpacing(5.0);
+        return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
     }
 
     /*
@@ -575,45 +331,98 @@ public class MainUI {
         return buttons;
     }
 
+    protected HBox makeUserListButton(String userID, String fname, String lname, String userType,
+                                      String activated) {
+        Text nameDisplay = new Text(fname + " " + lname);
 
-    public void notificationScene(String mainText, String buttonText, boolean tick){
-
-        HBox notification = setNotficationCard(mainText, tick);
-        notification.setFillHeight(false);
-
-        Button returnBtn = inputButton(buttonText);
-
-        HBox btnContainer = new HBox(returnBtn);
-        btnContainer.setPadding(new Insets(20, 0, 0, 0));
-        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
-
-        createScene("NOTICE", notification, btnContainer);
-    }
-
-
-
-    private HBox setNotficationCard(String msg, Boolean tick) {
-        FontIcon notfiGraphic;
-        if(tick){
-            notfiGraphic = new FontIcon(FontAwesomeSolid.CHECK_CIRCLE);
-            notfiGraphic.getStyleClass().add("success-graphic");
-        }else{
-            notfiGraphic = new FontIcon(FontAwesomeSolid.EXCLAMATION_CIRCLE);
-            notfiGraphic.getStyleClass().add("notfi-graphic");
+        HBox activatedDisplay = new HBox();
+        if (activated.equals("ACTIVATED")) {
+            activatedDisplay.getChildren().add(activeDetail(activated, true));
+        } else {
+            activatedDisplay.getChildren().add(activeDetail(activated, false));
         }
 
-        Label notfiMsg = new Label(msg, notfiGraphic);
-        notfiMsg.setPadding(new Insets(10));
-        notfiMsg.setWrapText(true);
-        notfiMsg.setMaxWidth(250.0);
-        notfiMsg.setGraphicTextGap(20.0);
+        FontIcon appGraphic;
+        if (userType.equals("STUDENT")) {
+            appGraphic =  new FontIcon(FontAwesomeSolid.USER);
+        } else if (userType.equals("LECTURER")) {
+            appGraphic =  new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER);
+        } else {
+            appGraphic = new FontIcon(FontAwesomeSolid.USER_TIE);
+        }
 
-        HBox notfiCard = new HBox(notfiMsg);
-        notfiCard.setPadding(new Insets(20));
-        notfiCard.getStyleClass().add("card");
+        VBox userDetails = new VBox(nameDisplay, activatedDisplay);
+        userDetails.setSpacing(5.0);
 
-        return notfiCard;
+        return makeListButton(userID, appGraphic, userDetails);
     }
+
+    protected HBox activeDetail(String text, Boolean isActive){
+        HBox activatedDisplay = new HBox();
+        if (isActive) {
+            activatedDisplay.getChildren().add(new Text(text));
+            activatedDisplay.getStyleClass().add("list-active");
+        } else {
+            activatedDisplay.getChildren().add(new Text(text));
+            activatedDisplay.getStyleClass().add("list-inactive");
+        }
+        return activatedDisplay;
+    }
+
+    protected VBox makePanelButtons(ScrollPane contentPane, VBox contentVBox,  Button action){
+        HBox btnContainer = new HBox(action);
+        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
+        btnContainer.setPadding(new Insets(0, 0, 20, 0));
+
+        VBox panel;
+        if(contentVBox==null){
+            panel = new VBox(contentPane, btnContainer);
+        }else{
+            panel = new VBox(contentVBox, btnContainer);
+        }
+
+
+        panel.setSpacing(5);
+        panel.getStyleClass().add("panel");
+
+        return panel;
+    }
+
+    protected HBox makeStudentMarkListButton(String userID, String fname, String lname, String labMark,
+                                             String examMark) {
+        Text nameDisplay = new Text(fname + " " + lname);
+
+        HBox examDisplay = listDetail("EXAM" , examMark);
+        HBox labDisplay = listDetail("LAB" , labMark);
+
+        HBox markDetails = new HBox(labDisplay, examDisplay);
+        markDetails.setSpacing(5.0);
+
+        VBox userDetails = new VBox(nameDisplay, markDetails);
+        userDetails.setSpacing(5.0);
+
+        return makeListButton(userID, new FontIcon(FontAwesomeSolid.USER), userDetails);
+    }
+
+    protected HBox listDetail(String title, String content){
+        HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
+        titleDisplay.getStyleClass().add("list-detail");
+
+        Text contentDisplay =new Text(content);
+
+        HBox detail = new HBox(titleDisplay, contentDisplay);
+        detail.setPadding(new Insets(10));
+        detail.setSpacing(10);
+
+        return detail;
+    }
+
+
+
+
+
+
+
 
 
 
