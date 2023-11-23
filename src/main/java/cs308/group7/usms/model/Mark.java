@@ -34,7 +34,14 @@ public class Mark {
         if (res.first()) {
             this.attemptNo = res.getInt("AttNo");
             this.labMark = res.getDouble("Lab");
+            if(res.wasNull()){
+                this.labMark = null;
+            }
+
             this.examMark = res.getDouble("Exam");
+            if(res.wasNull()){
+                this.examMark = null;
+            }
         } else {
             attemptNo = 1; // First attempt, no marks yet
         }
@@ -58,7 +65,14 @@ public class Mark {
                 new String[]{"ModuleID = '"+ moduleID +"' AND UserID = '"+ userID +"' AND AttNo = '"+ attemptNo +"'"});
         if (res.first()) {
             this.labMark = res.getDouble("Lab");
+            if(res.wasNull()){
+                this.labMark = null;
+            }
+
             this.examMark = res.getDouble("Exam");
+            if(res.wasNull()){
+                this.examMark = null;
+            }
         }
     }
 

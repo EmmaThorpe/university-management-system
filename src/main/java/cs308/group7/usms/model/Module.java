@@ -108,7 +108,7 @@ public class Module {
     public Material getMaterial(int semester, int week) { return new Material(moduleID, semester, week); }
 
     /**
-     * Gets the students of the module
+     * Gets the students of a module in a given timeframe
      * @return The result of the query
      * @throws SQLException If the query fails
      */
