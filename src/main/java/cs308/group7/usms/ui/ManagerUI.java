@@ -177,8 +177,8 @@ public class ManagerUI extends UIElements{
                 decisionAction(currStudent, decisionRec, decisionReason),
                 false);
 
-        VBox DecisionActionPanel = makePanelWithAction(
-                markListDisplay(markList),
+        VBox DecisionActionPanel = makeScrollablePanelWithAction(
+                new ScrollPane(markListDisplay(markList)),
                 issueDecBtn
         );
 

@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  *  UI Elements sets out component definitions
@@ -54,8 +56,9 @@ public class UIElements extends MainUI{
      */
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
-        VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
-        VBox confirmPass = textAndField("CONFIRM NEW PASSWORD", confirmPasswordCheck(manager));
+        VBox setPass = textAndField("NEW PASSWORD", passwordCheck("NEW PASSWORD", manager, false));
+        VBox confirmPass = textAndField("CONFIRM NEW PASSWORD",
+                confirmPasswordCheck("CONFIRM NEW PASSWORD", "NEW PASSWORD", manager, false));
 
         return new VBox(setPass, confirmPass);
     }
@@ -74,22 +77,26 @@ public class UIElements extends MainUI{
     /**
      * Validates that a new password follows conventions of a set length
      * and the validPassword rules set up by the method, <code>validPassword</code>
+     * @param field    The password field
      * @param manager  Represents if the user is a manager changing
      *                 an account's password, and applies that action's
+     *                 specific context to called upon methods
+     * @param signup  Represents if the user is choosing a password
+     *                 for signup, and applies that action's
      *                 specific context to called upon methods
      * @return  A listener that can be attached to a password field
      *          to ensure that the user input is validated against
      *          these rules
      */
-    protected ChangeListener<String> passwordCheck(Boolean manager){
+    protected ChangeListener<String> passwordCheck(String field, Boolean manager, Boolean signup){
         return (obs, oldText, newText) -> {
             if (newText.length() <8 || newText.length()>20) {
-                currentText.get("NEW PASSWORD").setText("Passwords must be between 8 and 20 characters long");
-            } else if (!validPassword(newText, currentText.get("NEW PASSWORD"))) {
-                checkValidPasswordFields("NEW PASSWORD", false, manager);
+                currentText.get(field).setText("Passwords must be between 8 and 20 characters long");
+            } else if (!validPassword(newText, currentText.get(field))) {
+                checkValidPasswordFields(field, false, manager, signup);
             }else{
-                currentText.get("NEW PASSWORD").setText("");
-                checkValidPasswordFields("NEW PASSWORD", true, manager);
+                currentText.get(field).setText("");
+                checkValidPasswordFields(field, true, manager, signup);
             }
         };
 
@@ -99,22 +106,28 @@ public class UIElements extends MainUI{
      * Validates that when creating a new password, the user's input
      * is valid within the rule that to confirm their new password,
      * they repeat the input accurately
+     * @param field             The password field
+     * @param fieldToMatch    The password field that is to be matched
      * @param manager  Represents if the user is a manager changing
      *                 an account's password, and applies that action's
+     *                 specific context to called upon methods
+     * @param signup  Represents if the user is choosing a password
+     *                 for signup, and applies that action's
      *                 specific context to called upon methods
      * @return        A listener that can be attached to a password field
      *                to ensure that the user input is validated against
      *                these rules
      */
-    protected ChangeListener<String> confirmPasswordCheck(Boolean manager){
+    protected ChangeListener<String> confirmPasswordCheck(String field, String fieldToMatch, Boolean manager,
+                                                          Boolean signup){
         return (obs, oldText, newText) -> {
-            TextField newPassField = (TextField) currentFields.get("NEW PASSWORD");
+            TextField newPassField = (TextField) currentFields.get(fieldToMatch);
             if (!newText.equals(newPassField.getText())) {
-                currentText.get("CONFIRM NEW PASSWORD").setText("Passwords must match");
-                checkValidPasswordFields("CONFIRM NEW PASSWORD", false, manager);
+                currentText.get(field).setText("Passwords must match");
+                checkValidPasswordFields(field, false, manager, signup);
             } else {
-                currentText.get("CONFIRM NEW PASSWORD").setText("");
-                checkValidPasswordFields("CONFIRM NEW PASSWORD", true, manager);
+                currentText.get(field).setText("");
+                checkValidPasswordFields(field, true, manager, signup);
             }
         };
 
@@ -176,15 +189,22 @@ public class UIElements extends MainUI{
      * @param manager  Represents if the user is a manager changing
      *                 an account's password, and applies that action's
      *                 specific context to called upon methods
+     * @param signup  Represents if the user is choosing a password
+     *                 for signup, and applies that action's
+     *                 specific context to called upon methods
      */
-    private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
+    private void checkValidPasswordFields(String type, Boolean value, Boolean manager, Boolean signup){
         boolean disabled;
         validFields.put(type, value);
-        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
+        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD") ||
+        !validFields.get("PASSWORD") || !validFields.get("CONFIRM PASSWORD");
 
         if(manager){
             currentButtons.get("RESET USER PASSWORD").setDisable(disabled);
-        }else{
+        } else if(signup) {
+            currentButtons.get("SUBMIT").setDisable(disabled);
+        }
+        else{
             currentButtons.get("CHANGE PASSWORD").setDisable(disabled);
         }
 
@@ -282,6 +302,52 @@ public class UIElements extends MainUI{
         };
     }
 
+    /** Checks the date of a field in a form
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
+     * @return        A listener that can be attached to a field
+     *                to ensure that the user input is validated against
+     *                these rules
+     */
+    protected ChangeListener<String> dateCheck(String field, String fieldName, String model, String manipulation){
+        String datePattern = "^\\d{4}-\\d{2}-\\d{2}$";
+        return (observableVal, oldVal, newVal) -> {
+            if (!newVal.matches(datePattern)) {
+                currentText.get(field).setText(fieldName + " must be a date formatted as YYYY-MM-DD");
+                checkFields("SIGNUP", field, false, manipulation);
+            } else {
+                currentText.get(field).setText("");
+                checkFields("SIGNUP", field, true, manipulation);
+            }
+        };
+    }
+    /** Checks the date of a field in a form
+     * @param field - the field the validation is occuring on
+     * @param fieldName - the name of the field (eg: "Password", "Name", etc)
+     * @param model - the model the form is within (eg: "COURSE", "MODULE")
+     * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
+     * @return        A listener that can be attached to a field
+     *                to ensure that the user input is validated against
+     *                these rules
+     */
+    protected ChangeListener<String> emailCheck(String field, String fieldName, String model, String manipulation){
+        return (obs, oldText, newText) -> {
+            if (!EmailValidator.getInstance().isValid(newText)) {
+                currentText.get(field).setText(fieldName + " is not in a valid Email format");
+                checkFields(model, field, false, manipulation);
+            } else if (newText.length() > 20) {
+                currentText.get(field).setText(fieldName + " must be less than or equal to 20 characters");
+                checkFields(model, field, false, manipulation);
+            } else {
+                currentText.get(field).setText("");
+                checkFields(model, field, true, manipulation);
+            }
+        };
+
+    }
+
     /**
      * Checks if the inputs for fields are valid for submission and
      * enables user input once that is done
@@ -291,7 +357,9 @@ public class UIElements extends MainUI{
      * @param field      The field that is being validated
      * @param value     The user's value inputted for that field
      * @param manipulation  A string representing how the user input
-     *                      is to be applied to the model (EDIT, ADD, ...)
+     *                      is to be applied to the model (EDIT, ADD, ...).
+     *                      Can be null/empty if no manipulation is occuring
+     *                      on the model, such as the case with signup
      */
     private void checkFields(String model, String field, Boolean value, String manipulation){
         switch (model) {
@@ -301,14 +369,41 @@ public class UIElements extends MainUI{
             case "MODULE":
                 checkValidModuleFields(field, value, manipulation);
                 break;
+            case "SIGNUP":
+                checkValidSignupFields(field, value);
+                break;
         }
+    }
+
+    /**
+     * Checks if the inputs for signup fields are valid for submission and
+     * enables user input once that is done
+     * @param type      The field that is being validated
+     * @param value     If the user input is valid for that field
+     */
+    protected void checkValidSignupFields(String type, Boolean value){
+        validFields.put(type, value);
+        if(value && (validFields.get("QUALIFICATION") || validFields.get("STUDENT"))){
+            boolean overallValid = true;
+            for (String key : validFields.keySet()) {
+                if(!key.equals("QUALIFICATION") && !key.equals("STUDENT")){
+                    overallValid = overallValid && validFields.get(key);
+                }
+            }
+            if(overallValid){
+                currentButtons.get("SUBMIT").setDisable(false);
+            }
+        }else{
+            currentButtons.get("SUBMIT").setDisable(true);
+        }
+
     }
 
     /**
      * Checks if the inputs for module fields are valid for submission and
      * enables user input once that is done
      * @param type      The field that is being validated
-     * @param value     The user's value inputted for that field
+     * @param value     If the user input is valid for that field
      * @param manipulation  A string representing how the user input
      *                      is to be applied to the model (EDIT, ADD, ...)
      */
@@ -327,7 +422,7 @@ public class UIElements extends MainUI{
      * Checks if the inputs for course fields are valid for submission and
      * enables user input once that is done
      * @param type      The field that is being validated
-     * @param value     The user's value inputted for that field
+     * @param value     If the user input is valid for that field
      * @param manipulation  A string representing how the user input
      *                      is to be applied to the model (EDIT, ADD, ...)
      */
@@ -347,7 +442,7 @@ public class UIElements extends MainUI{
      * Checks if the inputs for mark fields are valid for submission and
      * enables user input once that is done
      * @param type      The field that is being validated
-     * @param value     The user's value inputted for that field
+     * @param value     If the user input is valid for that field
      * @param markType  A string representing if the input will be
      *                  applied for a lab or an exam mark
      */
