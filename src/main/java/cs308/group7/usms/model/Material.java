@@ -2,49 +2,31 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
-import org.jetbrains.annotations.Nullable;
 
 import javax.sql.rowset.CachedRowSet;
+import java.io.File;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Optional;
 
 public class Material {
 
     private final String moduleID;
     private final int semester;
     private final int week;
-    private String lectureNote = null;
-    private String labNote = null;
 
     /**
      * Creates a new Material object from the database. If the material does not exist, updating it will create it.
      * @param moduleID The module's ID
      * @param semester The semester of the module
      * @param week The week of the module
-     * @throws SQLException If the query fails
      */
-    public Material(String moduleID, int semester, int week) throws SQLException {
-        DatabaseConnection db = App.getDatabaseConnection();
-        try (CachedRowSet res = db.select(new String[]{"Material"}, null, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week})) {
-            this.moduleID = moduleID;
-            this.semester = semester;
-            this.week = week;
-            if (res.next()) {
-                this.lectureNote = res.getString("LectureNote");
-                this.labNote = res.getString("LabNote");
-            }
-        }
-    }
-
-    /**
-     * Creates a new Material object from the given parameters without checking the database
-     */
-    public Material(String moduleID, int semester, int week, String lectureNote, String labNote) {
+    public Material(String moduleID, int semester, int week) {
         this.moduleID = moduleID;
         this.semester = semester;
         this.week = week;
-        this.lectureNote = lectureNote;
-        this.labNote = labNote;
     }
 
     public Module getModule() throws SQLException { return new Module(moduleID); }
@@ -54,72 +36,106 @@ public class Material {
     public int getWeek() { return week; }
 
     /**
-     * Returns the lecture note for this week of the module, or null if unset
+     * Returns an array of bytes representing the lecture PDF for this week of the module, or Optional.empty() if unset
      */
-    @Nullable
-    public String getLectureNote() { return lectureNote; }
+    public Optional<byte[]> getLectureNote() {
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet res = db.select(
+                    new String[]{"Material"},
+                    new String[]{"LectureNote"},
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+            );
+            res.next();
+            return Optional.ofNullable(res.getBytes("LectureNote"));
+        } catch (SQLException e) {
+            System.out.println("Failed to get lecture note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            return Optional.empty();
+        }
+    }
 
     /**
      * Sets the lecture note for this week of the module
      * @param lectureNote The new lecture note
      * @return Whether the lecture note was set successfully
      */
-    public boolean setLectureNote (String lectureNote) {
+    public boolean setLectureNote (File lectureNote) {
         DatabaseConnection db = App.getDatabaseConnection();
-        HashMap<String, String> values = new HashMap<>();
-        values.put("LectureNote", "'" + lectureNote + "'"); // TODO: Need a better method, vulnerable to SQL injection
         try {
-            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week}) > 0) {
-                this.lectureNote = lectureNote;
-                return true;
-            } else {
-                values.put("ModuleID", "'" + moduleID + "'");
-                values.put("Semester", String.valueOf(semester));
-                values.put("Week", String.valueOf(week));
-                if (db.insert("Material", values) > 0) {
-                    this.lectureNote = lectureNote;
-                    return true;
-                } else {
-                    throw new SQLException("Couldn't insert material entry!");
+            CachedRowSet res = db.select(
+                    new String[]{"Material"},
+                    new String[]{"LectureNote"},
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+            );
+            res.next();
+
+            try (FileInputStream fis = new FileInputStream(lectureNote)) {
+                byte[] bytes = fis.readAllBytes();
+                try (Connection conn = db.getConnection()) {
+                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LectureNote = ? WHERE ModuleID = ? AND Semester = ? AND Week = ?");
+                    pstmt.setBytes(1, bytes);
+                    pstmt.setString(2, moduleID);
+                    pstmt.setInt(3, semester);
+                    pstmt.setInt(4, week);
+                    pstmt.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
+
+            return true;
+        } catch (Exception e) {
             System.out.println("Failed to set lecture note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * Returns the lab note for this week of the module, or null if unset
+     * Returns an array of bytes representing the lab PDF for this week of the module, Optional.empty() if unset
      */
-    @Nullable
-    public String getLabNote() { return labNote; }
+    public Optional<byte[]> getLabNote() {
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet res = db.select(
+                    new String[]{"Material"},
+                    new String[]{"LabNote"},
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+            );
+            res.next();
+            return Optional.ofNullable(res.getBytes("LabNote"));
+        } catch (SQLException e) {
+            System.out.println("Failed to get lab note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            return Optional.empty();
+        }
+    }
 
     /**
      * Sets the lab note for this week of the module
      * @param labNote The new lab note
      * @return Whether the lab note was set successfully
      */
-    public boolean setLabNote (String labNote) {
+    public boolean setLabNote (File labNote) {
         DatabaseConnection db = App.getDatabaseConnection();
-        HashMap<String, String> values = new HashMap<>();
-        values.put("LabNote", "'" + labNote + "'"); // TODO: Need a better method, vulnerable to SQL injection
         try {
-            if (db.update("Material", values, new String[]{"ModuleID = '" + moduleID + "'", "Semester = " + semester, "Week = " + week}) > 0) {
-                this.labNote = labNote;
-                return true;
-            } else {
-                values.put("ModuleID", "'" + moduleID + "'");
-                values.put("Semester", String.valueOf(semester));
-                values.put("Week", String.valueOf(week));
-                if (db.insert("Material", values) > 0) {
-                    this.labNote = labNote;
-                    return true;
-                } else {
-                    throw new SQLException("Couldn't insert material entry!");
+            CachedRowSet res = db.select(
+                    new String[]{"Material"},
+                    new String[]{"LabNote"},
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+            );
+            res.next();
+
+            try (FileInputStream fis = new FileInputStream(labNote)) {
+                byte[] bytes = fis.readAllBytes();
+                try (Connection conn = db.getConnection()) {
+                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LabNote = ? WHERE ModuleID = ? AND Semester = ? AND Week = ?");
+                    pstmt.setBytes(1, bytes);
+                    pstmt.setString(2, moduleID);
+                    pstmt.setInt(3, semester);
+                    pstmt.setInt(4, week);
+                    pstmt.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
+
+            return true;
+        } catch (Exception e) {
             System.out.println("Failed to set lab note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
             return false;
         }

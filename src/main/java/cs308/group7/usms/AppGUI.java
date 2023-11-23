@@ -1,7 +1,6 @@
 package cs308.group7.usms;
 
 import cs308.group7.usms.controller.*;
-import cs308.group7.usms.ui.MainUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -19,8 +18,8 @@ public class AppGUI extends Application {
         Map<String, String> user;
         boolean exiting = false;
         while (!exiting) {
-            PasswordManager pass = new PasswordManager();
-            user = pass.response();
+            LoginController login = new LoginController();
+            user = login.response();
             switch (user.get("role")) {
                 case "Lecturer":
                     LecturerController lec = new LecturerController(user.get("UserID"));

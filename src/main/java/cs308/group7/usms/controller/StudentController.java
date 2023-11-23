@@ -1,13 +1,18 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.App;
+import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import org.jetbrains.annotations.Nullable;
 import org.jpedal.exception.PdfException;
 
+import java.io.*;
+import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -87,39 +92,30 @@ public class StudentController{
     }
 
 
-    private boolean getTwoSems(String moduleID){
-        return true;
-    }
-
     /**
-     * Gets formatted curriculum information for this student. In the event of an error, returns an empty list.
-     * @return A List of Maps representing attended modules, each with the following keys:<br>
-     *         {@code Id, Name, Description, Credit, Lecturers}
+     * Gets whether a given module spans both semesters for a given course.
      */
-    public List<Map<String,String>> getCurriculumInfo() {
+    private boolean getTwoSems(String moduleID) {
         try {
-            List<Map<String, String>> res = new ArrayList<>();
-            for (Module m : getCurrentStudent().getCourse().getModules(true, false, 1)) { // TODO: This only gets modules for semester 1 of first year.
-                Map<String, String> moduleMap = new HashMap<>();                                          // TODO: Should be able to access current semester/year from somewhere
-                moduleMap.put("Id", m.getModuleID());                                                     // TODO: to determine the parameters for this method.
-                moduleMap.put("Name", m.getName());
-                moduleMap.put("Description", m.getDescription());
-                moduleMap.put("Credit", String.valueOf(m.getCredit()));
-                StringBuilder lecturers = new StringBuilder();
-                for (Lecturer l : m.getLecturers()) {
-                    if (!lecturers.isEmpty()) lecturers.append(", ");
-                    lecturers.append(l.getForename()).append(l.getSurname());
-                }
-                moduleMap.put("Lecturers", lecturers.toString());
-                res.add(moduleMap);
-            }
-            return res;
+            Student s = getCurrentStudent();
+            String courseID = s.getCourseID();
+            DatabaseConnection db = App.getDatabaseConnection();
+            CachedRowSet res = db.select(
+                    new String[]{"Curriculum"},
+                    new String[]{"ModuleID"},
+                    new String[]{
+                            "CourseID = " + db.sqlString(courseID),
+                            "ModuleID = " + db.sqlString(moduleID),
+                            "Semester1 = TRUE",
+                            "Semester2 = TRUE"
+                    }
+            );
+            return res.next();
         } catch (SQLException e) {
-            System.out.println("Failed to get curriculum info for student " + studentID + "!: " + e.getMessage());
-            return Collections.emptyList();
+            System.out.println("Failed to get whether module " + moduleID + " spans both semesters: " + e.getMessage());
+            return false;
         }
     }
-
 
     /**
      * Gets formatted course information for this student. In the event of an error, returns an empty map.
@@ -142,48 +138,83 @@ public class StudentController{
         }
     }
 
-
     /**
-     * Get lecture material for a module, from a given semester and week.
-     * @return A map representing the lecture material, with the following keys:<br>
-     *         {@code LectureNote, LabNote}
-     * @deprecated Due to be replaced with two methods (for lecture + lab) that return PDFs (in some format)
+     * Get the lecture note for a module, from a given semester and week.
+     * @return A file representing the lecture note, or null if it doesn't exist
      */
-    public Map<String,String> getLectureMaterials(String moduleID, int semester, int week) {
+    @Nullable
+    public File getLectureNote(String moduleID, int semester, int week) {
         try {
             Material m = new Module(moduleID).getMaterial(semester, week);
-            Map<String, String> materialMap = new HashMap<>();
-            materialMap.put("LectureNote", m.getLectureNote());
-            materialMap.put("LabNote", m.getLabNote());
-            return materialMap;
-        } catch (SQLException e) {
-            System.out.println("Failed to get lecture materials for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
-            return Collections.emptyMap();
+            Optional<byte[]> lectureNote = m.getLectureNote();
+            if (lectureNote.isEmpty()) return null;
+
+            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
+            try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
+            return f;
+        } catch (Exception e) {
+            System.out.println("Failed to get the lecture note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
+            return null;
         }
     }
 
+    /**
+     * Get the lab note for a module, from a given semester and week.
+     * @return A file representing the lab note, or null if it doesn't exist
+     */
+    @Nullable
+    public File getLabNote(String moduleID, int semester, int week) {
+        try {
+            Material m = new Module(moduleID).getMaterial(semester, week);
+            Optional<byte[]> labNote = m.getLabNote();
+            if (labNote.isEmpty()) return null;
 
+            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
+            try (OutputStream out = new FileOutputStream(f)) { out.write(labNote.get()); }
+            return f;
+        } catch (Exception e) {
+            System.out.println("Failed to get the lab note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
+            return null;
+        }
+    }
 
     /**
-     * Get all lecture material for a module.
-     * @param moduleID
-     * @return List of map containing if lab materials and lecture materials exist
+     * A list of maps representing whether lecture/lab materials exist for each week of a module.
      */
-    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID){
+    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) {
+        DatabaseConnection db = App.getDatabaseConnection();
+        List<Map<String, Boolean>> materials = new ArrayList<>();
 
-        Map<String, Boolean> temp = new HashMap<>();
-        ArrayList<Map<String, Boolean>> tempList = new ArrayList<>();
+        try {
+            CachedRowSet max_res = db.select(
+                new String[]{"Material"},
+                new String[]{"MAX(Week) AS MaxWeek"},
+                new String[]{"ModuleID = " + db.sqlString(moduleID)}
+            );
+            max_res.next();
+            int maxWeek = max_res.getInt("MaxWeek");
 
-        temp.put("Lab", true);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        return tempList;
+            CachedRowSet res = db.executeQuery("SELECT Week, (CASE WHEN LectureNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LectureNote, (CASE WHEN LabNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LabNote FROM Material WHERE ModuleID = " + db.sqlString(moduleID) + " ORDER BY Week ASC");
+            res.next();
+            for (int i = 1; i <= maxWeek; i++) {
+                int week = res.getInt("Week");
+                Map<String, Boolean> w = new HashMap<>();
+                if (week == i) {
+                    w.put("LectureNote", res.getBoolean("LectureNote"));
+                    w.put("LabNote", res.getBoolean("LabNote"));
+                    materials.add(w);
+                    res.next();
+                } else {
+                    w.put("LectureNote", false);
+                    w.put("LabNote", false);
+                    materials.add(w);
+                }
+            }
+            return materials;
+        } catch (SQLException e) {
+            System.out.println("Failed to get lecture materials for module " + moduleID + "!: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
 
@@ -199,43 +230,73 @@ public class StudentController{
         }
     }
 
-    /**
-     * Dummy for getting a student's marks for all their modules
-     */
-    public List<Map<String, String>> getMarks() {
-        List<Map<String, String>> marks = new ArrayList<>();
-        Map<String, String> temp = new HashMap<>();
-        temp.put("moduleID", "CS308");
-        temp.put("lab", "96");
-        temp.put("exam", "80");
-        temp.put("attempt", "2");
-        temp.put("grade", "PASS");
-        marks.add(temp);
-
-        Map<String, String> temp2 = new HashMap<>();
-        temp2.put("moduleID", "CS308");
-        temp2.put("lab", "30");
-        temp2.put("exam", "20");
-        temp2.put("attempt", "1");
-        temp2.put("grade", "FAIL");
-        marks.add(temp2);
-        return marks;
+    private Map<String, String> mapMark(Mark m) {
+        Map<String, String> markMap = new HashMap<>();
+        markMap.put("moduleID", m.getModuleID());
+        markMap.put("lab", String.valueOf(m.getLabMark()));
+        markMap.put("exam", String.valueOf(m.getExamMark()));
+        markMap.put("attempt", String.valueOf(m.getAttemptNo()));
+        try { markMap.put("grade", (m.passes()) ? "PASS" : "FAIL"); }
+        catch (IllegalStateException e) { markMap.put("grade", "N/A"); }
+        return markMap;
     }
 
     /**
-     * Dummy for getting a student's modules
+     * Gets formatted marks for this student. In the event of an error, returns an empty list.
+     */
+    public List<Map<String, String>> getMarks() {
+        try {
+            Student s = getCurrentStudent();
+            final int currentYear = s.getYearOfStudy();
+            List<Map<String, String>> marks = new ArrayList<>();
+            for (Module m : s.getCourse().getModules(currentYear)) {
+                // Add most recent mark
+                Mark mostRecentMark = s.getMark(m.getModuleID());
+                marks.add(mapMark(mostRecentMark));
+                // Add previous marks
+                for (int i = mostRecentMark.getAttemptNo() - 1; i > 0; i--) {
+                    Mark mark = s.getMark(m.getModuleID(), i);
+                    marks.add(mapMark(mark));
+                }
+            }
+            return marks;
+        } catch (SQLException e) {
+            System.out.println("Failed to get marks for student " + studentID + "!: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Gets formatted module information for this student. In the event of an error, returns an empty list.
+     * @return A list of maps representing the modules, with the following keys:<br>
+     *         {@code Id, Name, Description, Credit, Lecturers}
      */
     public List<Map<String, String>> getModules(){
+        DatabaseConnection db = App.getDatabaseConnection();
         List<Map<String, String>> modules = new ArrayList<>();
-        HashMap temp = new HashMap<String, String>();
-        temp.put("Id","CS308");
-        temp.put("Name", "Building Software Systems");
-        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
-        temp.put("Credit", "20");
-        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
+        try {
+            Student s = getCurrentStudent();
+            final int currentYear = s.getYearOfStudy();
+            for (Module m : s.getCourse().getModules(currentYear)) {
+                Map<String, String> moduleMap = new HashMap<>();
+                moduleMap.put("Id", m.getModuleID());
+                moduleMap.put("Name", m.getName());
+                moduleMap.put("Description", m.getDescription());
+                moduleMap.put("Credit", String.valueOf(m.getCredit()));
+                StringBuilder lecturers = new StringBuilder();
+                for (Lecturer l : m.getLecturers()) {
+                    if (!lecturers.isEmpty()) lecturers.append(", ");
+                    lecturers.append(l.getForename()).append(" ").append(l.getSurname());
+                }
+                moduleMap.put("Lecturers", lecturers.toString());
+                modules.add(moduleMap);
+            }
+            return modules;
+        } catch (SQLException e) {
+            System.out.println("Failed to get modules for student " + studentID + "!: " + e.getMessage());
+            return Collections.emptyList();
+        }
 
-        modules.add(temp);
-        return modules;
     }
 
 }

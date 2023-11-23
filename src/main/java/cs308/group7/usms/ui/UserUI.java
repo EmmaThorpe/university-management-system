@@ -1,5 +1,6 @@
 package cs308.group7.usms.ui;
 
+import cs308.group7.usms.App;
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -621,7 +622,7 @@ public class UserUI extends MainUI{
 
         Document currentDocument = new Document();
         try {
-            File file = new File("src/main/resources/CS308_Coursework.pdf");
+            File file = new File(App.FILE_DIR + File.separator + "Material.pdf");
             currentDocument.setFile(file.getAbsolutePath());
             return currentDocument;
 

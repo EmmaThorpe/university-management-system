@@ -4,9 +4,11 @@ import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
 
-import static javafx.application.Application.launch;
+public class App {
 
-public class App{
+    /** The directory that material files will be downloaded to and accessed from. */
+    public static final String FILE_DIR = System.getProperty("user.dir");
+
     private static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {

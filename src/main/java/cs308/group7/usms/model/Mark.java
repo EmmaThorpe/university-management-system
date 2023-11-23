@@ -208,6 +208,15 @@ public class Mark {
 
     public int getAttemptNo()  { return attemptNo; }
 
+    /**
+     * Checks if the mark passes the module
+     * @throws IllegalStateException If the mark is incomplete
+     */
+    public boolean passes() throws IllegalStateException {
+        if (labMark == null || examMark == null) throw new IllegalStateException("Cannot check if mark passes if it is incomplete!");
+        return ((labMark + examMark) / 2.0) >= 40;
+    }
+
     public boolean canBeCompensated() {
         final boolean labCompensation = labMark != null && (labMark >= 40 && labMark < 50);
         final boolean examCompensation = examMark != null && (examMark >= 40 && examMark < 50);

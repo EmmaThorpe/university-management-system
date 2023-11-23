@@ -2,7 +2,11 @@ package cs308.group7.usms.model;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
+<<<<<<< src/main/java/cs308/group7/usms/model/User.java
 import org.jetbrains.annotations.Nullable;
+=======
+import cs308.group7.usms.utils.Password;
+>>>>>>> src/main/java/cs308/group7/usms/model/User.java
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.Date;
@@ -22,6 +26,7 @@ public class User {
     private final String forename;
     private final String surname;
     private final String email;
+    private String encryptedPassword;
     private final Date dob;
     private final String gender;
     private final UserType type;
@@ -41,6 +46,7 @@ public class User {
             this.forename = res.getString("Forename");
             this.surname = res.getString("Surname");
             this.email = res.getString("Email");
+            this.encryptedPassword = res.getString("Password");
             this.dob = res.getDate("DOB");
             this.gender = res.getString("Gender");
             this.type = switch (res.getString("Type")) {
@@ -58,12 +64,13 @@ public class User {
     /**
      * Creates a new User object from the given parameters without checking the database
      */
-    public User(String userID, String managerID, String forename, String surname, String email, Date dob, String gender, UserType type, boolean activated) {
+    public User(String userID, String managerID, String forename, String surname, String email, String password, Date dob, String gender, UserType type, boolean activated) {
         this.userID = userID;
         this.managedBy = managerID;
         this.forename = forename;
         this.surname = surname;
         this.email = email;
+        this.encryptedPassword = password;
         this.dob = dob;
         this.gender = gender;
         this.type = type;
@@ -122,6 +129,7 @@ public class User {
         }
     }
 
+<<<<<<< src/main/java/cs308/group7/usms/model/User.java
     /**
      * Sets the user to deactivated
      * @return Whether the operation was successful
@@ -156,8 +164,28 @@ public class User {
         }
     }
 
-    public void changePassword(String newPass) {
-        // TODO: Implement this
+=======
+    public boolean changePassword(String currentPass, String newPass) {
+        final boolean AUTHORISED = Password.matches(currentPass, encryptedPassword);
+        if (!AUTHORISED) {
+            System.out.println("Failed to change password for user " + userID + " - password provided is incorrect!");
+            return false;
+        }
+
+        final String newEncryptedPass = Password.encrypt(newPass);
+
+        DatabaseConnection db = App.getDatabaseConnection();
+        HashMap<String, String> values = new HashMap<>();
+        values.put("Password", newEncryptedPass);
+        try {
+            final boolean success = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
+            if (success) encryptedPassword = newEncryptedPass;
+            return success;
+        } catch (SQLException e) {
+            System.out.println("Failed to change password for user " + userID + "!");
+            return false;
+        }
+>>>>>>> src/main/java/cs308/group7/usms/model/User.java
     }
 
 }
