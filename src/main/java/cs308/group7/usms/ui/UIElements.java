@@ -27,12 +27,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *  UI Elements sets out component definitions
+ *  for model specific UI items, form
+ *  validations (covering listeners,
+ *  form error displays, ...), and
+ *  layouts for user contexts, like
+ *  dashboards
+ */
 public class UIElements extends MainUI{
 
     private ImageView pdfImg;
 
-    /* FORM VALIDATION */
+    /*
+    FORM VALIDATION
+    */
 
+    /**
+     * Creates the form for setting a new password
+     * @param manager Represents if the user is a manager changing
+     *                an account's password, and applies that action's
+     *                specific context to called upon methods
+     * @return A VBox that contains the fields of setting and confirming a
+     *         password, and can be used to construct the reset password
+     *         form
+     */
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
         VBox setPass = textAndField("NEW PASSWORD", passwordCheck(manager));
@@ -41,11 +60,27 @@ public class UIElements extends MainUI{
         return new VBox(setPass, confirmPass);
     }
 
+    /**
+     * Creates the form for resetting a user's own password
+     * @return A VBox that contains the fields of setting and confirming a
+     *         password, and can be used to construct the reset password
+     *         form
+     */
     public VBox resetPassUser() {
         VBox oldPass = inputField("OLD PASSWORD", true);
         return new VBox(oldPass, resetPass(false));
     }
 
+    /**
+     * Validates that a new password follows conventions of a set length
+     * and the validPassword rules set up by the method, <code>validPassword</code>
+     * @param manager  Represents if the user is a manager changing
+     *                 an account's password, and applies that action's
+     *                 specific context to called upon methods
+     * @return  A listener that can be attached to a password field
+     *          to ensure that the user input is validated against
+     *          these rules
+     */
     protected ChangeListener<String> passwordCheck(Boolean manager){
         return (obs, oldText, newText) -> {
             if (newText.length() <8 || newText.length()>20) {
@@ -60,6 +95,17 @@ public class UIElements extends MainUI{
 
     }
 
+    /**
+     * Validates that when creating a new password, the user's input
+     * is valid within the rule that to confirm their new password,
+     * they repeat the input accurately
+     * @param manager  Represents if the user is a manager changing
+     *                 an account's password, and applies that action's
+     *                 specific context to called upon methods
+     * @return        A listener that can be attached to a password field
+     *                to ensure that the user input is validated against
+     *                these rules
+     */
     protected ChangeListener<String> confirmPasswordCheck(Boolean manager){
         return (obs, oldText, newText) -> {
             TextField newPassField = (TextField) currentFields.get("NEW PASSWORD");
@@ -74,6 +120,14 @@ public class UIElements extends MainUI{
 
     }
 
+    /** Sets out the rules on what makes a valid password by checking that
+     * a user's input has special character(s), number(s), and
+     * a mix of uppercase and lowercase characters.
+     * @param password The user inputted password
+     * @param output   <code>true</code> when the password passes the
+     *                 requirements, and <code>false</code> otherwise
+     * @return
+     */
     public boolean validPassword(String password, Text output){
         String specialChars = "@!#$%&/()=?@£{}.-;<>_,*";
         boolean upperCharacter = false;
@@ -114,6 +168,28 @@ public class UIElements extends MainUI{
         return true;
     }
 
+    /**
+     * Checks if the inputs for password fields are valid for submission and
+     * enables user input once that is done
+     * @param type      The field that is being validated
+     * @param value     The user's value inputted for that field
+     * @param manager  Represents if the user is a manager changing
+     *                 an account's password, and applies that action's
+     *                 specific context to called upon methods
+     */
+    private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
+        boolean disabled;
+        validFields.put(type, value);
+        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
+
+        if(manager){
+            currentButtons.get("RESET USER PASSWORD").setDisable(disabled);
+        }else{
+            currentButtons.get("CHANGE PASSWORD").setDisable(disabled);
+        }
+
+    }
+
     /** Checks the length of a field in a form
      * @param minLength - the minimum allowed amount of characters
      * @param maxLength - the maximum allowed amount of characters
@@ -121,6 +197,9 @@ public class UIElements extends MainUI{
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
      * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
+     * @return        A listener that can be attached to a field
+     *                to ensure that the user input is validated against
+     *                these rules
      */
     protected ChangeListener<String> lengthCheck(int minLength, int maxLength, String field,
                                                  String fieldName, String model,
@@ -146,6 +225,9 @@ public class UIElements extends MainUI{
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
      * @param manipulation - the way the form data is being applied to with the model (eg: EDIT, ADD)
+     * @return        A listener that can be attached to a field
+     *                to ensure that the user input is validated against
+     *                these rules
      */
     protected ChangeListener<String> rangeCheck(int minValue, int maxValue, String field,
                                                  String fieldName, String model,
@@ -173,6 +255,9 @@ public class UIElements extends MainUI{
      * @param fieldName - the name of the field (eg: "Password", "Name", etc)
      * @param model - the model the form is within (eg: "COURSE", "MODULE")
      * @param markType - the type of mark being set (eg: "EXAM", "LAB")
+     * @return        A listener that can be attached to a mark field
+     *                to ensure that the user input is validated against
+     *                these rules
      */
     protected ChangeListener<String> markCheck(double minValue, double maxValue, String field,
                                                 String fieldName, String model,
@@ -196,6 +281,18 @@ public class UIElements extends MainUI{
             }
         };
     }
+
+    /**
+     * Checks if the inputs for fields are valid for submission and
+     * enables user input once that is done
+     * @param model     A string representation of
+     *                  the model that these user inputs will be
+     *                  applied to (COURSE, MODULE, ...)
+     * @param field      The field that is being validated
+     * @param value     The user's value inputted for that field
+     * @param manipulation  A string representing how the user input
+     *                      is to be applied to the model (EDIT, ADD, ...)
+     */
     private void checkFields(String model, String field, Boolean value, String manipulation){
         switch (model) {
             case "COURSE":
@@ -206,19 +303,15 @@ public class UIElements extends MainUI{
                 break;
         }
     }
-    private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
-        boolean disabled;
-        validFields.put(type, value);
-        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
 
-        if(manager){
-            currentButtons.get("RESET USER PASSWORD").setDisable(disabled);
-        }else{
-            currentButtons.get("CHANGE PASSWORD").setDisable(disabled);
-        }
-
-    }
-
+    /**
+     * Checks if the inputs for module fields are valid for submission and
+     * enables user input once that is done
+     * @param type      The field that is being validated
+     * @param value     The user's value inputted for that field
+     * @param manipulation  A string representing how the user input
+     *                      is to be applied to the model (EDIT, ADD, ...)
+     */
     private void checkValidModuleFields(String type, Boolean value, String manipulation){
         boolean disabled;
         validFields.put(type, value);
@@ -229,6 +322,15 @@ public class UIElements extends MainUI{
         ;
         currentButtons.get(manipulation).setDisable(disabled);
     }
+
+    /**
+     * Checks if the inputs for course fields are valid for submission and
+     * enables user input once that is done
+     * @param type      The field that is being validated
+     * @param value     The user's value inputted for that field
+     * @param manipulation  A string representing how the user input
+     *                      is to be applied to the model (EDIT, ADD, ...)
+     */
     private void checkValidCourseFields(String type, Boolean value, String manipulation){
         boolean disabled;
        validFields.put(type, value);
@@ -241,6 +343,14 @@ public class UIElements extends MainUI{
         currentButtons.get(manipulation).setDisable(disabled);
     }
 
+    /**
+     * Checks if the inputs for mark fields are valid for submission and
+     * enables user input once that is done
+     * @param type      The field that is being validated
+     * @param value     The user's value inputted for that field
+     * @param markType  A string representing if the input will be
+     *                  applied for a lab or an exam mark
+     */
     private void checkValidMarkFields(String type, Boolean value, String markType){
         boolean disabled;
         validFields.put(type, value);
@@ -248,8 +358,17 @@ public class UIElements extends MainUI{
         currentButtons.get("ASSIGN " + markType +  " MARK").setDisable(disabled);
     }
 
-    /* LAYOUT */
+    /*
+    LAYOUT
+    */
 
+    /**
+     * Creates a toolbar view
+     * @param role  The string representation of the type of user signed in
+     * @return      A HBox that will be used at the top of a user's view
+     *              as a toolbar that contains their user type and the actions
+     *              to log out and return to their main dashboard
+     */
     protected HBox makeToolbar(String role) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
@@ -283,6 +402,12 @@ public class UIElements extends MainUI{
         return container;
     }
 
+    /**
+     * Creates a container for lists of buttons
+     * @param btnsList  A group of buttons to be listed together
+     * @return          A VBox that will be used to show a list
+     *                  of button actions to a user
+     */
     protected VBox createButtonsVBox(ArrayList<Button> btnsList){
         Button[] btns = btnsList.toArray(new Button[0]);
         btns = stylePanelActions(btns);
@@ -296,11 +421,18 @@ public class UIElements extends MainUI{
         return btnView;
     }
 
-    /* Panel layouts */
-    protected void createDashboard(Button[] mngBtns, HBox toolbar){
-        mngBtns = stylePanelActions(mngBtns);
+    /**
+     * Creates a dashboard view
+     * @param actionBtns    A group of buttons that represents the
+     *                      actions a user can take
+     * @param toolbar       A toolbar that appears at the top of the
+     *                      view so the user can log out, return to
+     *                      their dashboard, and view their user type
+     */
+    protected void createDashboard(Button[] actionBtns, HBox toolbar){
+        actionBtns = stylePanelActions(actionBtns);
 
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
+        VBox mainActionPanel = makePanel(new VBox(actionBtns));
         mainActionPanel.setAlignment(Pos.CENTER);
 
         HBox actionPanel = new HBox(mainActionPanel);
@@ -311,6 +443,15 @@ public class UIElements extends MainUI{
         panelLayout(actionPanel, toolbar);
     }
 
+    /* Panel layouts */
+
+    /**
+     * Constructs a panel layout
+     * @param actionPanel   The panel(s) that make up the view.
+     * @param toolbar       A toolbar that appears at the top of the
+     *                      view so the user can log out, return to
+     *                      their dashboard, and view their user type
+     */
     private void panelLayout(Pane actionPanel, HBox toolbar){
         BorderPane root = new BorderPane(actionPanel);
         root.setTop(toolbar);
@@ -322,6 +463,15 @@ public class UIElements extends MainUI{
         currScene = new Scene(root);
     }
 
+    /**
+     * Constructs a single panel layout
+     * @param main      A main panel that is centered in the view.
+     *                  This panel can act as an action list,
+     *                  a list viewer, report information, ...
+     * @param title     The title of the page that replaces the
+     *                  user type display in the toolbar and tells
+     *                  the user where about they are in the app
+     */
     protected void singlePanelLayout(VBox main, String title){
         HBox toolbar = makeToolbar(title);
 
@@ -332,9 +482,22 @@ public class UIElements extends MainUI{
         HBox.setHgrow(actionPanel, Priority.ALWAYS);
 
         panelLayout(actionPanel, toolbar);
-
     }
 
+    /**
+     * Constructs a two panel layout
+     * @param left      The left panel.
+     *                  This panel can act as an action list,
+     *                  a list viewer, report information, ...
+     * @param right     The right panel. This panel can be
+     *                  spawned from left panel actions
+     *                  and used to display additional information,
+     *                  but also serve the same purpose as a left
+     *                  panel
+     * @param title     The title of the page that replaces the
+     *                  user type display in the toolbar and tells
+     *                  the user where about they are in the app
+     */
     protected void twoPanelLayout(VBox left, VBox right, String title){
 
         HBox toolbar = makeToolbar(title);
@@ -348,6 +511,24 @@ public class UIElements extends MainUI{
         panelLayout(actionPanel, toolbar);
     }
 
+    /**
+     * Constructs a three panel layout
+     * @param left      The left panel.
+     *                  This panel can act as an action list,
+     *                  a list viewer, report information, ...
+     * @param right     The right panel. This panel can be
+     *                  spawned from left panel actions
+     *                  and used to display additional information,
+     *                  but also serve the same purpose as a left
+     *                  panel
+     * @param top     The top panel. This panel is smaller in width
+     *                compared to the right and left panel and
+     *                therefore its action is better suited to
+     *                reporting information over listing
+     * @param title     The title of the page that replaces the
+     *                  user type display in the toolbar and tells
+     *                  the user where about they are in the app
+     */
     protected void threePanelLayout(VBox left, VBox right, VBox top, String title){
 
         HBox toolbar = makeToolbar(title);
@@ -369,11 +550,21 @@ public class UIElements extends MainUI{
         panelLayout(actionPanel, toolbar);
     }
 
+    /*
+    MODEL ELEMENTS
+    */
+
+    /* Module Elements */
 
     /**
-        Module Elements
+     * Creates a list button view for a module
+     * @param id    A string representation of the module ID
+     * @param name  A string representation of the module name
+     * @param credit    A string representation of how many credits the module is worth
+     * @return          A HBox that represents a list button - a view used to show
+     *                  the details of a certain modules so that it can be picked out
+     *                  in a list of other list buttons of the same model
      */
-
     protected HBox makeModuleListButton(String id, String name, String credit) {
         HBox yearsDisplay = listDetail("CREDITS" , credit);
         Text nameDisplay = new Text(name);
@@ -383,6 +574,11 @@ public class UIElements extends MainUI{
         return makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
     }
 
+    /** Creates an information display for a module
+     * @param tempModule    A map of the module with its fields and values
+     * @return              A VBox that reports all the module's fields and
+     *                      their values and shows it to the user
+     */
     protected VBox moduleDetailDisplay(Map<String, String> tempModule) {
         Text idTitle = new Text(tempModule.get("Name"));
         idTitle.getStyleClass().add("info-box-title");
@@ -401,7 +597,14 @@ public class UIElements extends MainUI{
         return new VBox(idTitle, col1, col2, col3);
     }
 
-    //used by both managers and lecturers
+    /**
+     * Content for the editModule action's popup
+     * @param currentModule     The module that triggered this popup
+     * @return                  A VBox that contains the form for
+     *                          editing the current module's fields
+     *                          that will be contained within
+     *                          the "EDIT MODULE" popup modal
+     */
     protected VBox editModule(Map<String, String> currentModule) {
         VBox setCode = setTextAndField("EDIT CODE", currentModule.get("Id"),
                 lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"));
@@ -415,9 +618,13 @@ public class UIElements extends MainUI{
         return new VBox(setCode, setName, setDesc, setCredit);
     }
 
+    /* Course Elements */
 
-    //Course Elements
-
+    /** Creates an information display for a course
+     * @param tempCourse    A map of the course with its fields and values
+     * @return              A VBox that reports all the course's fields and
+     *                      their values and shows it to the user
+     */
     protected VBox courseDetailDisplay(Map<String, String> tempCourse) {
         Text idTitle = new Text(tempCourse.get("Name"));
         idTitle.getStyleClass().add("info-box-title");
@@ -437,8 +644,18 @@ public class UIElements extends MainUI{
         return new VBox(idTitle, col1, col2, col3);
     }
 
-    //user elements
+    /* User/Account Elements */
 
+    /** Creates a list button view for a user
+     * @param userID    String representing a user's ID
+     * @param fname     String representing a user's first name
+     * @param lname     String representing a user's last name
+     * @param userType  String representing a user's type
+     * @param activated String representing if a user is activated or not
+     * @return          A HBox that represents a list button - a view used to show
+     *                  the details of a certain user so that it can be picked out
+     *                  in a list of other list buttons of the same model
+     */
     protected HBox makeUserListButton(String userID, String fname, String lname, String userType,
                                     String activated) {
         Text nameDisplay = new Text(fname + " " + lname);
@@ -465,6 +682,19 @@ public class UIElements extends MainUI{
         return makeListButton(userID, appGraphic, userDetails);
     }
 
+    /** Creates an information display for a user
+     * @param userID    The value of the user's ID
+     * @param managerID     The value of the user's manager's ID
+     * @param forename     The value of the user's first name
+     * @param surname       The value of the user's last name
+     * @param email         The value of the user's email
+     * @param dob           The value of the user's date of birth
+     * @param gender        The value of the user's gender
+     * @param userType      The value of the user's type
+     * @param activated     The value of the user's activation status
+     * @return              A VBox that reports all the user's fields and
+     *                      their values and shows it to the user
+     */
     protected VBox userDetailDisplay(String userID, String managerID, String forename, String surname, String email,
                              String dob, String gender, String userType, String activated) {
         Text idTitle = new Text(userID);
@@ -491,8 +721,19 @@ public class UIElements extends MainUI{
     }
 
 
-    //student mark elements
+    /* Student mark Elements */
 
+    /** Creates a list button view for a student's mark
+     * @param userID    String representing a student's ID
+     * @param fname     String representing a student's first name
+     * @param lname     String representing a student's last name
+     * @param labMark   String representing a student's lab mark
+     * @param examMark  String representing a student's exam mark
+     * @return          A HBox that represents a list button - a view used to show
+     *                  the details of a certain student mark so that
+     *                  it can be picked out
+     *                  in a list of other list buttons of the same model
+     */
     protected HBox makeStudentMarkListButton(String userID, String fname, String lname, String labMark,
                                       String examMark) {
         Text nameDisplay = new Text(fname + " " + lname);
@@ -508,6 +749,17 @@ public class UIElements extends MainUI{
 
         return makeListButton(userID, new FontIcon(FontAwesomeSolid.USER), userDetails);
     }
+
+    /**  Creates an information display for a student's mark
+     * @param userID    Value of a student's ID
+     * @param fname     Value of a student's first name
+     * @param lname     Value of a student's last name
+     * @param labMark   Value of a student's lab mark
+     * @param examMark  Value of a student's exam mark
+     * @return              A VBox that reports all the student mark's details
+     *                      and shows it to the user
+     *
+     */
     protected VBox studentMarkDisplay(String userID, String fname, String lname, String labMark,
                                       String examMark) {
         Text idTitle = new Text(userID);
@@ -523,7 +775,18 @@ public class UIElements extends MainUI{
         return new VBox(idTitle, row);
     }
 
-    //mark and decision elements
+    /** Creates a list button view for a mark
+     * @param moduleID  String representing the mark's module's ID
+     * @param lab       String representing the mark's lab mark value
+     * @param exam      String representing the mark's exam mark value
+     * @param attempt   String representing the mark's attempt number
+     * @param grade     String representing if the mark is a pass, a fail or
+     *                  indeterminate based on the module and the business rules
+     * @return          A HBox that represents a list button - a view used to show
+     *                  the details of a certain mark so that it can be picked out
+     *                  in a list of other list buttons of the same model
+     */
+    /* Mark and Decision Elements */
     protected HBox makeMarkList(String moduleID, String lab, String exam, String attempt,
                                 String grade) {
         HBox examDisplay = listDetail("EXAM" , exam);
@@ -551,6 +814,13 @@ public class UIElements extends MainUI{
         return makeListButton(moduleID, appGraphic, studentMarkDetails);
     }
 
+    /** Displays the decision made
+     * @param decision  String representing the decision that has been
+     *                  made: AWARD, RESIT, WITHDRAWAL or N/A (for
+     *                  unset)
+     * @return          A VBox that displays what decision has
+     *                  been issued
+     */
     protected VBox decisionDisplay(String decision) {
         Text title = new Text("DECISION: ");
         Text decisionMade = new Text(decision);
@@ -570,7 +840,14 @@ public class UIElements extends MainUI{
 
     }
 
-    //material elements
+    /* Material Elements */
+
+    /** Creates a list button view for a material's week
+     * @param weekNo    Number to represent a week's number
+     * @return          A HBox that represents a list button - a view used to show
+     *                  the details of a certain week so that it can be picked out
+     *                  in a list of other list buttons of the same model
+     */
     protected HBox makeWeekButton(int weekNo) {
         Text nameDisplay = new Text("Week " + weekNo);
 
@@ -579,8 +856,10 @@ public class UIElements extends MainUI{
         return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
     }
 
-    //PDF viewer
-
+    /** Creates a view for showing a PDF for a module's week's material
+     * @param file  The file (PDF) that has the materials to display
+     * @param type  The title for the toolbar
+     */
     public void displayPDF(File file, String type){
         resetCurrentValues();
 
@@ -626,6 +905,10 @@ public class UIElements extends MainUI{
     }
 
 
+    /** Pagination for a module's week's material when it is being viewed,
+     *  functioning as a back button
+     * @param pdf   The document that is being displayed
+     */
     protected void backPage(Document pdf){
         int page = Integer.parseInt(currentText.get("PAGE NO").getText());
         if(page>1){
@@ -635,6 +918,11 @@ public class UIElements extends MainUI{
 
     }
 
+    /** Pagination for a module's week's material when it is being viewed,
+     *  functioning as a forward button
+     * @param pdf   The document that is being displayed
+     * @param amount    The document's total number of pages
+     */
     protected void forwardPage(Document pdf, int amount){
         int page = Integer.parseInt(currentText.get("PAGE NO").getText());
 
@@ -644,6 +932,10 @@ public class UIElements extends MainUI{
         }
     }
 
+    /** Display text for the pagination for a module's week's material
+     * @param text  The text to be styled for pagination display
+     * @return      Text that is styled for a pagination display
+     */
     protected Text paginationText(String text){
         Text inputText = new Text();
         inputText.getStyleClass().add("pagination-text");
@@ -652,9 +944,12 @@ public class UIElements extends MainUI{
     }
 
 
+    /**
+     * Gets the document that is to be displayed for a module's week's content
+     * @return A document that can be used in the PDF viewer to show
+     *          material
+     */
     protected Document showPage() {
-
-
         Document currentDocument = new Document();
         try {
             File file = new File("src/main/resources/CS308_Coursework.pdf");
@@ -669,6 +964,12 @@ public class UIElements extends MainUI{
         return null;
     }
 
+    /** Converts a document to an image view for displaying materials
+     * @param currentDocument   The document to render into image view
+     * @param page              The page to render into image view
+     * @return                  The image view that consists of the document contents
+     *
+     */
     protected WritableImage pdfToImg(Document currentDocument, int page){
         float scale = 1f;
 
