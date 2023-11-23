@@ -1,7 +1,11 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.App;
+import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.Lecturer;
 import cs308.group7.usms.model.User;
+import cs308.group7.usms.model.Student;
+import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
 import javafx.scene.Node;
@@ -10,7 +14,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
+import javax.sql.rowset.CachedRowSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,14 +29,14 @@ public class LecturerController{
     private final String lecturerID;
     private final LecturerUI lecUI;
 
-    public LecturerController(String id) {
+    public LecturerController(String id) throws SQLException {
         this.lecturerID = id;
         lecUI = new LecturerUI();
         pageSetter("DASHBOARD", true);
     }
 
 
-    public void pageSetter(String page, Boolean initial){
+    public void pageSetter(String page, Boolean initial) {
         Map<String, Button> buttons = null;
         switch (page){
             case "DASHBOARD":
@@ -44,7 +50,9 @@ public class LecturerController{
 
                 break;
             case "VIEW MODULE":
-                lecUI.module(getModuleInformation());
+                try{
+                    lecUI.module(getModuleInformation());
+                }catch(java.sql.SQLException e){};
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("EDIT").setOnAction((event)-> editModule(
                         lecUI.getValues().get("ID"),
@@ -56,7 +64,12 @@ public class LecturerController{
                 );
                 break;
             case "GIVE MARK":
-                lecUI.mark(getEnrolledStudents());
+                try{
+                    lecUI.mark(getEnrolledStudents());
+                }catch(java.sql.SQLException e){
+
+                }
+
                 buttons =lecUI.getCurrentButtons();
                 buttons.get("ASSIGN LAB MARK").setOnAction(
                         (event)->
@@ -82,7 +95,13 @@ public class LecturerController{
                 break;
 
             case "MATERIALS":
-                lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+                try{
+                    lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+
+                }
+                catch(java.sql.SQLException e){
+
+                }
                 buttons = lecUI.getCurrentButtons();
                 buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
                 buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
@@ -122,153 +141,54 @@ public class LecturerController{
     /**Gets info of the module that the lecturer runs
      * @return A map containing module information
      */
-    public Map<String,String> getModuleInformation(){
-        Map<String,String> temp = new HashMap<String, String>();
-        temp.put("Id","CS308");
-        temp.put("Name", "Building Software Systems");
-        temp.put("Description" ,"Development in a group setting of significant systems from scratch.");
-        temp.put("Credit", "20");
-        temp.put("Semesters", "1&2");
-        temp.put("Lecturers", "Bob Atkey, Jules, Alasdair"); //comma seperated list of all lecturers
-        return temp;
+    public Map<String,String> getModuleInformation() throws SQLException {
+        String moduleID = getCurrentLecturer().getModule().getModuleID();
+        Module mod = new Module(moduleID);
+        Map<String,String> moduleInfo = new HashMap<String, String>();
+        DatabaseConnection db = App.getDatabaseConnection();
+        String Semesters = "";
+        CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"Curriculum.ModuleID = '" + moduleID + "'"});
+        if (result.getBoolean("Semester1")) {
+            Semesters += "1";
+        } else if(result.getBoolean("Semester2")) {
+            Semesters += "&2";
+        } else Semesters += "2";
+
+        moduleInfo.put("Id", mod.getModuleID());
+        moduleInfo.put("Name", mod.getName());
+        moduleInfo.put("Description", mod.getDescription());
+        moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
+        moduleInfo.put("Semesters", Semesters );
+        moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
+        return moduleInfo;
+
     }
 
 
     /** Get if weekly lecture materials for a module exist or not
-     * @param moduleID
+     * @param moduleID - the module the lecturer teaches
      * @return List of map containing if lab materials and lecture materials exist (goes from weeks 1-12) (1-24 if 2 semesters)
      */
-    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID){
+    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) throws SQLException {
 
-        Map<String, Boolean> temp = new HashMap<>();
-        ArrayList<Map<String, Boolean>> tempList = new ArrayList<>();
+        DatabaseConnection db = App.getDatabaseConnection();
+        String Semesters = "";
+        try{
+            CachedRowSet result = db.select(new String[]{"Material"}, new String[]{"LectureNote, LabNote"}, new String[]{"Material.ModuleID = '" + moduleID + "'"});
+            ArrayList<Map<String, Boolean>> material = new ArrayList<>();
 
-        temp.put("Lab", true);
-        temp.put("Lecture", true);
-        tempList.add(temp);
+            while (result.next()) {
+                HashMap<String, Boolean> weekMaterial = new HashMap<>();
+                weekMaterial.put("Lab", result.getBoolean("LabNote"));
+                weekMaterial.put("Lecture", result.getBoolean("LabNote"));
+                material.add(weekMaterial);
+            }
 
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", true);
-        temp.put("Lecture", false);
-        tempList.add(temp);
-
-        temp = new HashMap<>();
-        temp.put("Lab", false);
-        temp.put("Lecture", true);
-        tempList.add(temp);
-
-        return tempList;
+            return material;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -276,27 +196,41 @@ public class LecturerController{
     /**Gets all the students in the lecturer's module alongisde their current scoring for the lecturer's module
      * @return List of maps with user fields and their values (eg: forename, "john"), including mark fields and values
      */
-    public List<Map<String, String>> getEnrolledStudents(){
+    public List<Map<String, String>> getEnrolledStudents() throws SQLException {
+        String moduleID = getCurrentLecturer().getModule().getModuleID();
         List<Map<String, String>> enrolled = new ArrayList<>();
-        Map<String, String> temp = new HashMap<>();
-        temp.put("userID", "stu1");
-        temp.put("managerID", "mng1");
-        temp.put("forename", "john");
-        temp.put("surname", "smith");
-        temp.put("email", "johnsmith@mail.com");
-        temp.put("DOB", "14-04-2000");
-        temp.put("gender", "man");
-        temp.put("userType", "STUDENT");
-        temp.put("activated", "ACTIVATED");
-        temp.put("courseID", "G600");
-        temp.put("YearOfStudy", "1");
-        temp.put("decision", "Award");
-        //mark fields and values
-        temp.put("labMark", "69");
-        temp.put("examMark", "72");
-        temp.put("attemptNo", "1");
-        enrolled.add(temp);
-        return enrolled;
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Students, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
+            List<HashMap<String, String>> users = new ArrayList<>();
+
+            while (result.next()) {
+                Student stu = new Student(result.getString("UserID"));
+                HashMap<String, String> studentDetailsMap = new HashMap<>();
+                studentDetailsMap.put("userID", stu.getUserID());
+                studentDetailsMap.put("managerID", stu.getManager().getUserID());
+                studentDetailsMap.put("forename", stu.getForename());
+                studentDetailsMap.put("surname", stu.getSurname());
+                studentDetailsMap.put("email", stu.getEmail());
+                studentDetailsMap.put("DOB", stu.getDOB().toString());
+                studentDetailsMap.put("gender", stu.getGender());
+                studentDetailsMap.put("userType", stu.getType().toString());
+                studentDetailsMap.put("activated", stu.getActivated() ? "ACTIVATED" : "DEACTIVATED");
+                studentDetailsMap.put("courseID", stu.getCourseID());
+                studentDetailsMap.put("YearOfStudy", Integer.toString(stu.getYearOfStudy()));
+                studentDetailsMap.put("decision", stu.getDecision().toString());
+                studentDetailsMap.put("labMark", Double.toString(stu.getMark(moduleID).getLabMark()));
+                studentDetailsMap.put("examMark", Double.toString(stu.getMark(moduleID).getExamMark()));
+                studentDetailsMap.put("attemptNo", Integer.toString(stu.getMark(moduleID).getAttemptNo()));
+
+                enrolled.add(studentDetailsMap);
+            }
+
+            return enrolled;
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -306,27 +240,65 @@ public class LecturerController{
      * @param type - the type of the material (lab or lecture)
      * @param file - file to be uploaded
      */
-    public void updateModuleMaterial(int week, int semester, String type, File file){
-        System.out.println(String.valueOf (week) + " " + String.valueOf (semester) + " " + String.valueOf (file) );
+    public void updateModuleMaterial(int week, int semester, String type, File file) {
+        Map<String, String> values = new HashMap<>();
+        // TODO Dont know how to upload file in java to sql :(
+        if (Objects.equals(type, "Lecture")){
+            values.put("LectureNote", String.valueOf(file));
+        }
+        else {
+            values.put("LabNote", String.valueOf(file));
+        }
+        if (semester > 1){
+            week+= 12;
+        }
+
+        try {
+            DatabaseConnection db = App.getDatabaseConnection();
+            int res = db.update("Material", values, new String[]{"Week = '"+ week +"' AND ModuleID = '"+ getCurrentLecturer().getModule().getModuleID() +"'"});
+            if (res > 0) return;
+        } catch (SQLException e) {
+            System.out.println("Failed to update module material for with file " + String.valueOf(file) + e.getMessage());
+            return;
+        }
+
     }
 
     /**Updates the student lab mark
-     * @param studentID
-     * @param attNo
-     * @param mark
+     * @param studentID - the student ID for the student being updated
+     * @param attNo - the attempt number wanting to be updated
+     * @param mark - the new lab mark for that student's attempt
      */
     public void updateStudentLabMark(String studentID, int attNo, Double mark){
-        System.out.println(studentID + " " + String.valueOf (attNo) + " " + String.valueOf (mark) );
+        Map<String, String> values = new HashMap<>();
+        values.put("Lab", String.valueOf(mark));
+
+        try {
+            DatabaseConnection db = App.getDatabaseConnection();
+            int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
+        } catch (SQLException e) {
+            System.out.println("Failed to update lab mark for student " + studentID + " (attempt #" + attNo + ")." + e.getMessage());
+            return;
+        }
     }
 
 
     /**Updates the student exam mark
-     * @param studentID
-     * @param attNo
-     * @param mark
+     * @param studentID - the student ID for the student being updated
+     *      * @param attNo - the attempt number wanting to be updated
+     *      * @param mark - the new exam mark for that student's attempt
      */
     public void updateStudentExamMark(String studentID, int attNo, Double mark){
-        System.out.println(studentID + " " + String.valueOf (attNo) + " " + String.valueOf (mark) );
+        Map<String, String> values = new HashMap<>();
+        values.put("Exam", String.valueOf(mark));
+
+        try {
+            DatabaseConnection db = App.getDatabaseConnection();
+            int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
+        } catch (SQLException e) {
+            System.out.println("Failed to update exam mark for student " + studentID + " (attempt #" + attNo + ")." + e.getMessage());
+            return;
+        }
     }
 
     /**Edits a module
@@ -338,7 +310,19 @@ public class LecturerController{
     //note - same method is present in managerController - should this be moved to a shared controller
     //where both can use it?
     public void editModule(String oldCode, String code, String name, String description, String credit){
-        System.out.println(oldCode+" "+code + " " +name +" "+description +" "+credit);
+        DatabaseConnection db = App.getDatabaseConnection();
+        HashMap<String, String> values = new HashMap<>();
+        values.put("ModuleID", db.sqlString(code));
+        values.put("Name", db.sqlString(name));
+        values.put("Description", db.sqlString(description));
+        values.put("Credit", String.valueOf(credit));
+
+        try {
+            db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 
