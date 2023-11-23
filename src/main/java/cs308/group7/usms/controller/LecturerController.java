@@ -52,61 +52,67 @@ public class LecturerController{
             case "VIEW MODULE":
                 try{
                     lecUI.module(getModuleInformation());
-                }catch(java.sql.SQLException e){};
-                buttons =lecUI.getCurrentButtons();
-                buttons.get("EDIT").setOnAction((event)-> editModule(
-                        lecUI.getValues().get("ID"),
-                        ((TextField)lecUI.getCurrentFields().get("EDIT CODE")).getText(),
-                        ((TextField)lecUI.getCurrentFields().get("EDIT NAME")).getText(),
-                        ((TextArea)lecUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(),
-                        ((TextField)lecUI.getCurrentFields().get("EDIT CREDITS")).getText()
-                        )
-                );
+                    buttons =lecUI.getCurrentButtons();
+                    buttons.get("EDIT").setOnAction((event)-> editModule(
+                                    lecUI.getValues().get("ID"),
+                                    ((TextField)lecUI.getCurrentFields().get("EDIT CODE")).getText(),
+                                    ((TextField)lecUI.getCurrentFields().get("EDIT NAME")).getText(),
+                                    ((TextArea)lecUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(),
+                                    ((TextField)lecUI.getCurrentFields().get("EDIT CREDITS")).getText()
+                            )
+                    );
+                }catch(java.sql.SQLException e){
+                    System.out.println("testing");
+                };
+
                 break;
             case "GIVE MARK":
                 try{
                     lecUI.mark(getEnrolledStudents());
+                    buttons =lecUI.getCurrentButtons();
+                    buttons.get("ASSIGN LAB MARK").setOnAction(
+                            (event)->
+                                    updateStudentLabMark(
+                                            lecUI.getValues().get("StudentID"),
+                                            // NOTE: assuming that
+                                            // attempt number should not be a lecturer's concern when setting
+                                            // a student's
+                                            // mark and the attempt number should be controlled on controller
+                                            Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                            Double.parseDouble(((TextField)lecUI.getCurrentFields().get("LAB MARK")).getText())
+                                    )
+                    );
+                    buttons.get("ASSIGN EXAM MARK").setOnAction(
+                            (event)->
+                                    updateStudentExamMark(
+                                            lecUI.getValues().get("StudentID"),
+                                            Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                            Double.parseDouble(((TextField)lecUI.getCurrentFields().get("EXAM MARK")).getText())
+                                    )
+                    );
                 }catch(java.sql.SQLException e){
 
                 }
 
-                buttons =lecUI.getCurrentButtons();
-                buttons.get("ASSIGN LAB MARK").setOnAction(
-                        (event)->
-                                updateStudentLabMark(
-                                        lecUI.getValues().get("StudentID"),
-                                        // NOTE: assuming that
-                                        // attempt number should not be a lecturer's concern when setting
-                                        // a student's
-                                        // mark and the attempt number should be controlled on controller
-                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("LAB MARK")).getText())
-                                )
-                );
-                buttons.get("ASSIGN EXAM MARK").setOnAction(
-                        (event)->
-                                updateStudentExamMark(
-                                        lecUI.getValues().get("StudentID"),
-                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("EXAM MARK")).getText())
-                                )
-                );
+
+
 
                 break;
 
             case "MATERIALS":
                 try{
-                    lecUI.materials(getModuleInformation().get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), getModuleInformation().get("Semesters"));
+                    Map<String, String> moduleInfo = getModuleInformation();
+                    lecUI.materials(moduleInfo.get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), moduleInfo.get("Semesters"));
+                    buttons = lecUI.getCurrentButtons();
+                    buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                    buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                    buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lecture", lecUI.uploadFile()));
+                    buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lab", lecUI.uploadFile()));
 
                 }
                 catch(java.sql.SQLException e){
 
                 }
-                buttons = lecUI.getCurrentButtons();
-                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lecture", lecUI.uploadFile()));
-                buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lab", lecUI.uploadFile()));
 
                 break;
             case "OPEN PDF":
@@ -116,6 +122,7 @@ public class LecturerController{
 
 
         }
+        buttons = lecUI.getCurrentButtons();
         buttons.get("LOG OUT").setOnAction(event -> lecUI.hideStage());
         buttons.get("HOME").setOnAction(event -> pageSetter("DASHBOARD", false));
 
@@ -126,7 +133,9 @@ public class LecturerController{
         }
     }
 
-    private Lecturer getCurrentLecturer() throws SQLException { return new Lecturer(lecturerID); }
+    private Lecturer getCurrentLecturer() throws SQLException {
+        return new Lecturer(lecturerID);
+    }
 
     /**Changes the password for a user.
      * @param oldPass
@@ -147,11 +156,13 @@ public class LecturerController{
         Map<String,String> moduleInfo = new HashMap<String, String>();
         DatabaseConnection db = App.getDatabaseConnection();
         String Semesters = "";
-        CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"Curriculum.ModuleID = '" + moduleID + "'"});
+        CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"ModuleID = " + db.sqlString(moduleID)});
+        result.next();
         if (result.getBoolean("Semester1")) {
             Semesters += "1";
-        } else if(result.getBoolean("Semester2")) {
-            Semesters += "&2";
+            if(result.getBoolean("Semester2")) {
+                Semesters += "&2";
+            }
         } else Semesters += "2";
 
         moduleInfo.put("Id", mod.getModuleID());
