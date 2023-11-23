@@ -118,16 +118,16 @@ public class ManagerController{
      */
     public List < HashMap <String, String> > getUsers() {
         List<User> accounts = new ArrayList<>();
-        accounts.add(new User("abc1","mng1", "a","b", "a.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
-        accounts.add(new User("abc2","mng1", "b","c", "b.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
-        accounts.add(new User("abc3","mng1", "d","e", "c.com", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
-        accounts.add(new User("abc4","mng1", "f","g", "d.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
-        accounts.add(new User("abc5","mng1", "h","i", "e.com", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
-        accounts.add(new User("abc6","mng2", "x","x", "x.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc1","mng1", "a","b", "a.com", "", new Date(2003,1,1), "man.", User.UserType.STUDENT,true));
+        accounts.add(new User("abc2","mng1", "b","c", "b.com", "", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,false));
+        accounts.add(new User("abc3","mng1", "d","e", "c.com", "", new Date(2003,1,1), " Not man.", User.UserType.MANAGER,true));
+        accounts.add(new User("abc4","mng1", "f","g", "d.com", "", new Date(2003,1,1), "man.", User.UserType.LECTURER,true));
+        accounts.add(new User("abc5","mng1", "h","i", "e.com", "", new Date(2003,1,1), "man.", User.UserType.STUDENT,false));
+        accounts.add(new User("abc6","mng2", "x","x", "x.com", "", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
-        accounts.add(new User("abc7","mng1", "y","y", "y.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc7","mng1", "y","y", "y.com", "", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
-        accounts.add(new User("abc8","mng2", "z","z", "z.com", new Date(2003,1,1), "man.", User.UserType.LECTURER,
+        accounts.add(new User("abc8","mng2", "z","z", "z.com", "", new Date(2003,1,1), "man.", User.UserType.LECTURER,
                 true));
 
         List<HashMap<String, String>> users = new ArrayList<HashMap<String, String>>();
