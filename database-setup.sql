@@ -186,10 +186,10 @@ INSERT INTO `Curriculum` (`CourseID`, `ModuleID`, `Semester1`, `Semester2`, `Yea
     ('BScSE', 'CS106', FALSE, TRUE,  1);
 
 INSERT INTO `Users` (`UserID`, `Forename`, `Surname`, `Email`, `Password`, `DoB`, `Gender`, `Type`, `ManagedBy`, `Activated`) VALUES
-    ('mng1', 'Big', 'Boss', 'boss@Strathclyde', 'YouKnowTheRules', '1983-04-27', 'Male', 'Manager', NULL, 1),
-    ('mng2', 'Fred', 'Fredrick', 'Fred@Strathclyde', 'AndSoDoI', '1999-03-13', 'Male', 'Manager', 'mng1', 1),
-    ('lec1', 'Veronica', 'Sawyer', 'Veronica@Strathclyde', 'GiveYouUp', '2003-02-07', 'Female', 'Lecturer', 'mng1', 1),
-    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'NeverGonna', '2003-10-09', 'Male', 'Student', 'mng1', 0);
+    ('mng1', 'Big', 'Boss', 'boss@Strathclyde', 'LbhXabjGurEhyrf', '1983-04-27', 'Male', 'Manager', NULL, 1),
+    ('mng2', 'Fred', 'Fredrick', 'Fred@Strathclyde', 'NaqFbQbV', '1999-03-13', 'Male', 'Manager', 'mng1', 1),
+    ('lec1', 'Veronica', 'Sawyer', 'Veronica@Strathclyde', 'TvirLbhHc', '2003-02-07', 'Female', 'Lecturer', 'mng1', 1),
+    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 0);
 UPDATE `Users` SET `ManagedBy` = 'mng2' WHERE `UserID` = 'mng1';
 
 INSERT INTO `Lecturer` (`UserID`, `ModuleID`, `Qualification`) VALUES
