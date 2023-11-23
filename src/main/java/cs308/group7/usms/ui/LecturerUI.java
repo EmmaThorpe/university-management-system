@@ -39,7 +39,7 @@ public class LecturerUI extends UIElements{
         currentValues.put("ID", lecturerModule.get("Id"));
 
         Button update = inputButton("UPDATE MODULE INFORMATION");
-        makeModal(update, "edit", editModule(lecturerModule),  false);
+        makeModal(update, "EDIT", editModule(lecturerModule),  false);
         VBox modulePanel = makePanelWithAction(
                 new VBox(infoContainer(moduleDetailDisplay(lecturerModule))),
                 update
