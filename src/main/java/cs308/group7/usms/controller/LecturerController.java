@@ -135,9 +135,9 @@ public class LecturerController{
         DatabaseConnection db = App.getDatabaseConnection();
         String Semesters = "";
         CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"Curriculum.ModuleID = '" + moduleID + "'"});
-        if (result.getInt("Semester1") > 0) {
+        if (result.getBoolean("Semester1")) {
             Semesters += "1";
-        } else if(result.getInt("Semester2") > 0) {
+        } else if(result.getBoolean("Semester2")) {
             Semesters += "&2";
         } else Semesters += "2";
 
