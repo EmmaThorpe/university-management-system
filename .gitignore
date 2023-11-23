@@ -1,6 +1,7 @@
 # Custom #
 target/
 src/main/resources/dbConnect.txt
+Material.pdf
 
 ### IntelliJ IDEA ###
 out/

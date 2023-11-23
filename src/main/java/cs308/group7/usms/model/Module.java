@@ -103,22 +103,12 @@ public class Module {
     }
 
     /**
-     * Gets the material of the module for a given week
-     * @return The result of the query
-     * @throws SQLException If the query fails
+     * Gets the material of the module for a given semester and week
      */
-    public Material getMaterial(int semester, int week) throws SQLException {
-        try {
-            return new Material(moduleID, semester, week);
-        }
-        catch (SQLException e) {
-            System.out.println("Failed to find material for module " + moduleID + " in week " + week + " of semester " + semester + ".");
-            throw new SQLException(e.getMessage() + " - " + moduleID + "'s getMaterials failed");
-        }
-    }
+    public Material getMaterial(int semester, int week) { return new Material(moduleID, semester, week); }
 
     /**
-     * Gets the material of the module for a given week
+     * Gets the students of the module
      * @return The result of the query
      * @throws SQLException If the query fails
      */
