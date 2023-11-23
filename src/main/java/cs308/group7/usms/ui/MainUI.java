@@ -519,11 +519,11 @@ public class MainUI {
         TextField field=new TextField();
         return styleTextAndField(field, label, value, listener, false);
     }
-    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener){
         Label label=new Label(text);
         TextField field=new TextField(value);
 
-        return styleTextAndField(field, label, value, listener, valid);
+        return styleTextAndField(field, label, text, listener, true);
     }
 
     private VBox styleTextAndField(TextInputControl field, Label label, String text, ChangeListener<String> listener, Boolean valid){
@@ -535,7 +535,7 @@ public class MainUI {
 
         field.textProperty().addListener(listener);
 
-        validFields.put(text, false);
+        validFields.put(text, valid);
 
         return new VBox(label, field, inputText);
     }
@@ -551,13 +551,13 @@ public class MainUI {
 
 
 
-    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
+    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
         Label label=new Label(text);
         TextArea field=new TextArea(value);
         field.setWrapText(true);
         field.setPrefRowCount(4);
 
-        return styleTextAndField(field, label, text, listener, false);
+        return styleTextAndField(field, label, text, listener, true);
     }
 
     protected Button inputButton(String text){

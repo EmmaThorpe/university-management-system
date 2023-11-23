@@ -338,18 +338,15 @@ public class ManagerUI extends UserUI{
 
     private VBox editCourse(Map<String, String> currentCourse, List<String> department) {
         VBox setCode = setTextAndField("EDIT CODE", currentCourse.get("Id"),
-                lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "EDIT"),
-                true);
+                lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "EDIT"));
         VBox setName = setTextAndField("EDIT NAME", currentCourse.get("Name"),
-                lengthCheck(1, 50,"EDIT NAME", "Name", "COURSE", "EDIT"),
-                true);
+                lengthCheck(1, 50,"EDIT NAME", "Name", "COURSE", "EDIT"));
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentCourse.get("Description"),
-                lengthCheck(1, 100, "EDIT DESCRIPTION", "Description", "COURSE", "EDIT"),
-                true);
+                lengthCheck(1, 100, "EDIT DESCRIPTION", "Description", "COURSE", "EDIT"));
         VBox setLevel = setTextAndField("EDIT LEVEL OF STUDY", currentCourse.get("Level"),
-                lengthCheck(1, 20, "EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"), true);
+                lengthCheck(1, 20, "EDIT LEVEL OF STUDY", "Level of study", "COURSE", "EDIT"));
         VBox setYears = setTextAndField("EDIT LENGTH OF COURSE", currentCourse.get("Years"),
-                rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"), true);
+                rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"));
 
        department.remove(currentCourse.get("Department"));
        department.add(0, currentCourse.get("Department"));
@@ -397,7 +394,7 @@ public class ManagerUI extends UserUI{
         Button edit = inputButton("UPDATE MODULE INFORMATION");
 
         makeModal(add, "ADD", addModule(), true);
-        makeModal( edit, "EDIT", new VBox(), false);
+        makeModal(edit, "EDIT", new VBox(), false);
         makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
 
         VBox moduleDetails = new VBox(new VBox());

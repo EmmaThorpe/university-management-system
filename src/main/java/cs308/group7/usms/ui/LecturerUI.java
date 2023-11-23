@@ -143,7 +143,7 @@ public class LecturerUI extends UserUI{
                         "Lab mark",
                         "MARK",
                         "LAB")
-        , true);
+        );
     }
 
     private VBox setExamMark(Map<String, String> currentStudent) {
@@ -155,7 +155,7 @@ public class LecturerUI extends UserUI{
                         "Exam mark",
                         "MARK",
                         "EXAM")
-        , true);
+        );
     }
 
     public void materials(String moduleID, List<Map<String, Boolean>> materialList, String semesters){

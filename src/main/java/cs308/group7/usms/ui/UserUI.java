@@ -339,13 +339,13 @@ public class UserUI extends MainUI{
     //used by both managers and lecturers
     protected VBox editModule(Map<String, String> currentModule) {
         VBox setCode = setTextAndField("EDIT CODE", currentModule.get("Id"),
-                lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"), true);
+                lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"));
         VBox setName = setTextAndField("EDIT NAME", currentModule.get("Name"),
-                lengthCheck(1,50,"EDIT NAME", "Name", "MODULE", "EDIT"), true);
+                lengthCheck(1,50,"EDIT NAME", "Name", "MODULE", "EDIT"));
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentModule.get("Description"),
-                lengthCheck(1,100,"EDIT DESCRIPTION", "Description", "MODULE", "EDIT"), true);
+                lengthCheck(1,100,"EDIT DESCRIPTION", "Description", "MODULE", "EDIT"));
         VBox setCredit = setTextAndField("EDIT CREDITS", currentModule.get("Credit"),
-                rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"), true);
+                rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"));
 
         return new VBox(setCode, setName, setDesc, setCredit);
     }
