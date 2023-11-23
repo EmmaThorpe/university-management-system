@@ -4,6 +4,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import java.util.ArrayList;
@@ -180,7 +182,15 @@ public class StudentUI extends UIElements{
         rightActionPanel.getChildren().add(0, materialDetails);
         rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = weekButtons(materialList, rightActionPanel, materialDetails);
+
+        VBox leftActionPanel;
+
+        if(twoSems){
+            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
+        }else{
+            leftActionPanel = weekButtons(materialList, rightActionPanel, materialDetails);
+        }
+
         twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
 
 
@@ -190,7 +200,7 @@ public class StudentUI extends UIElements{
     private VBox weekButtons(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
         VBox panel = new VBox();
         HBox tempButton;
-        for (int i=1; i<=2;i++) {
+        for (int i=1; i<=12;i++) {
             tempButton = makeWeekButton(i);
             tempButton.setOnMouseClicked(pickWeek(i, materialList.get(i-1), rightPanel, materialDetails));
             panel.getChildren().add(tempButton);
@@ -201,6 +211,51 @@ public class StudentUI extends UIElements{
 
         ScrollPane courseListPanel = new ScrollPane(panel);
         return makeScrollablePanel(courseListPanel);
+    }
+
+
+    private VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
+        ToggleGroup semSelected = new ToggleGroup();
+        ToggleButton sem1 = setToggleOption(semSelected, "Semester 1");
+        ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
+        sem1.setSelected(true);
+
+        HBox.setHgrow(sem1, Priority.ALWAYS);
+        HBox.setHgrow(sem2, Priority.ALWAYS);
+        HBox semOptions = new HBox(sem1, sem2);
+
+        VBox panelSem1 = new VBox();
+        VBox panelSem2 = new VBox();
+
+        HBox tempButton;
+        for (int sem=1; sem<=2;sem++) {
+            for (int week=1; week<=10;week++) {
+                tempButton = makeWeekButton(week);
+                tempButton.setOnMouseClicked(pickWeek(week, materialList.get((sem-1)*10 +(week-1)), rightPanel, materialDetails));
+
+                if(sem==1){
+                    panelSem1.getChildren().add(tempButton);
+                }else{
+                    panelSem2.getChildren().add(tempButton);
+                }
+
+
+            }
+        }
+
+
+        panelSem1.setSpacing(20.0);
+        panelSem1.setPadding(new Insets(10, 2, 10, 2));
+
+        panelSem2.setSpacing(20.0);
+        panelSem2.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane weekListPanel = new ScrollPane(panelSem1);
+
+        semSelected.selectedToggleProperty().addListener(toggleSem(semSelected, weekListPanel, panelSem1, panelSem2, rightPanel));
+
+
+        return new VBox(semOptions, makeScrollablePanel(weekListPanel));
     }
 
 

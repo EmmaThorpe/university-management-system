@@ -5,9 +5,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
@@ -1099,4 +1097,28 @@ public class UIElements extends MainUI{
         }
 
     }
+
+
+    /**Toggles the semesters button and flips the week buttons
+     * @param semSelected - the current sem selected
+     * @param weekContent - current week content
+     * @param sem1Content - the content of semester 1
+     * @param sem2Content - the content of semester 2
+     * @param rightPanel - the right hand side panel
+     * @return - Change listener that handles the toggling of semesters
+     */
+    protected ChangeListener<Toggle> toggleSem(ToggleGroup semSelected, ScrollPane weekContent, VBox sem1Content, VBox sem2Content, VBox rightPanel){
+        return (observableValue, currentToggle, newToggle) -> {
+            if (semSelected.getSelectedToggle().getUserData() == "Semester 1"){
+                weekContent.contentProperty().set(sem1Content);
+            } else {
+                weekContent.contentProperty().set(sem2Content);
+
+            }
+
+            rightPanel.setVisible(false);
+        };
+
+    }
+
 }

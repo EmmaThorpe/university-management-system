@@ -252,24 +252,6 @@ public class LecturerUI extends UIElements{
 
 
 
-
-
-    protected ChangeListener<Toggle> toggleSem(ToggleGroup semSelected, ScrollPane weekContent, VBox sem1Content, VBox sem2Content, VBox rightPanel){
-        return (observableValue, currentToggle, newToggle) -> {
-            if (semSelected.getSelectedToggle().getUserData() == "Semester 1"){
-                weekContent.contentProperty().set(sem1Content);
-            } else {
-                weekContent.contentProperty().set(sem2Content);
-
-            }
-
-            rightPanel.setVisible(false);
-        };
-
-    }
-
-
-
     private EventHandler<Event> pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
             materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
