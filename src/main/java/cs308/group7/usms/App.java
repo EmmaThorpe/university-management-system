@@ -4,7 +4,6 @@ import cs308.group7.usms.database.DatabaseConnection;
 
 import javax.sql.rowset.CachedRowSet;
 
-import static javafx.application.Application.launch;
 
 public class App{
     private static DatabaseConnection databaseConnection;

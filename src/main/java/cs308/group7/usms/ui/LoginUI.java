@@ -170,7 +170,7 @@ public class LoginUI extends MainUI{
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {
                 previousToggle.setSelected(true);
-            } else if (newToggle != null && previousToggle != null) {
+            } else if (previousToggle != null) {
                 if (newToggle.getUserData() == "lecturer") {
                     VBox fields = (VBox) formContent.getContent();
                     fields.getChildren().add(qualificationField);

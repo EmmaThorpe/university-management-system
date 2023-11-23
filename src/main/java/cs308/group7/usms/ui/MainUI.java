@@ -15,8 +15,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.fontawesome5.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class MainUI {
@@ -158,28 +156,11 @@ public class MainUI {
         return panel;
     }
 
-    protected VBox makeBottomPanel(VBox content) {
-        content.setPadding(new Insets(20));
-        content.setSpacing(20.0);
-        VBox panel = new VBox(content);
-        panel.getStyleClass().add("bottom-panel");
-
-        return panel;
-    }
-
     protected VBox makePanelWithAction(VBox content, Button action) {
         content.setPadding(new Insets(20));
 
-        HBox btnContainer = new HBox(action);
-        btnContainer.setAlignment(Pos.BOTTOM_CENTER);
-        btnContainer.setPadding(new Insets(0, 0, 20, 0));
 
-        VBox panel = new VBox(content, btnContainer);
-
-        panel.setSpacing(5);
-        panel.getStyleClass().add("panel");
-
-        return panel;
+        return makePanelButtons(null, content, action);
     }
 
 
@@ -209,11 +190,21 @@ public class MainUI {
         content.fitToHeightProperty().set(true);
         content.fitToWidthProperty().set(true);
 
+        return makePanelButtons(content, null, action);
+    }
+
+    private VBox makePanelButtons(ScrollPane contentPane, VBox contentVBox,  Button action){
         HBox btnContainer = new HBox(action);
         btnContainer.setAlignment(Pos.BOTTOM_CENTER);
         btnContainer.setPadding(new Insets(0, 0, 20, 0));
 
-        VBox panel = new VBox(content, btnContainer);
+        VBox panel;
+        if(contentVBox==null){
+            panel = new VBox(contentPane, btnContainer);
+        }else{
+            panel = new VBox(contentVBox, btnContainer);
+        }
+
 
         panel.setSpacing(5);
         panel.getStyleClass().add("panel");
@@ -256,16 +247,15 @@ public class MainUI {
         StackPane iconStack = new StackPane();
         Circle appGraphicBack = new Circle(radius);
         appGraphicBack.getStyleClass().add(backgroundStyle);
-        FontIcon appGraphic = icon;
-        appGraphic.getStyleClass().add(graphicStyle);
-        iconStack.getChildren().addAll(appGraphicBack, appGraphic);
+        icon.getStyleClass().add(graphicStyle);
+        iconStack.getChildren().addAll(appGraphicBack, icon);
         return iconStack;
     }
 
     /*
     Modal
      */
-    protected Dialog makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
+    protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
         DialogPane modalDialog = new DialogPane();
 
         modalDialog.getStyleClass().add("modal");
@@ -297,15 +287,12 @@ public class MainUI {
 
         Dialog modal = new Dialog();
         modal.setDialogPane(modalDialog);
-        trigger.setOnAction(e -> {
-            modal.showAndWait();
-        });
+        trigger.setOnAction(e -> modal.showAndWait());
 
         Window modalWindow = modal.getDialogPane().getScene().getWindow();
         modalWindow.setOnCloseRequest(windowEvent -> modalWindow.hide());
 
         currentModals.put(btnTxt, modal);
-        return modal;
     }
 
 
@@ -501,46 +488,6 @@ public class MainUI {
 
 
 
-    protected VBox inputFieldSetValue(String text, String value){
-        Label label=new Label(text);
-        TextField field = new TextField(value);
-
-        currentFields.put(text, field);
-
-        VBox inputField = new VBox(label, field);
-        inputField.setPadding(new Insets(10));
-
-        return inputField;
-    }
-
-    protected VBox inputFieldLong(String text){
-        Label label=new Label(text);
-        TextArea field=new TextArea();
-        field.setWrapText(true);
-        field.setPrefRowCount(4);
-
-        currentFields.put(text, field);
-
-        VBox inputField = new VBox(label, field);
-        inputField.setPadding(new Insets(10));
-
-        return inputField;
-    }
-
-    protected VBox inputFieldLongSetValue(String text, String value){
-        Label label=new Label(text);
-        TextArea field=new TextArea(value);
-        field.setWrapText(true);
-        field.setPrefRowCount(4);
-
-        currentFields.put(text, field);
-
-        VBox inputField = new VBox(label, field);
-        inputField.setPadding(new Insets(10));
-
-        return inputField;
-    }
-
 
 
     protected VBox dropdownField(String text, List<String> choices){
@@ -567,9 +514,19 @@ public class MainUI {
         return inputText;
     }
 
-    protected VBox textAndField(String text, ChangeListener<String> listener){
-        Label label=new Label(text);
+    protected VBox textAndField(String value, ChangeListener<String> listener){
+        Label label=new Label(value);
         TextField field=new TextField();
+        return styleTextAndField(field, label, value, listener, false);
+    }
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
+        Label label=new Label(text);
+        TextField field=new TextField(value);
+
+        return styleTextAndField(field, label, value, listener, valid);
+    }
+
+    private VBox styleTextAndField(TextInputControl field, Label label, String text, ChangeListener<String> listener, Boolean valid){
         Text inputText = new Text();
         inputText.getStyleClass().add("notice-text");
 
@@ -589,34 +546,10 @@ public class MainUI {
         field.setWrapText(true);
         field.setPrefRowCount(4);
 
-        Text inputText = new Text();
-        inputText.getStyleClass().add("notice-text");
-
-        currentFields.put(text, field);
-        currentText.put(text, inputText);
-
-        field.textProperty().addListener(listener);
-
-        validFields.put(text, false);
-
-        return new VBox(label, field, inputText);
+        return styleTextAndField(field, label, text, listener, false);
     }
 
-    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
-        Label label=new Label(text);
-        TextField field=new TextField(value);
-        Text inputText = new Text();
-        inputText.getStyleClass().add("notice-text");
 
-        currentFields.put(text, field);
-        currentText.put(text, inputText);
-
-        field.textProperty().addListener(listener);
-
-        validFields.put(text, valid);
-
-        return new VBox(label, field, inputText);
-    }
 
     protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
         Label label=new Label(text);
@@ -624,17 +557,7 @@ public class MainUI {
         field.setWrapText(true);
         field.setPrefRowCount(4);
 
-        Text inputText = new Text();
-        inputText.getStyleClass().add("notice-text");
-
-        currentFields.put(text, field);
-        currentText.put(text, inputText);
-
-        field.textProperty().addListener(listener);
-
-        validFields.put(text, valid);
-
-        return new VBox(label, field, inputText);
+        return styleTextAndField(field, label, text, listener, false);
     }
 
     protected Button inputButton(String text){
