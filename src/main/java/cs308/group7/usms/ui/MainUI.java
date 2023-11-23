@@ -34,10 +34,10 @@ public class MainUI {
 
     protected Map<String, String> currentValues;
 
-    public Map<String, String> getValues(){
-        return currentValues;
-    }
 
+    /*
+     * SCENE CONTROL
+     */
 
     /**  Display the first scene and shows the stage
      */
@@ -67,7 +67,25 @@ public class MainUI {
 
     }
 
+    public void createScene(String top, Pane mainContent, Pane bottom){
+        VBox title = setTitle(top);
 
+        BorderPane root = new BorderPane(mainContent);
+        root.setTop(title);
+        root.setBottom(bottom);
+
+        root.setPadding(new Insets(10));
+
+        currScene = new Scene(root);
+    }
+
+
+    /*
+     * VALUE CONTROL
+     */
+    public Map<String, String> getValues(){
+        return currentValues;
+    }
     public void resetCurrentValues(){
         currentFields = new HashMap<>();
         currentText = new HashMap<>();
@@ -76,15 +94,12 @@ public class MainUI {
         currentValues =  new HashMap<>();
     }
 
-
     /**gets the text fields currently shown on the page being shown
      * @return Map of text fields
      */
     public Map<String, Node> getCurrentFields(){
         return currentFields;
     }
-
-
 
     /** Gets the current text being shown on the stage currently
      * @return Current text displayed on scene
@@ -93,15 +108,11 @@ public class MainUI {
         return currentText;
     }
 
-
     public Map<String, Button> getCurrentButtons(){return currentButtons;}
 
-    public Map<String, Dialog> getCurrentModals(){return currentModals;}
-
-    /**
-     * Global components to be used across multiple UIs
-     **/
-
+    /*
+     * TITLES AND ICON
+     */
     private VBox setTitle(String titleText) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(35, "login-back" ,appGraphic, "login-graphic");
@@ -114,30 +125,18 @@ public class MainUI {
         return title;
     }
 
-
-    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
-        String operatorNameDisplay = operatorName.toUpperCase();
-        icon.getStyleClass().add("card-graphic");
-        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
-        op.setToggleGroup(group);
-        op.setUserData(operatorName.toLowerCase());
-        op.setContentDisplay(ContentDisplay.TOP);
-        op.getStyleClass().add("card-toggle");
-        return op;
+    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
+        StackPane iconStack = new StackPane();
+        Circle appGraphicBack = new Circle(radius);
+        appGraphicBack.getStyleClass().add(backgroundStyle);
+        icon.getStyleClass().add(graphicStyle);
+        iconStack.getChildren().addAll(appGraphicBack, icon);
+        return iconStack;
     }
 
-
-    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName) {
-        String operatorNameDisplay = operatorName.toUpperCase();
-        ToggleButton op = new ToggleButton(operatorNameDisplay);
-        op.setToggleGroup(group);
-        op.setUserData(operatorName);
-        op.setContentDisplay(ContentDisplay.TOP);
-        op.getStyleClass().add("card-toggle");
-        return op;
-    }
-
-
+    /*
+     * PANELS
+     */
     protected VBox makePanel(VBox content) {
         content.setPadding(new Insets(20));
         content.setSpacing(20.0);
@@ -163,7 +162,6 @@ public class MainUI {
         return makePanelButtons(null, content, action);
     }
 
-
     protected VBox makeScrollablePanel(ScrollPane content) {
         content.setPadding(new Insets(20));
         content.fitToHeightProperty().set(true);
@@ -183,7 +181,6 @@ public class MainUI {
 
         return panel;
     }
-
 
     protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
         content.setPadding(new Insets(20));
@@ -220,7 +217,6 @@ public class MainUI {
         return new VBox(scrollPart);
     }
 
-
     protected Button[] stylePanelActions (Button[] btns) {
         int i = 0;
         for (Button btn: btns) {
@@ -234,26 +230,8 @@ public class MainUI {
         return btns;
     }
 
-    public ComboBox makeDropdown(List<String> choices) {
-        ComboBox choiceDropdown = new ComboBox();
-        for (String choice : choices) {
-            choiceDropdown.getItems().add(choice);
-        }
-        choiceDropdown.getSelectionModel().select(0);
-        return choiceDropdown;
-    }
-
-    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
-        StackPane iconStack = new StackPane();
-        Circle appGraphicBack = new Circle(radius);
-        appGraphicBack.getStyleClass().add(backgroundStyle);
-        icon.getStyleClass().add(graphicStyle);
-        iconStack.getChildren().addAll(appGraphicBack, icon);
-        return iconStack;
-    }
-
     /*
-    Modal
+        MODALS
      */
     protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
         DialogPane modalDialog = new DialogPane();
@@ -294,8 +272,6 @@ public class MainUI {
 
         currentModals.put(btnTxt, modal);
     }
-
-
 
     public void makeNotificationModal(String openedModal,String modalContent, boolean isSuccess) {
         if (openedModal != null) {
@@ -399,7 +375,7 @@ public class MainUI {
     }
 
     /*
-     List
+     LIST AND INFO DETAILS
      */
     protected HBox listDetail(String title, String content){
         HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
@@ -413,8 +389,6 @@ public class MainUI {
 
         return detail;
     }
-
-
 
     protected HBox activeDetail(String text, Boolean isActive){
         HBox activatedDisplay = new HBox();
@@ -451,22 +425,9 @@ public class MainUI {
         return detail;
     }
 
-    public void createScene(String top, Pane mainContent, Pane bottom){
-        VBox title = setTitle(top);
-
-        BorderPane root = new BorderPane(mainContent);
-        root.setTop(title);
-        root.setBottom(bottom);
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
-    }
-
     /*
-     Input
+     INPUTS
      */
-
 
     protected VBox inputField(String text, Boolean password){
         Label label=new Label(text);
@@ -486,9 +447,35 @@ public class MainUI {
         return inputField;
     }
 
+    public ComboBox makeDropdown(List<String> choices) {
+        ComboBox choiceDropdown = new ComboBox();
+        for (String choice : choices) {
+            choiceDropdown.getItems().add(choice);
+        }
+        choiceDropdown.getSelectionModel().select(0);
+        return choiceDropdown;
+    }
 
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName, FontIcon icon) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        icon.getStyleClass().add("card-graphic");
+        ToggleButton op = new ToggleButton(operatorNameDisplay, icon);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName.toLowerCase());
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
+    }
 
-
+    protected ToggleButton setToggleOption(ToggleGroup group, String operatorName) {
+        String operatorNameDisplay = operatorName.toUpperCase();
+        ToggleButton op = new ToggleButton(operatorNameDisplay);
+        op.setToggleGroup(group);
+        op.setUserData(operatorName);
+        op.setContentDisplay(ContentDisplay.TOP);
+        op.getStyleClass().add("card-toggle");
+        return op;
+    }
 
     protected VBox dropdownField(String text, List<String> choices){
         Label label=new Label(text);
@@ -501,11 +488,6 @@ public class MainUI {
 
         return inputField;
     }
-
-
-
-
-
 
     protected Text inputText(String name){
         Text inputText = new Text();
@@ -549,8 +531,6 @@ public class MainUI {
         return styleTextAndField(field, label, text, listener, false);
     }
 
-
-
     protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
         Label label=new Label(text);
         TextArea field=new TextArea(value);
@@ -566,8 +546,6 @@ public class MainUI {
         return button;
     }
 
-
-
     protected HBox bottomButtons(HBox buttons){
         buttons.setSpacing(20.0);
         buttons.setAlignment(Pos.BOTTOM_CENTER);
@@ -575,6 +553,9 @@ public class MainUI {
         return buttons;
     }
 
+    /*
+     NOTIFICATIONS
+     */
 
     public void notificationScene(String mainText, String buttonText, boolean tick){
 
@@ -589,8 +570,6 @@ public class MainUI {
 
         createScene("NOTICE", notification, btnContainer);
     }
-
-
 
     private HBox setNotficationCard(String msg, Boolean tick) {
         FontIcon notfiGraphic;
@@ -614,53 +593,4 @@ public class MainUI {
 
         return notfiCard;
     }
-
-
-
-
-
-
-
-    public boolean validPassword(String password, Text output){
-        String specialChars = "@!#$%&/()=?@£{}.-;<>_,*";
-        boolean upperCharacter = false;
-        boolean lowerCharacter = false;
-        boolean number = false;
-        boolean specialCharacter = false;
-
-        for (int i = 0; i < password.length(); i++){
-            char curr = password.charAt(i);
-
-            if(Character.isUpperCase(curr)){
-                upperCharacter = true;
-            }else if(Character.isLowerCase(curr)){
-                lowerCharacter = true;
-            }else if(Character.isDigit(curr)){
-                number = true;
-            }else if(specialChars.contains(Character.toString(curr))){
-                specialCharacter = true;
-            }else{
-                output.setText("Contains character not allowed in passwords");
-                return false;
-            }
-        }
-
-        if(!upperCharacter){
-            output.setText("Password must contain an uppercase letter");
-            return false;
-        }else if(!lowerCharacter){
-            output.setText("Password must contain a lowercase letter");
-            return false;
-        }else if(!number){
-            output.setText("Password must contain a number");
-            return false;
-        }else if(!specialCharacter){
-            output.setText("Password must contain a special letter");
-            return false;
-        }
-        return true;
-    }
-
-
-
 }

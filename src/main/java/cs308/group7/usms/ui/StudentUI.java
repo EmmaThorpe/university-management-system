@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StudentUI extends UserUI{
+public class StudentUI extends UIElements{
 
     public void dashboard() {
         resetCurrentValues();

@@ -14,7 +14,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.*;
 
-public class ManagerUI extends UserUI{
+public class ManagerUI extends UIElements{
 
 
     /**

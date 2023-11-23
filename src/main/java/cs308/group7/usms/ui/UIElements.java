@@ -27,11 +27,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserUI extends MainUI{
+public class UIElements extends MainUI{
 
     private ImageView pdfImg;
 
-    /* FORM */
+    /* FORM VALIDATION */
 
     protected VBox resetPass(Boolean manager) {
         validFields = new HashMap<>();
@@ -74,6 +74,46 @@ public class UserUI extends MainUI{
 
     }
 
+    public boolean validPassword(String password, Text output){
+        String specialChars = "@!#$%&/()=?@£{}.-;<>_,*";
+        boolean upperCharacter = false;
+        boolean lowerCharacter = false;
+        boolean number = false;
+        boolean specialCharacter = false;
+
+        for (int i = 0; i < password.length(); i++){
+            char curr = password.charAt(i);
+
+            if(Character.isUpperCase(curr)){
+                upperCharacter = true;
+            }else if(Character.isLowerCase(curr)){
+                lowerCharacter = true;
+            }else if(Character.isDigit(curr)){
+                number = true;
+            }else if(specialChars.contains(Character.toString(curr))){
+                specialCharacter = true;
+            }else{
+                output.setText("Contains character not allowed in passwords");
+                return false;
+            }
+        }
+
+        if(!upperCharacter){
+            output.setText("Password must contain an uppercase letter");
+            return false;
+        }else if(!lowerCharacter){
+            output.setText("Password must contain a lowercase letter");
+            return false;
+        }else if(!number){
+            output.setText("Password must contain a number");
+            return false;
+        }else if(!specialCharacter){
+            output.setText("Password must contain a special letter");
+            return false;
+        }
+        return true;
+    }
+
     /** Checks the length of a field in a form
      * @param minLength - the minimum allowed amount of characters
      * @param maxLength - the maximum allowed amount of characters
@@ -98,16 +138,6 @@ public class UserUI extends MainUI{
         };
     }
 
-    private void checkFields(String model, String field, Boolean value, String manipulation){
-        switch (model) {
-            case "COURSE":
-                checkValidCourseFields(field, value, manipulation);
-                break;
-            case "MODULE":
-                checkValidModuleFields(field, value, manipulation);
-                break;
-        }
-    }
 
     /** Checks that a field in a form is within a number range
      * @param minValue - the minimum number value for the field
@@ -166,7 +196,16 @@ public class UserUI extends MainUI{
             }
         };
     }
-
+    private void checkFields(String model, String field, Boolean value, String manipulation){
+        switch (model) {
+            case "COURSE":
+                checkValidCourseFields(field, value, manipulation);
+                break;
+            case "MODULE":
+                checkValidModuleFields(field, value, manipulation);
+                break;
+        }
+    }
     private void checkValidPasswordFields(String type, Boolean value, Boolean manager){
         boolean disabled;
         validFields.put(type, value);
@@ -244,9 +283,35 @@ public class UserUI extends MainUI{
         return container;
     }
 
-    /* Panel layouts */
-    private void panelLayout(Pane actionPanel, HBox toolbar){
+    protected VBox createButtonsVBox(ArrayList<Button> btnsList){
+        Button[] btns = btnsList.toArray(new Button[0]);
+        btns = stylePanelActions(btns);
 
+        VBox btnView = new VBox(btns);
+
+        btnView.setAlignment(Pos.CENTER);
+        btnView.setSpacing(20.0);
+        btnView.setPadding(new Insets(10));
+
+        return btnView;
+    }
+
+    /* Panel layouts */
+    protected void createDashboard(Button[] mngBtns, HBox toolbar){
+        mngBtns = stylePanelActions(mngBtns);
+
+        VBox mainActionPanel = makePanel(new VBox(mngBtns));
+        mainActionPanel.setAlignment(Pos.CENTER);
+
+        HBox actionPanel = new HBox(mainActionPanel);
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        panelLayout(actionPanel, toolbar);
+    }
+
+    private void panelLayout(Pane actionPanel, HBox toolbar){
         BorderPane root = new BorderPane(actionPanel);
         root.setTop(toolbar);
         BorderPane.setMargin(toolbar, new Insets(15));
@@ -256,7 +321,6 @@ public class UserUI extends MainUI{
 
         currScene = new Scene(root);
     }
-
 
     protected void singlePanelLayout(VBox main, String title){
         HBox toolbar = makeToolbar(title);
@@ -304,6 +368,7 @@ public class UserUI extends MainUI{
 
         panelLayout(actionPanel, toolbar);
     }
+
 
     /**
         Module Elements
@@ -505,6 +570,15 @@ public class UserUI extends MainUI{
 
     }
 
+    //material elements
+    protected HBox makeWeekButton(int weekNo) {
+        Text nameDisplay = new Text("Week " + weekNo);
+
+        VBox weekDetails = new VBox(nameDisplay);
+        weekDetails.setSpacing(5.0);
+        return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
+    }
+
     //PDF viewer
 
     public void displayPDF(File file, String type){
@@ -578,11 +652,6 @@ public class UserUI extends MainUI{
     }
 
 
-
-
-
-
-
     protected Document showPage() {
 
 
@@ -614,45 +683,4 @@ public class UserUI extends MainUI{
         }
 
     }
-
-
-
-    protected HBox makeWeekButton(int weekNo) {
-        Text nameDisplay = new Text("Week " + weekNo);
-
-        VBox weekDetails = new VBox(nameDisplay);
-        weekDetails.setSpacing(5.0);
-        return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
-    }
-
-    protected void createDashboard(Button[] mngBtns, HBox toolbar){
-        mngBtns = stylePanelActions(mngBtns);
-
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
-        mainActionPanel.setAlignment(Pos.CENTER);
-
-        HBox actionPanel = new HBox(mainActionPanel);
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
-        panelLayout(actionPanel, toolbar);
-    }
-
-    protected VBox createButtonsVBox(ArrayList<Button> btnsList){
-        Button[] btns = btnsList.toArray(new Button[0]);
-        btns = stylePanelActions(btns);
-
-        VBox btnView = new VBox(btns);
-
-        btnView.setAlignment(Pos.CENTER);
-        btnView.setSpacing(20.0);
-        btnView.setPadding(new Insets(10));
-
-        return btnView;
-    }
-
-
-
-
 }

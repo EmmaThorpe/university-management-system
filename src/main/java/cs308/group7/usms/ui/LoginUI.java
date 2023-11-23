@@ -13,7 +13,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.*;
 
-public class LoginUI extends MainUI{
+public class LoginUI extends UIElements{
 
 
     /** Returns the login scene so it can then be displayed
