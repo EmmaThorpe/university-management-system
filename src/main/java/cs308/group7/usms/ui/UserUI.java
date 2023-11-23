@@ -87,29 +87,26 @@ public class UserUI extends MainUI{
                                                  String manipulation){
         return (obs, oldText, newText) -> {
             if (newText.isEmpty() || newText.length() < minLength || newText.length() >maxLength) {
-                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minLength)
-                        + " and " + String.valueOf(maxLength) + " characters long");
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, false, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, false, manipulation);
-                        break;
-                }
+                currentText.get(field).setText(fieldName + " must be between " + minLength
+                        + " and " + maxLength + " characters long");
+                checkFields(model, field, false, manipulation);
                 }
             else {
                 currentText.get(field).setText("");
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, true, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, true, manipulation);
-                        break;
-                }
+                checkFields(model, field, true, manipulation);
             }
         };
+    }
+
+    private void checkFields(String model, String field, Boolean value, String manipulation){
+        switch (model) {
+            case "COURSE":
+                checkValidCourseFields(field, value, manipulation);
+                break;
+            case "MODULE":
+                checkValidModuleFields(field, value, manipulation);
+                break;
+        }
     }
 
     /** Checks that a field in a form is within a number range
@@ -128,27 +125,13 @@ public class UserUI extends MainUI{
                     || !(newText.matches("\\d+"))
                     || Integer.parseInt(newText) < minValue
                     || Integer.parseInt(newText) >maxValue) {
-                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minValue)
-                        + " and " + String.valueOf(maxValue));
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, false, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, false, manipulation);
-                        break;
-                }
+                currentText.get(field).setText(fieldName + " must be between " + minValue
+                        + " and " + maxValue);
+                checkFields(model, field, false, manipulation);
             }
             else {
                 currentText.get(field).setText("");
-                switch (model) {
-                    case "COURSE":
-                        checkValidCourseFields(field, true, manipulation);
-                        break;
-                    case "MODULE":
-                        checkValidModuleFields(field, true, manipulation);
-                        break;
-                }
+                checkFields(model, field, true, manipulation);
             }
         };
     }
@@ -169,18 +152,16 @@ public class UserUI extends MainUI{
                     || !(newText.matches("\\d+"))
                     || Double.parseDouble(newText) < minValue
                     || Double.parseDouble(newText) >maxValue) {
-                currentText.get(field).setText(fieldName + " must be between " + String.valueOf(minValue)
-                        + " and " + String.valueOf(maxValue));
-                switch (model) {
-                    case "MARK":
-                        checkValidMarkFields(field, false, markType);
+                currentText.get(field).setText(fieldName + " must be between " + minValue
+                        + " and " + maxValue);
+                if (model.equals("MARK")) {
+                    checkValidMarkFields(field, false, markType);
                 }
             }
             else {
                 currentText.get(field).setText("");
-                switch (model) {
-                    case "MARK":
-                        checkValidMarkFields(field, true, markType);
+                if (model.equals("MARK")) {
+                    checkValidMarkFields(field, true, markType);
                 }
             }
         };
@@ -264,16 +245,7 @@ public class UserUI extends MainUI{
     }
 
     /* Panel layouts */
-
-    protected void singlePanelLayout(VBox main, String title){
-
-        HBox toolbar = makeToolbar(title);
-
-        HBox actionPanel = new HBox(main);
-
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+    private void panelLayout(Pane actionPanel, HBox toolbar){
 
         BorderPane root = new BorderPane(actionPanel);
         root.setTop(toolbar);
@@ -283,6 +255,20 @@ public class UserUI extends MainUI{
         root.setPadding(new Insets(10));
 
         currScene = new Scene(root);
+    }
+
+
+    protected void singlePanelLayout(VBox main, String title){
+        HBox toolbar = makeToolbar(title);
+
+        HBox actionPanel = new HBox(main);
+
+        actionPanel.setAlignment(Pos.CENTER);
+        actionPanel.setSpacing(20.0);
+        HBox.setHgrow(actionPanel, Priority.ALWAYS);
+
+        panelLayout(actionPanel, toolbar);
+
     }
 
     protected void twoPanelLayout(VBox left, VBox right, String title){
@@ -295,14 +281,7 @@ public class UserUI extends MainUI{
         actionPanel.setSpacing(20.0);
         HBox.setHgrow(actionPanel, Priority.ALWAYS);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        panelLayout(actionPanel, toolbar);
     }
 
     protected void threePanelLayout(VBox left, VBox right, VBox top, String title){
@@ -323,14 +302,7 @@ public class UserUI extends MainUI{
 
         actionPanel.setSpacing(10);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        panelLayout(actionPanel, toolbar);
     }
 
     /**
@@ -343,8 +315,7 @@ public class UserUI extends MainUI{
 
         VBox courseDetails = new VBox(nameDisplay, yearsDisplay);
         courseDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
-        return listButton;
+        return makeListButton(id, new FontIcon(FontAwesomeSolid.CHALKBOARD), courseDetails);
     }
 
     protected VBox moduleDetailDisplay(Map<String, String> tempModule) {
@@ -376,8 +347,7 @@ public class UserUI extends MainUI{
         VBox setCredit = setTextAndField("EDIT CREDITS", currentModule.get("Credit"),
                 rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"), true);
 
-        VBox container = new VBox(setCode, setName, setDesc, setCredit);
-        return container;
+        return new VBox(setCode, setName, setDesc, setCredit);
     }
 
 
@@ -427,8 +397,7 @@ public class UserUI extends MainUI{
         VBox userDetails = new VBox(nameDisplay, activatedDisplay);
         userDetails.setSpacing(5.0);
 
-        HBox listButton = makeListButton(userID, appGraphic, userDetails);
-        return listButton;
+        return makeListButton(userID, appGraphic, userDetails);
     }
 
     protected VBox userDetailDisplay(String userID, String managerID, String forename, String surname, String email,
@@ -472,8 +441,7 @@ public class UserUI extends MainUI{
         VBox userDetails = new VBox(nameDisplay, markDetails);
         userDetails.setSpacing(5.0);
 
-        HBox listButton = makeListButton(userID, new FontIcon(FontAwesomeSolid.USER), userDetails);
-        return listButton;
+        return makeListButton(userID, new FontIcon(FontAwesomeSolid.USER), userDetails);
     }
     protected VBox studentMarkDisplay(String userID, String fname, String lname, String labMark,
                                       String examMark) {
@@ -515,8 +483,7 @@ public class UserUI extends MainUI{
         VBox studentMarkDetails = new VBox(markDetails, decisionDetails);
         studentMarkDetails.setSpacing(5.0);
 
-        HBox listButton = makeListButton(moduleID, appGraphic, studentMarkDetails);
-        return listButton;
+        return makeListButton(moduleID, appGraphic, studentMarkDetails);
     }
 
     protected VBox decisionDisplay(String decision) {
@@ -525,14 +492,11 @@ public class UserUI extends MainUI{
         decisionMade.getStyleClass().add("decision-text");
         title.getStyleClass().add("decision-text");
 
-        if (decision.equals("AWARD")) {
-            decisionMade.getStyleClass().add("decision-award");
-        } else if (decision.equals("WITHDRAWAL")) {
-            decisionMade.getStyleClass().add("decision-withdraw");
-        } else if (decision.equals("RESIT")) {
-            decisionMade.getStyleClass().add("decision-resit");
-        } else {
-            decisionMade.getStyleClass().add("decision-na");
+        switch (decision) {
+            case "AWARD" -> decisionMade.getStyleClass().add("decision-award");
+            case "WITHDRAWAL" -> decisionMade.getStyleClass().add("decision-withdraw");
+            case "RESIT" -> decisionMade.getStyleClass().add("decision-resit");
+            default -> decisionMade.getStyleClass().add("decision-na");
         }
 
         HBox decisionDisplay = new HBox(title, decisionMade);
@@ -643,9 +607,7 @@ public class UserUI extends MainUI{
             BufferedImage image = (BufferedImage) currentDocument.getPageImage(page,
                     GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0f, scale);
 
-            WritableImage pdfImage = SwingFXUtils.toFXImage(image, null);
-
-            return pdfImage;
+            return SwingFXUtils.toFXImage(image, null);
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -660,8 +622,7 @@ public class UserUI extends MainUI{
 
         VBox weekDetails = new VBox(nameDisplay);
         weekDetails.setSpacing(5.0);
-        HBox listButton = makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
-        return listButton;
+        return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
     }
 
     protected void createDashboard(Button[] mngBtns, HBox toolbar){
@@ -675,14 +636,7 @@ public class UserUI extends MainUI{
         actionPanel.setSpacing(20.0);
         HBox.setHgrow(actionPanel, Priority.ALWAYS);
 
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        panelLayout(actionPanel, toolbar);
     }
 
     protected VBox createButtonsVBox(ArrayList<Button> btnsList){
