@@ -522,7 +522,7 @@ public class ManagerController{
 
             if (success) {
                 u.setManager(managerID);
-                pageSetter("MANAGE ACCOUNTS", false);
+                pageSetter("MANAGE SIGN-UP WORKFLOW", false);
                 manUI.makeNotificationModal(null, "Account successfully activated", true);
             } else {
                 manUI.makeNotificationModal(null, "Error activating account", false);

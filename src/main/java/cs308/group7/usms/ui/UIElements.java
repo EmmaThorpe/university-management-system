@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
@@ -284,7 +285,7 @@ public class UIElements extends MainUI{
                                                 String markType){
         return (obs, oldText, newText) -> {
             if (newText.isEmpty()
-                    || !(newText.matches("\\d+"))
+                    || !(newText.matches("^\\d*\\.\\d+|\\d+\\.\\d*$"))
                     || Double.parseDouble(newText) < minValue
                     || Double.parseDouble(newText) >maxValue) {
                 currentText.get(field).setText(fieldName + " must be between " + minValue
@@ -459,20 +460,20 @@ public class UIElements extends MainUI{
 
     /**
      * Creates a toolbar view
-     * @param role  The string representation of the type of user signed in
+     * @param title  The string representation of the page the user is on
      * @return      A HBox that will be used at the top of a user's view
-     *              as a toolbar that contains their user type and the actions
+     *              as a toolbar that contains their current page and the actions
      *              to log out and return to their main dashboard
      */
-    protected HBox makeToolbar(String role) {
+    protected HBox makeToolbar(String title) {
         FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
         StackPane iconStack = makeCircleIcon(25, "toolbar-back" ,appGraphic, "toolbar-graphic");
 
-        Text title = new Text(role);
-        title.setTranslateY(5.0);
-        title.getStyleClass().add("toolbar-title");
+        Text toolbarTitle = new Text(title.toUpperCase());
+        toolbarTitle.setTranslateY(5.0);
+        toolbarTitle.getStyleClass().add("toolbar-title");
 
-        HBox titleContainer = new HBox(iconStack, title);
+        HBox titleContainer = new HBox(iconStack, toolbarTitle);
         titleContainer.setPadding(new Insets(10));
         titleContainer.setSpacing(10);
 
@@ -536,6 +537,25 @@ public class UIElements extends MainUI{
         HBox.setHgrow(actionPanel, Priority.ALWAYS);
 
         panelLayout(actionPanel, toolbar);
+    }
+
+    /**
+     * Constructs a single panel layout in which the panel displays
+     * when the model has no values
+     * @param model     The input model that is empty
+     * @return          A VBox that will be used to show the
+     *                  notice that the model is empty to the user
+     */
+    protected VBox emptyModelContent(String model) {
+        Text emptyNotice = new Text("There are no " + model);
+        emptyNotice.getStyleClass().add("empty-notice-text");
+        VBox emptyContainer = new VBox(emptyNotice);
+        emptyContainer.setAlignment(Pos.CENTER);
+
+        VBox emptyDisplay = infoContainer(emptyContainer);
+        emptyDisplay.setSpacing(20.0);
+        emptyDisplay.setPadding(new Insets(10));
+        return emptyDisplay;
     }
 
     /* Panel layouts */

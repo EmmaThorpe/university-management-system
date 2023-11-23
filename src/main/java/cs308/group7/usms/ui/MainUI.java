@@ -208,7 +208,6 @@ public class MainUI {
         return panel;
     }
 
-
     /** Creates a top panel
      * @param content - VBox of content to put in panel
      * @return - VBox containg the panel

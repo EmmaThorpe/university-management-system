@@ -201,7 +201,7 @@ public class LecturerController{
         List<Map<String, String>> enrolled = new ArrayList<>();
         DatabaseConnection db = App.getDatabaseConnection();
         try {
-            CachedRowSet result = db.select(new String[]{"Students, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
+            CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
             List<HashMap<String, String>> users = new ArrayList<>();
 
             while (result.next()) {

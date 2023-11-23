@@ -57,20 +57,25 @@ public class ManagerUI extends UIElements{
         accountBtnsList.add(inputButton("ACTIVATE"));
         accountBtnsList.add(inputButton("DEACTIVATE"));
 
-        stylePanelActions(accountBtnsList.toArray(new Button[0]));
+        makeModal(assign, "ASSIGN LECTURER", assignModule(moduleList), false);
+        makeModal(reset, "RESET USER PASSWORD", resetPass(true), true);
+        makeModal(enrol, "ENROL STUDENT", enrolCourse(coursesList), false);
 
-        makeModal(assign,"ASSIGN LECTURER",  assignModule(moduleList),  false);
-        makeModal(reset,"RESET USER PASSWORD",  resetPass(true), true);
-        makeModal(enrol,"ENROL STUDENT", enrolCourse(coursesList), false);
+        if (accountList.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("accounts"));
+            singlePanelLayout(mainPanel, "Accounts");
+        } else {
+            stylePanelActions(accountBtnsList.toArray(new Button[0]));
 
-        VBox accountDetails = new VBox(new VBox());
+            VBox accountDetails = new VBox(new VBox());
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, accountDetails);
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, accountDetails);
+            rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountDetails);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
+            VBox leftActionPanel = userButtons(accountList, rightActionPanel, accountDetails);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
+        }
 
     }
 
@@ -249,15 +254,20 @@ public class ManagerUI extends UIElements{
         makeModal( edit, "EDIT", new VBox(),  false);
         makeModal(assign, "ASSIGN", new VBox(), false);
 
-        VBox courseDetails = new VBox(new VBox());
+        if (courseList.isEmpty()) {
+            VBox mainPanel = makePanelWithAction(emptyModelContent("courses"), add);
+            singlePanelLayout(mainPanel, "Courses");
+        } else {
+            VBox courseDetails = new VBox(new VBox());
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, courseDetails);
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, courseDetails);
+            rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseDetails, departmentList,
-                moduleList);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
+            VBox leftActionPanel = courseButtons(courseList, add, rightActionPanel, courseDetails, departmentList,
+                    moduleList);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Courses");
+        }
     }
 
     private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel,
@@ -397,14 +407,19 @@ public class ManagerUI extends UIElements{
         makeModal(edit, "EDIT", new VBox(), false);
         makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
 
-        VBox moduleDetails = new VBox(new VBox());
+        if (moduleList.isEmpty()) {
+            VBox mainPanel = makePanelWithAction(emptyModelContent("modules"), add);
+            singlePanelLayout(mainPanel, "Modules");
+        } else {
+            VBox moduleDetails = new VBox(new VBox());
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, moduleDetails);
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, moduleDetails);
+            rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = moduleButtons(moduleList, add, rightActionPanel, moduleDetails);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+            VBox leftActionPanel = moduleButtons(moduleList, add, rightActionPanel, moduleDetails);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+        }
     }
 
     private VBox moduleButtons(List<Map<String, String>> moduleList, Button addBtn, VBox rightPanel, VBox moduleDetails){
@@ -486,16 +501,21 @@ public class ManagerUI extends UIElements{
 
         accountBtnsList.add(inputButton("APPROVE SIGN UP"));
 
-        stylePanelActions(accountBtnsList.toArray(new Button[0]));
+        if (accountList.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("sign ups"));
+            singlePanelLayout(mainPanel, "Sign Up Workflow");
+        } else {
+            stylePanelActions(accountBtnsList.toArray(new Button[0]));
 
-        VBox accountDetails = new VBox(new VBox());
+            VBox accountDetails = new VBox(new VBox());
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, accountDetails);
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, accountDetails);
+            rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = signupButtons(accountList, rightActionPanel, accountDetails);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Sign Up Workflow");
+            VBox leftActionPanel = signupButtons(accountList, rightActionPanel, accountDetails);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Sign Up Workflow");
+        }
 
     }
 
@@ -554,9 +574,14 @@ public class ManagerUI extends UIElements{
         resetCurrentValues();
         Button addRuleBtn = inputButton("ADD BUSINESS RULE");
 
-        VBox actionPanel = listOfRules(activatedBusinessRules, associatedOfRules, addRuleBtn);
+        if (activatedBusinessRules.isEmpty()) {
+            VBox mainPanel = makePanelWithAction(emptyModelContent("business rules"), addRuleBtn);
+            singlePanelLayout(mainPanel, "MANAGE BUSINESS RULES");
+        } else {
+            VBox actionPanel = listOfRules(activatedBusinessRules, associatedOfRules, addRuleBtn);
 
-        singlePanelLayout(actionPanel, "MANAGE BUSINESS RULES");
+            singlePanelLayout(actionPanel, "MANAGE BUSINESS RULES");
+        }
     }
 
 
@@ -704,9 +729,6 @@ public class ManagerUI extends UIElements{
 
         return makePanel(new VBox( ruleSelector, rulePanel));
     }
-
-
-
 
 
     private VBox dropdownCreator(Boolean course, String name, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){

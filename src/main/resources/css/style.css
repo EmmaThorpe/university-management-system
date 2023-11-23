@@ -388,6 +388,14 @@
     -fx-text-alignment: center;
 }
 
+.empty-notice-text {
+    -fx-fill: -color-dark-grey;
+    -fx-opacity: 0.9;
+    -fx-font-size: 15;
+    -fx-text-alignment: center;
+    -fx-padding: 10;
+}
+
 .pagination-text {
     -fx-fill: -color-dark-grey;
     -fx-font-size: 15;
