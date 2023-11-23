@@ -1,13 +1,16 @@
 package cs308.group7.usms.controller;
 
+import cs308.group7.usms.App;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import org.jetbrains.annotations.Nullable;
 import org.jpedal.exception.PdfException;
 
+import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -142,27 +145,45 @@ public class StudentController{
         }
     }
 
-
     /**
-     * Get lecture material for a module, from a given semester and week.
-     * @return A map representing the lecture material, with the following keys:<br>
-     *         {@code LectureNote, LabNote}
-     * @deprecated Due to be replaced with two methods (for lecture + lab) that return PDFs (in some format)
+     * Get the lecture note for a module, from a given semester and week.
+     * @return A file representing the lecture note, or null if it doesn't exist
      */
-    public Map<String,String> getLectureMaterials(String moduleID, int semester, int week) {
+    @Nullable
+    public File getLectureNote(String moduleID, int semester, int week) {
         try {
             Material m = new Module(moduleID).getMaterial(semester, week);
-            Map<String, String> materialMap = new HashMap<>();
-            materialMap.put("LectureNote", m.getLectureNote());
-            materialMap.put("LabNote", m.getLabNote());
-            return materialMap;
-        } catch (SQLException e) {
-            System.out.println("Failed to get lecture materials for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
-            return Collections.emptyMap();
+            Optional<byte[]> lectureNote = m.getLectureNote();
+            if (lectureNote.isEmpty()) return null;
+
+            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
+            try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
+            return f;
+        } catch (Exception e) {
+            System.out.println("Failed to get the lecture note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
+            return null;
         }
     }
 
+    /**
+     * Get the lab note for a module, from a given semester and week.
+     * @return A file representing the lab note, or null if it doesn't exist
+     */
+    @Nullable
+    public File getLabNote(String moduleID, int semester, int week) {
+        try {
+            Material m = new Module(moduleID).getMaterial(semester, week);
+            Optional<byte[]> labNote = m.getLabNote();
+            if (labNote.isEmpty()) return null;
 
+            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
+            try (OutputStream out = new FileOutputStream(f)) { out.write(labNote.get()); }
+            return f;
+        } catch (Exception e) {
+            System.out.println("Failed to get the lab note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage());
+            return null;
+        }
+    }
 
     /**
      * Get all lecture material for a module.

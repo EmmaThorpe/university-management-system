@@ -157,6 +157,12 @@ public class DatabaseConnection implements Closeable {
         return result;
     }
 
+    /**
+     * Used to get a connection to the database for more complex updates.
+     * @deprecated Not recommended for use unless absolutely necessary.
+     */
+    public Connection getConnection() throws SQLException { return dataSource.getConnection(); }
+
     public String sqlString(String s) {
         s = s.replaceAll("'", "\\\\'");
         return "'" + s + "'";
