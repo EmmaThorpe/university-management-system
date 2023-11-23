@@ -87,7 +87,7 @@ Create Table Users(
 
 Create Table Lecturer(
     UserID VARCHAR(5) NOT NULL,
-    ModuleID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(5),
     Qualification Varchar(15) NOT NULL,
     CONSTRAINT pkLecturer PRIMARY KEY(UserID),
     Constraint fkLecturer FOREIGN KEY(UserID) REFERENCES Users(UserID),
@@ -97,8 +97,8 @@ Create Table Lecturer(
 
 Create Table Student(
     UserID VARCHAR(5) NOT NULL,
-    CourseID VARCHAR(5) NOT NULL,
-    Decision VARCHAR(10) NOT NULL,
+    CourseID VARCHAR(5),
+    Decision VARCHAR(11) NOT NULL,
     yearOfStudy Int NOT NULL,
     CONSTRAINT pkStudent PRIMARY KEY(UserID),
     Constraint fkStudent FOREIGN KEY(UserID) REFERENCES Users(UserID),
