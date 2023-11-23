@@ -1,22 +1,21 @@
 package cs308.group7.usms.ui;
 
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LecturerUI extends UserUI{
+public class LecturerUI extends UIElements{
 
     public void dashboard() {
         resetCurrentValues();
@@ -30,24 +29,7 @@ public class LecturerUI extends UserUI{
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
         Button[] mngBtns = {viewModuleBtn, giveMarkBtn, addMaterialBtn, passwordBtn};
-        mngBtns = stylePanelActions(mngBtns);
-
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
-        mainActionPanel.setAlignment(Pos.CENTER);
-
-        HBox actionPanel = new HBox(mainActionPanel);
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        createDashboard(mngBtns, toolbar);
     }
 
     /* Module dashboard */
@@ -110,7 +92,7 @@ public class LecturerUI extends UserUI{
         return makeScrollablePanel(accountListPanel);
     }
 
-    private EventHandler pickStudent(Map<String, String> user, VBox rightPanel, VBox accDetails){
+    private EventHandler<Event> pickStudent(Map<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             currentValues = new HashMap<>();
             currentValues.put("StudentID", user.get("userID"));
@@ -139,8 +121,8 @@ public class LecturerUI extends UserUI{
 
             VBox studentActionsDisplay = makeScrollablePart(studentBtnView);
 
-            setModalContent(currentModals.get("ASSIGN LAB MARK"), setLabMark(user));
-            setModalContent(currentModals.get("ASSIGN EXAM MARK"), setExamMark(user));
+            setModalContent("ASSIGN LAB MARK", setLabMark(user));
+            setModalContent("ASSIGN EXAM MARK", setExamMark(user));
 
             rightPanel.getChildren().set(0, accDetails);
             rightPanel.getChildren().set(1, studentActionsDisplay);
@@ -153,7 +135,7 @@ public class LecturerUI extends UserUI{
      **/
 
     private VBox setLabMark(Map<String, String> currentStudent) {
-        VBox setMark = setTextAndField("LAB MARK", currentStudent.get("labMark"),
+        return setTextAndField("LAB MARK", currentStudent.get("labMark"),
                 markCheck(
                         0.0,
                         100.0,
@@ -162,11 +144,10 @@ public class LecturerUI extends UserUI{
                         "MARK",
                         "LAB")
         );
-        return setMark;
     }
 
     private VBox setExamMark(Map<String, String> currentStudent) {
-        VBox setMark = setTextAndField("EXAM MARK", currentStudent.get("examMark"),
+        return setTextAndField("EXAM MARK", currentStudent.get("examMark"),
                 markCheck(
                         0.0,
                         100.0,
@@ -175,7 +156,6 @@ public class LecturerUI extends UserUI{
                         "MARK",
                         "EXAM")
         );
-        return setMark;
     }
 
     public void materials(String moduleID, List<Map<String, Boolean>> materialList, String semesters){
@@ -290,7 +270,7 @@ public class LecturerUI extends UserUI{
 
 
 
-    private EventHandler pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
+    private EventHandler<Event> pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
             materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
 
@@ -324,17 +304,7 @@ public class LecturerUI extends UserUI{
             materialBtnsList.add(currentButtons.get("CHANGE LECTURE MATERIAL"));
             materialBtnsList.add(currentButtons.get("CHANGE LAB MATERIAL"));
 
-
-            Button[] materialBtns = materialBtnsList.toArray(new Button[0]);
-            materialBtns = stylePanelActions(materialBtns);
-
-            VBox materialBtnView = new VBox(materialBtns);
-
-            materialBtnView.setAlignment(Pos.CENTER);
-            materialBtnView.setSpacing(20.0);
-            materialBtnView.setPadding(new Insets(10));
-
-            courseActionsDisplay = makeScrollablePart(materialBtnView);
+            courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
 
 
 

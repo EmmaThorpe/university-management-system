@@ -13,7 +13,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.*;
 
-public class LoginUI extends MainUI{
+public class LoginUI extends UIElements{
 
 
     /** Returns the login scene so it can then be displayed
@@ -55,23 +55,41 @@ public class LoginUI extends MainUI{
         VBox userField = new VBox(userFieldLabel, userOptions);
         userField.setPadding(new Insets(5));
 
-        VBox emailField = textAndField("EMAIL", emailCheck());
-        VBox forenameField = textAndField("FORENAME", lengthCheck("FORENAME"));
-        VBox surnameField = textAndField("SURNAME", lengthCheck("SURNAME"));
-        VBox passwordField = textAndField("PASSWORD", passwordCheck());
-        VBox confirmPasswordField = textAndField("CONFIRM PASSWORD", confirmPasswordCheck());
-        VBox qualificationField = textAndField("QUALIFICATION", lengthCheck("QUALIFICATION"));
+        VBox emailField = textAndField("EMAIL", emailCheck("EMAIL", "Email", "SIGNUP", null));
+        VBox forenameField = textAndField("FORENAME", lengthCheck(1, 20, "FORENAME", "Forename",
+                "SIGNUP", null));
+        VBox surnameField = textAndField("SURNAME", lengthCheck(1, 20, "SURNAME", "Surname",
+                "SIGNUP", null));
+
+        List<String> genderOptions = new ArrayList<>();
+        genderOptions.add("Male");
+        genderOptions.add("Female");
+        genderOptions.add("Non-binary");
+        genderOptions.add("Other/Prefer not to say");
+        VBox genderField = dropdownField("GENDER", genderOptions);
+
+        VBox dobField = textAndField("DATE OF BIRTH", dateCheck("DATE OF BIRTH", "Date of birth", "SIGNUP", null));
+        VBox passwordField = textAndField("PASSWORD", passwordCheck("PASSWORD", false, true));
+        VBox confirmPasswordField = textAndField("CONFIRM PASSWORD", confirmPasswordCheck("CONFIRM PASSWORD",
+                "PASSWORD", false, true));
+        VBox qualificationField = textAndField("QUALIFICATION", lengthCheck(1, 20, "QUALIFICATION", "Qualification",
+                "SIGNUP", null));
 
         HBox.setHgrow(forenameField, Priority.ALWAYS);
         HBox.setHgrow(surnameField, Priority.ALWAYS);
         HBox nameField = new HBox(forenameField, surnameField);
         nameField.setSpacing(10.0);
 
-        VBox formFields = new VBox(userField, emailField, nameField, passwordField, confirmPasswordField);
+        HBox.setHgrow(genderField, Priority.ALWAYS);
+        HBox.setHgrow(dobField, Priority.ALWAYS);
+        HBox birthField = new HBox(genderField, dobField);
+        birthField.setSpacing(10.0);
+
+        VBox formFields = new VBox(userField, emailField, nameField, birthField, passwordField, confirmPasswordField);
         formFields.setPadding(new Insets(5));
         formFields.setSpacing(5);
-
         ScrollPane fieldScroll = new ScrollPane(formFields);
+        fieldScroll.setFitToWidth(true);
 
         userSelected.selectedToggleProperty().addListener(toggleUser(fieldScroll, qualificationField));
 
@@ -84,102 +102,27 @@ public class LoginUI extends MainUI{
         returnBtn.getStyleClass().add("outline-button");
 
         VBox formContent = new VBox(fieldScroll);
-        formContent.setAlignment(Pos.BASELINE_CENTER);
+        formContent.setAlignment(Pos.CENTER);
         HBox formBtns = bottomButtons(new HBox(Submit, returnBtn));
 
         createScene("SIGN UP", formContent, formBtns);
-    }
-
-    private void checkValidFields(String type, Boolean value){
-        validFields.put(type, value);
-        if(value && (validFields.get("QUALIFICATION") || validFields.get("STUDENT"))){
-            boolean overallValid = true;
-            for (String key : validFields.keySet()) {
-                if(!key.equals("QUALIFICATION") && !key.equals("STUDENT")){
-                    overallValid = overallValid && validFields.get(key);
-                }
-            }
-            if(overallValid){
-                currentButtons.get("SUBMIT").setDisable(false);
-            }
-        }else{
-            currentButtons.get("SUBMIT").setDisable(true);
-        }
-
-    }
-
-    protected ChangeListener<String> lengthCheck(String fieldType){
-        return (observableVal, oldVal, newVal) -> {
-            if (newVal.isEmpty() || newVal.length() > 20) {
-                currentText.get(fieldType).setText(fieldType + " must be between 1 and 20 characters");
-                checkValidFields(fieldType, false);
-            } else {
-                currentText.get(fieldType).setText("");
-                checkValidFields(fieldType, true);
-            }
-        };
-
-    }
-
-    protected ChangeListener<String> emailCheck(){
-        return (obs, oldText, newText) -> {
-            if (!EmailValidator.getInstance().isValid(newText)) {
-                currentText.get("EMAIL").setText("Not a valid Email format");
-                checkValidFields("EMAIL", false);
-            } else if (newText.length() > 20) {
-                currentText.get("EMAIL").setText("Emails must be less than or equal to 20 character");
-                checkValidFields("EMAIL", false);
-            } else {
-                currentText.get("EMAIL").setText("");
-                checkValidFields("EMAIL", true);
-            }
-        };
-
-    }
-
-    protected ChangeListener<String> passwordCheck(){
-        return (obs, oldText, newText) -> {
-            if (newText.length() <8 || newText.length()>20) {
-                currentText.get("PASSWORD").setText("Passwords must be between 8 and 20 characters long");
-                checkValidFields("PASSWORD", false);
-            } else if (!validPassword(newText, currentText.get("PASSWORD"))) {
-                checkValidFields("PASSWORD", false);
-            }else{
-                currentText.get("PASSWORD").setText("");
-                checkValidFields("PASSWORD", true);
-            }
-        };
-
-    }
-
-    protected ChangeListener<String> confirmPasswordCheck(){
-        return (obs, oldText, newText) -> {
-            if (!newText.equals(currentFields.get("PASSWORD").getAccessibleText())) {
-                currentText.get("CONFIRM PASSWORD").setText("Passwords must match");
-                checkValidFields("CONFIRM PASSWORD", false);
-            } else {
-                currentText.get("CONFIRM PASSWORD").setText("");
-                checkValidFields("CONFIRM PASSWORD", true);
-            }
-        };
-
     }
 
     protected ChangeListener<Toggle> toggleUser(ScrollPane formContent, VBox qualificationField) {
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {
                 previousToggle.setSelected(true);
-            } else if (newToggle != null && previousToggle != null) {
+            } else if (previousToggle != null) {
                 if (newToggle.getUserData() == "lecturer") {
                     VBox fields = (VBox) formContent.getContent();
                     fields.getChildren().add(qualificationField);
                     formContent.contentProperty().set(fields);
-                    checkValidFields("STUDENT", false);
+                    checkValidSignupFields("STUDENT", false);
                 } else {
                     VBox fields = (VBox) formContent.getContent();
                     fields.getChildren().remove(qualificationField);
                     formContent.contentProperty().set(fields);
-                    checkValidFields("STUDENT", true);
+                    checkValidSignupFields("STUDENT", true);
                 }
             }
         };

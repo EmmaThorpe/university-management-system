@@ -1,37 +1,18 @@
 package cs308.group7.usms.ui;
-
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import org.icepdf.core.exceptions.PDFException;
-import org.icepdf.core.exceptions.PDFSecurityException;
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.Page;
-import org.icepdf.core.util.GraphicsRenderingHints;
-import org.jpedal.PdfDecoderFX;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StudentUI extends UserUI{
+public class StudentUI extends UIElements{
 
-    private final PdfDecoderFX pdf = new PdfDecoderFX();
     public void dashboard() {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Student");
@@ -46,24 +27,7 @@ public class StudentUI extends UserUI{
 
 
         Button[] mngBtns = {viewDecisionBtn, viewCourseBtn, viewModuleBtn, passwordBtn, fileBtn};
-        mngBtns = stylePanelActions(mngBtns);
-
-        VBox mainActionPanel = makePanel(new VBox(mngBtns));
-        mainActionPanel.setAlignment(Pos.CENTER);
-
-        HBox actionPanel = new HBox(mainActionPanel);
-        actionPanel.setAlignment(Pos.CENTER);
-        actionPanel.setSpacing(20.0);
-        HBox.setHgrow(actionPanel, Priority.ALWAYS);
-
-        BorderPane root = new BorderPane(actionPanel);
-        root.setTop(toolbar);
-        BorderPane.setMargin(toolbar, new Insets(15));
-        BorderPane.setMargin(actionPanel, new Insets(15));
-
-        root.setPadding(new Insets(10));
-
-        currScene = new Scene(root);
+        createDashboard(mngBtns, toolbar);
     }
 
     /**
@@ -92,7 +56,7 @@ public class StudentUI extends UserUI{
                     module.get("Name"),
                     module.get("Credit")
             );
-            tempButton.setOnMouseClicked(pickModuleMark(module.get("Id"), markList, rightPanel));
+            tempButton.setOnMouseClicked(event->pickModuleMark(module.get("Id"), markList, rightPanel));
             panel.getChildren().add(tempButton);
         }
 
@@ -103,30 +67,30 @@ public class StudentUI extends UserUI{
         return makeScrollableBottomPanel(moduleListPanel);
     }
 
-    private EventHandler pickModuleMark(String id, List<Map<String, String>> markList,
-                                        VBox rightPanel){
-        return event -> {
-            VBox markListItems = new VBox();
-            for (Map<String, String> mark : markList) {
-                if (mark.get("moduleID").equals(id)) {
-                    HBox listItem = makeMarkList(
-                            mark.get("moduleID"),
-                            mark.get("lab"),
-                            mark.get("exam"),
-                            mark.get("attempt"),
-                            mark.get("grade")
-                    );
-                    markListItems.getChildren().add(listItem);
-                }
-            }
-            markListItems.setSpacing(20.0);
-            markListItems.setPadding(new Insets(10, 2, 10, 2));
+    private void pickModuleMark(String id, List<Map<String, String>> markList,
+                                               VBox rightPanel){
 
-            ScrollPane markListPanel = new ScrollPane(markListItems);
-            rightPanel.getChildren().set(0, (markListPanel));
-            rightPanel.setVisible(true);
-        };
+        VBox markListItems = new VBox();
+        for (Map<String, String> mark : markList) {
+            if (mark.get("moduleID").equals(id)) {
+                HBox listItem = makeMarkList(
+                        mark.get("moduleID"),
+                        mark.get("lab"),
+                        mark.get("exam"),
+                        mark.get("attempt"),
+                        mark.get("grade")
+                );
+                markListItems.getChildren().add(listItem);
+            }
+        }
+        markListItems.setSpacing(20.0);
+        markListItems.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane markListPanel = new ScrollPane(markListItems);
+        rightPanel.getChildren().set(0, (markListPanel));
+        rightPanel.setVisible(true);
     }
+
 
 
 
@@ -160,7 +124,7 @@ public class StudentUI extends UserUI{
                     module.get("Name"),
                     module.get("Credit")
             );
-            tempButton.setOnMouseClicked(pickModule(module.get("Id"), module, rightPanel, moduleDetails));
+            tempButton.setOnMouseClicked(event->pickModule(module.get("Id"), module, rightPanel, moduleDetails));
             panel.getChildren().add(tempButton);
         }
 
@@ -171,33 +135,24 @@ public class StudentUI extends UserUI{
         return makeScrollablePanel(courseListPanel);
     }
 
-    private EventHandler pickModule(String id, Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
-        return event -> {
-            moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
+    private void pickModule(String id, Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
 
-            ArrayList<Button> moduleBtnsList = new ArrayList<>();
+        moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
 
-            moduleBtnsList.add(currentButtons.get("VIEW MATERIALS"));
+        ArrayList<Button> moduleBtnsList = new ArrayList<>();
 
-            Button[] moduleBtns = moduleBtnsList.toArray(new Button[0]);
-            moduleBtns = stylePanelActions(moduleBtns);
+        moduleBtnsList.add(currentButtons.get("VIEW MATERIALS"));
 
-            VBox moduleBtnView = new VBox(moduleBtns);
+        currentText = new HashMap<>();
+        currentValues.put("ID", id);
 
-            moduleBtnView.setAlignment(Pos.CENTER);
-            moduleBtnView.setSpacing(20.0);
-            moduleBtnView.setPadding(new Insets(10));
+        VBox courseActionsDisplay = makeScrollablePart(createButtonsVBox(moduleBtnsList));
 
-            currentText = new HashMap<>();
-            currentValues.put("ID", id);
-
-            VBox courseActionsDisplay = makeScrollablePart(moduleBtnView);
-
-            rightPanel.getChildren().set(0, moduleDetails);
-            rightPanel.getChildren().set(1, courseActionsDisplay);
-            rightPanel.setVisible(true);
-        };
+        rightPanel.getChildren().set(0, moduleDetails);
+        rightPanel.getChildren().set(1, courseActionsDisplay);
+        rightPanel.setVisible(true);
     }
+
 
     /**
      * Course Dashboard
@@ -249,7 +204,7 @@ public class StudentUI extends UserUI{
     }
 
 
-    private EventHandler pickWeek(int weekNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
+    private EventHandler<Event> pickWeek(int weekNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
             materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
 
@@ -263,16 +218,7 @@ public class StudentUI extends UserUI{
                 materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
                 materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
 
-                Button[] materialBtns = materialBtnsList.toArray(new Button[0]);
-                materialBtns = stylePanelActions(materialBtns);
-
-                VBox materialBtnView = new VBox(materialBtns);
-
-                materialBtnView.setAlignment(Pos.CENTER);
-                materialBtnView.setSpacing(20.0);
-                materialBtnView.setPadding(new Insets(10));
-
-                courseActionsDisplay = makeScrollablePart(materialBtnView);
+                courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
             }else{
                 courseActionsDisplay = makeScrollablePart(new VBox(new Text("No Material to Show!")));
             }

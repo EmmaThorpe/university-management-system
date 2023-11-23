@@ -68,19 +68,22 @@ public class ManagerController{
                 break;
 
             case "MANAGE COURSES":
-                manUI.courses(getCourses(), getModules());
+                manUI.courses(getCourses(), getModules(), getDepartments());
                 buttons = manUI.getCurrentButtons();
-                // TODO UI CREW: add department number to addCourse
-                //buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("LENGTH OF COURSE")).getText())));
-                buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText()));
-                // TODO UI CREW: add sems + year to assignModuleCourse
-                // buttons.get("ASSIGN").setOnAction((event)-> assignModuleCourse(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString()));
+                buttons.get("ADD").setOnAction(event-> addCourse(((TextField)manUI.getCurrentFields().get("ADD CODE")).getText(), ((TextField)manUI.getCurrentFields().get("ADD NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("ADD DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("ADD LEVEL OF STUDY")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("ADD LENGTH OF COURSE")).getText()), ((ComboBox)manUI.getCurrentFields().get("ADD DEPARTMENT")).getValue().toString() ));
+                buttons.get("EDIT").setOnAction((event)-> editCourse(manUI.getValues().get("ID"),
+                        ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(),
+                        ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LEVEL OF STUDY")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT LENGTH OF COURSE")).getText(), ((ComboBox)manUI.getCurrentFields().get("EDIT DEPARTMENT")).getValue().toString()));
+                buttons.get("ASSIGN").setOnAction((event)-> assignModuleCourse(manUI.getValues().get("ID"),
+                        ((ComboBox)manUI.getCurrentFields().get("MODULE TO ASSIGN TO")).getValue().toString(),
+                        ((ComboBox)manUI.getCurrentFields().get("SET SEMESTER")).getValue().toString(),
+                        Integer.parseInt(((ComboBox)manUI.getCurrentFields().get("SET YEAR")).getValue().toString())));
                 break;
 
             case "MANAGE MODULES":
                 manUI.modules(getModules(), getFreeLecturers());
                 buttons = manUI.getCurrentButtons();
-                buttons.get("ADD").setOnAction(event-> addModule(((TextField)manUI.getCurrentFields().get("CODE")).getText(), ((TextField)manUI.getCurrentFields().get("NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("DESCRIPTION")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("CREDITS")).getText())));
+                buttons.get("ADD").setOnAction(event-> addModule(((TextField)manUI.getCurrentFields().get("ADD CODE")).getText(), ((TextField)manUI.getCurrentFields().get("ADD NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("ADD DESCRIPTION")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("ADD CREDITS")).getText())));
                 buttons.get("EDIT").setOnAction((event)-> editModule(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT CREDITS")).getText()));
                 buttons.get("ASSIGN").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("LECTURER TO ASSIGN TO")).getValue().toString()));
                 break;
@@ -96,13 +99,11 @@ public class ManagerController{
                 manUI.manageBusinessRules(getActivatedBusinessRules(), getAssociatedOfRules());
                 buttons = manUI.getCurrentButtons();
                 buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
-                buttons.get("ADD BUSINESS RULE").setOnAction(event-> pageSetter("ADD BUSINESS RULE", false));
                 break;
 
             case "ADD BUSINESS RULE":
                 manUI.addBusinessRule(getCourseRulesMap(), getModuleRulesMap());
                 buttons = manUI.getCurrentButtons();
-                // TODO UI CREW: the input ui is swapped (course is not given a type but module is) - module can't have max compensated
                 buttons.get("SET COURSE RULE").setOnAction(event -> addBusinessRuleCourse(((ComboBox)manUI.getCurrentFields().get("RULE TYPE")).getValue().toString(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("COURSE VALUE")).getText()), manUI.getRulesAppliedTo("COURSE")));
                 buttons.get("SET MODULE RULE").setOnAction(event -> addBusinessRuleModule(Integer.parseInt(((TextField)manUI.getCurrentFields().get("MODULE VALUE")).getText()), manUI.getRulesAppliedTo("MODULE")));
                 break;
@@ -231,6 +232,7 @@ public class ManagerController{
                 courseDetailsMap.put("Description", cour.getDescription());
                 courseDetailsMap.put("Level", cour.getLevel());
                 courseDetailsMap.put("Years", String.valueOf(cour.getLength()));
+                courseDetailsMap.put("Department", "ABC1");   //todo actually make this work
                 modules.add(courseDetailsMap);
             }
 
@@ -312,18 +314,14 @@ public class ManagerController{
      *
      * @return List of maps containing the name and the department no. of all departments
      */
-    public List<Map<String, String>> getDepartments(){
+    public List<String> getDepartments(){
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Department"}, null, null);
-            List<Map<String, String>> departments = new ArrayList<>();
+            List<String> departments = new ArrayList<>();
 
             while(result.next()){
-                Map<String, String> depDetailsMap = new HashMap<>();
-                depDetailsMap.put("Id", String.valueOf(result.getInt("DeptNo")));
-                depDetailsMap.put("Name", result.getString("Name"));
-
-                departments.add(depDetailsMap);
+                departments.add(result.getString("Name"));
             }
 
             return departments;
@@ -365,6 +363,8 @@ public class ManagerController{
             throw new RuntimeException(e);
         }
     }
+
+
 
     public String[] checkPassFail(Mark m){
         if(m.getLabMark()!=null && m.getExamMark()!=null) {
@@ -523,9 +523,9 @@ public class ManagerController{
             if (success) {
                 u.setManager(managerID);
                 pageSetter("MANAGE ACCOUNTS", false);
-                manUI.makeNotificationModal("Account successfully activated", true);
+                manUI.makeNotificationModal(null, "Account successfully activated", true);
             } else {
-                manUI.makeNotificationModal("Error activating account", false);
+                manUI.makeNotificationModal(null, "Error activating account", false);
             }
         }
         catch(SQLException e){
@@ -543,10 +543,10 @@ public class ManagerController{
             boolean success = u.setDeactivated();
 
             if (success) {
+                manUI.makeNotificationModal(null, "Account successfully deactivated", true);
                 pageSetter("MANAGE ACCOUNTS", false);
-                manUI.makeNotificationModal("Account successfully deactivated", true);
             } else {
-                manUI.makeNotificationModal("Error deactivating account", false);
+                manUI.makeNotificationModal(null, "Error deactivating account", false);
             }
         }
         catch(SQLException e){
@@ -560,6 +560,8 @@ public class ManagerController{
      * @param password
      */
     public void resetPassword(String userID, String password){
+        manUI.makeNotificationModal("RESET USER PASSWORD", "Changed password successfully!", true);
+        pageSetter("MANAGE ACCOUNTS", false);
         System.out.println(userID + " " +password);
     }
 
@@ -571,6 +573,7 @@ public class ManagerController{
     public void changePassword(String userID, String newPass){
         // password changing
         System.out.println(userID + " " +newPass);
+        manUI.makeNotificationModal("CHANGE PASSWORD", "Changed password successfully!", true);
         pageSetter("DASHBOARD", false);
 
     }
@@ -584,6 +587,8 @@ public class ManagerController{
         try {
             Lecturer l = new Lecturer(lecturerID);
             l.assignModule(moduleID);
+            manUI.makeNotificationModal("ASSIGN LECTURER", "Assigned module successfully!", true);
+            pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -599,6 +604,8 @@ public class ManagerController{
         try {
             Student s = new Student(studentID);
             s.setCourse(courseID);
+            manUI.makeNotificationModal("ENROL STUDENT","Assigned course successfully!", true);
+            pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -609,14 +616,26 @@ public class ManagerController{
     /**Assign a module to a course
      * @param courseID
      * @param moduleID
-     * @param sem1
-     * @param sem2
+     * @param sem - the string choice representing the semesters this module is for in the course
      * @param year
      */
-    public void assignModuleCourse(String courseID, String moduleID, Boolean sem1, Boolean sem2, int year){
+    public void assignModuleCourse(String courseID, String moduleID, String sem, int year){
+        Boolean sem1 = false;
+        Boolean sem2 = false;
+
+        if (sem.equals("Semester 1")) {
+            sem1 = true;
+        } else if (sem.equals("Semester 2")) {
+            sem2 = true;
+        } else {
+            sem1 = true;
+            sem2 = true;
+        }
         try {
             Course c = new Course(courseID);
             c.addModule(moduleID, sem1, sem2, year);
+            manUI.makeNotificationModal("ASSIGN","Assigned module successfully!", true);
+            pageSetter("MANAGE COURSES", false);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -637,6 +656,8 @@ public class ManagerController{
                 case "Withdrawal" -> s.issueWithdrawal();
                 default -> throw new IllegalArgumentException("Invalid decision string!");
             };
+            manUI.makeNotificationModal(null,"Issued student decision successfully!", true);
+            pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -664,6 +685,8 @@ public class ManagerController{
 
         try {
             db.insert("Course", values);
+            manUI.makeNotificationModal("ADD", "Added course successfully!", true);
+            pageSetter("MANAGE COURSES", false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -675,9 +698,7 @@ public class ManagerController{
      * @param name
      * @param description
      */
-    // TODO: couldn't test this in the ui because of the following error on typing and/or submitting:
-    // Cannot invoke "java.lang.Boolean.booleanValue()" because the return value of "java.util.Map.get(Object)" is null
-    public void editCourse(String oldCode, String code, String name, String description, String level, String length){
+    public void editCourse(String oldCode, String code, String name, String description, String level, String length, String department){
         DatabaseConnection db = App.getDatabaseConnection();
         HashMap<String, String> values = new HashMap<>();
         values.put("CourseID", db.sqlString(code));
@@ -685,14 +706,16 @@ public class ManagerController{
         values.put("Description", db.sqlString(description));
         values.put("LevelOfStudy", db.sqlString(level));
         values.put("AmountOfYears", String.valueOf(length));
+        values.put("Department", String.valueOf(department));
 
         try {
             db.update("Course", values, new String[]{"CourseID = " + db.sqlString(oldCode)});
+            manUI.makeNotificationModal("EDIT", "Updated course successfully!", true);
+            pageSetter("MANAGE COURSES", false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     /**Add a module
      * @param code
@@ -710,6 +733,8 @@ public class ManagerController{
 
         try{
             db.insert("Module", values);
+            manUI.makeNotificationModal("ADD", "Added module successfully!", true);
+            pageSetter("MANAGE MODULES", false);
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -732,6 +757,8 @@ public class ManagerController{
 
             try {
                 db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
+                manUI.makeNotificationModal("EDIT", "Updated module successfully!", true);
+                pageSetter("MANAGE MODULES", false);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -811,7 +838,7 @@ public class ManagerController{
 
 
         /**
-         * @return Map of courses with a map of whether or not they have a rule set for the 2 different rule types
+         * @return Map of courses with a map of whether they have a rule set for the 2 different rule types
          */
         //TODO: i should check if this should look for active rules or all rules
         public Map<String, Map <String,Boolean>> getCourseRulesMap(){
@@ -885,6 +912,8 @@ public class ManagerController{
 
             try {
                 CourseBusinessRule.createGroupRule(courseSet, type, value);
+                manUI.makeNotificationModal(null, "Added business rule successfully!", true);
+                pageSetter("MANAGE BUSINESS RULES", false);
             }
             catch(SQLException e){
                 throw new RuntimeException(e);
@@ -896,6 +925,8 @@ public class ManagerController{
             Set<String> moduleSet = new HashSet<>(modules);
             try {
                 ModuleBusinessRule.createGroupRule(moduleSet, MAX_RESITS, value);
+                manUI.makeNotificationModal(null, "Added business rule successfully!", true);
+                pageSetter("MANAGE BUSINESS RULES", false);
             }
             catch(SQLException e){
                 throw new RuntimeException(e);
