@@ -444,14 +444,13 @@ public class UIElements extends MainUI{
      * enables user input once that is done
      * @param type      The field that is being validated
      * @param value     If the user input is valid for that field
-     * @param markType  A string representing if the input will be
-     *                  applied for a lab or an exam mark
+     * @param formType  The form type i.e. ASSIGN or CHANGE
      */
-    private void checkValidMarkFields(String type, Boolean value, String markType){
+    private void checkValidMarkFields(String type, Boolean value, String formType){
         boolean disabled;
         validFields.put(type, value);
-        disabled = !validFields.get( markType + " MARK");
-        currentButtons.get("ASSIGN " + markType +  " MARK").setDisable(disabled);
+        disabled = !validFields.get(formType+ " EXAM MARK") || !validFields.get(formType+ " LAB MARK");
+        currentButtons.get(formType+" MARK").setDisable(disabled);
     }
 
     /*
@@ -722,13 +721,13 @@ public class UIElements extends MainUI{
      */
     protected VBox editModule(Map<String, String> currentModule) {
         VBox setCode = setTextAndField("EDIT CODE", currentModule.get("Id"),
-                lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"));
+                lengthCheck(1,5,"EDIT CODE", "Code", "MODULE", "EDIT"),true);
         VBox setName = setTextAndField("EDIT NAME", currentModule.get("Name"),
-                lengthCheck(1,50,"EDIT NAME", "Name", "MODULE", "EDIT"));
+                lengthCheck(1,50,"EDIT NAME", "Name", "MODULE", "EDIT"),true);
         VBox setDesc = setLongTextAndField("EDIT DESCRIPTION", currentModule.get("Description"),
                 lengthCheck(1,100,"EDIT DESCRIPTION", "Description", "MODULE", "EDIT"));
         VBox setCredit = setTextAndField("EDIT CREDITS", currentModule.get("Credit"),
-                rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"));
+                rangeCheck(10, 60,"EDIT CREDITS", "Credits", "MODULE", "EDIT"),true);
 
         return new VBox(setCode, setName, setDesc, setCredit);
     }

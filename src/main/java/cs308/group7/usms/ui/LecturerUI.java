@@ -1,6 +1,5 @@
 package cs308.group7.usms.ui;
 
-import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -32,6 +31,8 @@ public class LecturerUI extends UIElements{
         createDashboard(mngBtns, toolbar);
     }
 
+
+
     /* Module dashboard */
     public void module(Map<String, String> lecturerModule){
         resetCurrentValues();
@@ -52,6 +53,7 @@ public class LecturerUI extends UIElements{
         singlePanelLayout(modulePanel, "Module");
     }
 
+
     /**
      * Mark Dashboard
      **/
@@ -59,16 +61,15 @@ public class LecturerUI extends UIElements{
     public void mark (List<Map<String, String>> students){
         resetCurrentValues();
 
-        Button lab = inputButton("SET LAB MARK");
-        Button exam = inputButton("SET EXAM MARK");
+        Button newMark = inputButton("SET NEW MARK");
+        Button updatedMark = inputButton("UPDATE MARK");
 
         if (students.isEmpty()) {
             VBox mainPanel = makePanel(emptyModelContent("students"));
             singlePanelLayout(mainPanel, "Marks");
         } else {
-
-            makeModal(lab, "ASSIGN LAB MARK", new VBox(), false);
-            makeModal(exam, "ASSIGN EXAM MARK", new VBox(), false);
+            makeModal(newMark, "ASSIGN MARK", setMark("ASSIGN", "", "", false),  true);
+            makeModal(updatedMark, "CHANGE MARK", new VBox(),  false);
 
             VBox accountDetails = new VBox(new VBox());
 
@@ -77,9 +78,12 @@ public class LecturerUI extends UIElements{
             rightActionPanel.setVisible(false);
 
             VBox leftActionPanel = markButtons(students, rightActionPanel, accountDetails);
-            twoPanelLayout(leftActionPanel, rightActionPanel, "Marks");
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
         }
+
     }
+
+
 
     private VBox markButtons(List<Map<String, String>> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
@@ -103,28 +107,43 @@ public class LecturerUI extends UIElements{
         return makeScrollablePanel(accountListPanel);
     }
 
+
+
     private EventHandler<Event> pickStudent(Map<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             currentValues = new HashMap<>();
             currentValues.put("StudentID", user.get("userID"));
-            currentValues.put("AttemptNo", user.get("attemptNo"));
-
-            accDetails.getChildren().set(0, infoContainer(studentMarkDisplay(
-                    user.get("userID"),
-                    user.get("forename"),
-                    user.get("surname"),
-                    user.get("labMark"),
-                    user.get("examMark")
-            )));
 
             ArrayList<Button> studentBtnsList = new ArrayList<>();
 
-            studentBtnsList.add(currentButtons.get("SET LAB MARK"));
-            studentBtnsList.add(currentButtons.get("SET EXAM MARK"));
+            if(user.get("labMark")!=null || user.get("examMark") != null){
+                currentValues.put("AttemptNo", user.get("attemptNo"));
+
+                accDetails.getChildren().set(0, infoContainer(studentMarkDisplay(
+                        user.get("userID"),
+                        user.get("forename"),
+                        user.get("surname"),
+                        user.get("labMark"),
+                        user.get("examMark")
+                )));
+
+
+
+                studentBtnsList.add(currentButtons.get("SET NEW MARK"));
+                studentBtnsList.add(currentButtons.get("UPDATE MARK"));
+
+                setModalContent("CHANGE MARK", setMark("CHANGE", user.get("labMark"), user.get("examMark"), true));
+
+            }else{
+                currentValues.put("AttemptNo", "0");
+                studentBtnsList.add(currentButtons.get("SET NEW MARK"));
+            }
 
             Button[] studentBtns = studentBtnsList.toArray(new Button[0]);
             stylePanelActions(studentBtns);
             VBox studentBtnView = new VBox(studentBtns);
+
+
 
             studentBtnView.setAlignment(Pos.CENTER);
             studentBtnView.setSpacing(20.0);
@@ -132,8 +151,6 @@ public class LecturerUI extends UIElements{
 
             VBox studentActionsDisplay = makeScrollablePart(studentBtnView);
 
-            setModalContent("ASSIGN LAB MARK", setLabMark(user));
-            setModalContent("ASSIGN EXAM MARK", setExamMark(user));
 
             rightPanel.getChildren().set(0, accDetails);
             rightPanel.getChildren().set(1, studentActionsDisplay);
@@ -145,29 +162,34 @@ public class LecturerUI extends UIElements{
      * Mark Dashboard - modals
      **/
 
-    private VBox setLabMark(Map<String, String> currentStudent) {
-        return setTextAndField("LAB MARK", currentStudent.get("labMark"),
+    private VBox setMark(String type, String labMark, String examMark, boolean valid) {
+        VBox lab = setTextAndField(type+" LAB MARK",
+                String.valueOf(labMark),
                 markCheck(
                         0.0,
                         100.0,
-                        "LAB MARK",
+                        type+" LAB MARK",
                         "Lab mark",
                         "MARK",
-                        "LAB")
+                        type), valid
         );
-    }
 
-    private VBox setExamMark(Map<String, String> currentStudent) {
-        return setTextAndField("EXAM MARK", currentStudent.get("examMark"),
+        VBox exam = setTextAndField(type+" EXAM MARK",
+                String.valueOf(examMark),
                 markCheck(
                         0.0,
                         100.0,
-                        "EXAM MARK",
+                        type+" EXAM MARK",
                         "Exam mark",
                         "MARK",
-                        "EXAM")
+                        type), valid
         );
+
+
+        return new VBox(lab, exam);
     }
+
+
 
     /**
      * Material dashboard

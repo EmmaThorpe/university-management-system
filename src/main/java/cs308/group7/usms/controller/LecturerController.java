@@ -2,9 +2,7 @@ package cs308.group7.usms.controller;
 
 import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
-import cs308.group7.usms.model.Lecturer;
-import cs308.group7.usms.model.User;
-import cs308.group7.usms.model.Student;
+import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.LecturerUI;
 import cs308.group7.usms.ui.MainUI;
@@ -69,22 +67,26 @@ public class LecturerController{
                 try{
                     lecUI.mark(getEnrolledStudents());
                     buttons =lecUI.getCurrentButtons();
-                    buttons.get("ASSIGN LAB MARK").setOnAction(
-                            (event)->
-                                    updateStudentLabMark(
-                                            lecUI.getValues().get("StudentID"),
-                                            Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                            Double.parseDouble(((TextField)lecUI.getCurrentFields().get("LAB MARK")).getText())
-                                    )
+                    buttons.get("ASSIGN MARK").setOnAction(
+                            (event)->updateStudentMark(
+                                        lecUI.getValues().get("StudentID"),
+                                        Integer.parseInt(lecUI.getValues().get("AttemptNo"))+1,
+                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN LAB MARK")).getText()),
+                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN EXAM MARK")).getText()),
+                                        false
+                            )
                     );
-                    buttons.get("ASSIGN EXAM MARK").setOnAction(
-                            (event)->
-                                    updateStudentExamMark(
-                                            lecUI.getValues().get("StudentID"),
-                                            Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                            Double.parseDouble(((TextField)lecUI.getCurrentFields().get("EXAM MARK")).getText())
-                                    )
+                    buttons.get("CHANGE MARK").setOnAction(
+                            (event)->updateStudentMark(
+                                    lecUI.getValues().get("StudentID"),
+                                    Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE LAB MARK")).getText()),
+                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE EXAM MARK")).getText()),
+                                    true
+                            )
                     );
+
+
                 }catch(java.sql.SQLException e){
                     lecUI.makeNotificationModal(null, "ERROR GETTING ENROLLED STUDENTS", false);
                     pageSetter("DASHBOARD", false);
@@ -125,6 +127,8 @@ public class LecturerController{
             lecUI.displayScene();
         }
     }
+
+
 
     private Lecturer getCurrentLecturer() throws SQLException {
         return new Lecturer(lecturerID);
@@ -177,7 +181,6 @@ public class LecturerController{
 
         DatabaseConnection db = App.getDatabaseConnection();
         String Semesters = "";
-        try{
             CachedRowSet result = db.select(new String[]{"Material"}, new String[]{"LectureNote, LabNote"}, new String[]{"Material.ModuleID = '" + moduleID + "'"});
             ArrayList<Map<String, Boolean>> material = new ArrayList<>();
 
@@ -189,10 +192,7 @@ public class LecturerController{
             }
 
             return material;
-        }
-        catch(SQLException e){
-            throw new RuntimeException(e);
-        }
+
     }
 
 
@@ -204,7 +204,6 @@ public class LecturerController{
         String moduleID = getCurrentLecturer().getModule().getModuleID();
         List<Map<String, String>> enrolled = new ArrayList<>();
         DatabaseConnection db = App.getDatabaseConnection();
-        try {
             CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
             List<HashMap<String, String>> users = new ArrayList<>();
 
@@ -223,18 +222,26 @@ public class LecturerController{
                 studentDetailsMap.put("courseID", stu.getCourseID());
                 studentDetailsMap.put("YearOfStudy", Integer.toString(stu.getYearOfStudy()));
                 studentDetailsMap.put("decision", stu.getDecision().toString());
-                studentDetailsMap.put("labMark", Double.toString(stu.getMark(moduleID).getLabMark()));
-                studentDetailsMap.put("examMark", Double.toString(stu.getMark(moduleID).getExamMark()));
+
+                if(stu.getMark(moduleID).getLabMark() != null){
+                    studentDetailsMap.put("labMark", Double.toString(stu.getMark(moduleID).getLabMark()));
+                }else{
+                    studentDetailsMap.put("labMark", null);
+                }
+
+                if(stu.getMark(moduleID).getExamMark() != null){
+                    studentDetailsMap.put("examMark", Double.toString(stu.getMark(moduleID).getExamMark()));
+                }else{
+                    studentDetailsMap.put("examMark", null);
+                }
+
                 studentDetailsMap.put("attemptNo", Integer.toString(stu.getMark(moduleID).getAttemptNo()));
 
                 enrolled.add(studentDetailsMap);
             }
 
             return enrolled;
-        }
-        catch(SQLException e){
-            throw new RuntimeException(e);
-        }
+
     }
 
 
@@ -259,57 +266,51 @@ public class LecturerController{
 
         try {
             DatabaseConnection db = App.getDatabaseConnection();
-            int res = db.update("Material", values, new String[]{"Week = '"+ week +"' AND ModuleID = '"+ getCurrentLecturer().getModule().getModuleID() +"'"});
-            if (res > 0) {
-                lecUI.makeNotificationModal(null, "Module material updated successfully", true);
-            };
+            db.update("Material", values, new String[]{"Week = '"+ week +"' AND ModuleID = '"+ getCurrentLecturer().getModule().getModuleID() +"'"});
+
+
+            lecUI.makeNotificationModal(null, "ADDED MATERIAL", true);
+            pageSetter("MATERIAL", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal(null,
-                    "Failed to update module material for with file " + String.valueOf(file) + e.getMessage(), false);
-            return;
+            lecUI.makeNotificationModal(null, "Failed to update module material for with file " + file + e.getMessage(), false);
         }
 
     }
 
-    /**Updates the student lab mark
-     * @param studentID - the student ID for the student being updated
-     * @param attNo - the attempt number wanting to be updated
-     * @param mark - the new lab mark for that student's attempt
+
+
+    /**add the student mark
+     * @param studentID - the student ID for the student being added
+     * @param attNo - the attempt number wanting to be added
+     * @param labMark - the new lab mark for that student's attempt
+     * @param examMark - the new exam mark for that student's attempt
+     * @param existing - value representing if the student mark being updated exists or not
      */
-    public void updateStudentLabMark(String studentID, int attNo, Double mark){
-        Map<String, String> values = new HashMap<>();
-        values.put("Lab", String.valueOf(mark));
+    public void updateStudentMark(String studentID, int attNo, Double labMark, Double examMark, boolean existing){
 
         try {
-            DatabaseConnection db = App.getDatabaseConnection();
-            int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
-            lecUI.makeNotificationModal("ASSIGN LAB MARK", "Lab mark set successfully", true);
+            Map<String, String> values = new HashMap<>();
+            values.put("Lab", String.valueOf(labMark));
+            values.put("Exam", String.valueOf(examMark));
+            Lecturer lec = new Lecturer(lecturerID);
+            Mark m = new Mark(studentID, lec.getModule().getModuleID(),attNo);
+            m.setLabMark(labMark);
+            m.setExamMark(examMark);
+
+            if(existing){
+                lecUI.makeNotificationModal("CHANGE MARK", "MARK CHANGED SUCCESSFULLY", true);
+            }else{
+                lecUI.makeNotificationModal("ASSIGN MARK", "MARK ADDED SUCCESSFULLY", true);
+
+            }
+            pageSetter("GIVE MARK", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal("ASSIGN LAB MARK", "Failed to update lab mark for student " + studentID +
-                    " (attempt #" + attNo + ")." + e.getMessage(), false);
+            lecUI.makeNotificationModal("ASSIGN MARK", "FAILED TO UPDATE MARK FOR STUDENT " + studentID + " (ATTEMPT #" + attNo + ")." + e.getMessage(), false);
+
         }
     }
 
 
-    /**Updates the student exam mark
-     * @param studentID - the student ID for the student being updated
-     *      * @param attNo - the attempt number wanting to be updated
-     *      * @param mark - the new exam mark for that student's attempt
-     */
-    public void updateStudentExamMark(String studentID, int attNo, Double mark){
-        Map<String, String> values = new HashMap<>();
-        values.put("Exam", String.valueOf(mark));
-
-        try {
-            DatabaseConnection db = App.getDatabaseConnection();
-            int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
-            lecUI.makeNotificationModal("ASSIGN EXAM MARK", "Exam mark set successfully", true);
-        } catch (SQLException e) {
-            lecUI.makeNotificationModal("ASSIGN EXAM MARK", "Failed to update exam mark for student " + studentID +
-                    " (attempt #" + attNo + ")." + e.getMessage(), false);
-            return;
-        }
-    }
 
     /**Edits a module
      * @param code
@@ -329,10 +330,10 @@ public class LecturerController{
 
         try {
             db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
-            lecUI.makeNotificationModal("EDIT", "Module updated successfully", true);
+            lecUI.makeNotificationModal("EDIT", "MODULE UPDATED SUCCESSFULLY", true);
+            pageSetter("VIEW MODULE", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal("EDIT", "Failed to update module" + e.getMessage(), false);
-            return;
+            lecUI.makeNotificationModal("EDIT", "ERROR FAILED TO UPDATE MODULE", false);
         }
 
     }

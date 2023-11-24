@@ -657,13 +657,14 @@ public class MainUI {
      * @param text - The text used for the name of the text and the field
      * @param value - The initial value of the field
      * @param listener - The listener to be added to the field
+     * @param valid - value of whether or not to set the field to initially be valid or not
      * @return - a VBox containing the created text and field
      */
-    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener){
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
         Label label=new Label(text);
         TextField field=new TextField(value);
 
-        return styleTextAndField(field, label, text, listener, true);
+        return styleTextAndField(field, label, text, listener, valid);
     }
 
 
