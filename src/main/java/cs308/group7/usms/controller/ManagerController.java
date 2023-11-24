@@ -83,7 +83,9 @@ public class ManagerController{
                 buttons = manUI.getCurrentButtons();
                 buttons.get("ADD").setOnAction(event-> addModule(((TextField)manUI.getCurrentFields().get("ADD CODE")).getText(), ((TextField)manUI.getCurrentFields().get("ADD NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("ADD DESCRIPTION")).getText(), Integer.parseInt(((TextField)manUI.getCurrentFields().get("ADD CREDITS")).getText())));
                 buttons.get("EDIT").setOnAction((event)-> editModule(manUI.getValues().get("ID"), ((TextField)manUI.getCurrentFields().get("EDIT CODE")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT NAME")).getText(), ((TextArea)manUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(), ((TextField)manUI.getCurrentFields().get("EDIT CREDITS")).getText()));
-                buttons.get("ASSIGN").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("ID"), ((ComboBox)manUI.getCurrentFields().get("LECTURER TO ASSIGN TO")).getValue().toString()));
+                buttons.get("ASSIGN").setOnAction((event)-> assignLecturerModule(
+                        ((ComboBox)manUI.getCurrentFields().get("LECTURER TO ASSIGN TO")).getValue().toString(),
+                        manUI.getValues().get("ID")));
                 break;
 
             case "MANAGE SIGN-UP WORKFLOW":
@@ -299,6 +301,7 @@ public class ManagerController{
                 Lecturer lec = new Lecturer(result.getString("UserID"));
                 Map<String, String> lecturerDetailsMap = new HashMap<>();
                 lecturerDetailsMap.put("Id", lec.getLecturerID());
+                lecturerDetailsMap.put("Name", lec.getForename() + " " + lec.getSurname());
                 lecturerDetailsMap.put("Qualification", lec.getQualification());
 
                 lecturers.add(lecturerDetailsMap);
@@ -611,11 +614,11 @@ public class ManagerController{
         try {
             Lecturer l = new Lecturer(lecturerID);
             l.assignModule(moduleID);
-            manUI.makeNotificationModal("ASSIGN LECTURER", "Assigned module successfully!", true);
+            manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
             pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning module " + e.getMessage(), false);
+            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
         System.out.println(lecturerID +" "+moduleID);
