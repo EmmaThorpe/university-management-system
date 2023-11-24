@@ -272,7 +272,7 @@ public class LecturerController{
             lecUI.makeNotificationModal(null, "ADDED MATERIAL", true);
             pageSetter("MATERIAL", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal(null, "Failed to update module material for with file " + file + e.getMessage(), false);
+            lecUI.makeNotificationModal(null, "FAILED TO UPLOAD " + file + e.getMessage(), false);
         }
 
     }
@@ -333,7 +333,7 @@ public class LecturerController{
             lecUI.makeNotificationModal("EDIT", "MODULE UPDATED SUCCESSFULLY", true);
             pageSetter("VIEW MODULE", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal("EDIT", "ERROR FAILED TO UPDATE MODULE", false);
+            lecUI.makeNotificationModal("EDIT", "ERROR FAILED TO UPDATE MODULE" + e.getMessage(), false);
         }
 
     }
