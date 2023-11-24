@@ -40,10 +40,15 @@ public class LecturerUI extends UIElements{
 
         Button update = inputButton("UPDATE MODULE INFORMATION");
         makeModal(update, "EDIT", editModule(lecturerModule),  false);
-        VBox modulePanel = makePanelWithAction(
-                new VBox(infoContainer(moduleDetailDisplay(lecturerModule))),
-                update
-        );
+        VBox modulePanel;
+        if (lecturerModule.isEmpty()) {
+            modulePanel = makePanel(emptyModelContent("module"));
+        } else {
+            modulePanel = makePanelWithAction(
+                    new VBox(infoContainer(moduleDetailDisplay(lecturerModule))),
+                    update
+            );
+        }
         singlePanelLayout(modulePanel, "Module");
     }
 
@@ -57,17 +62,23 @@ public class LecturerUI extends UIElements{
         Button lab = inputButton("SET LAB MARK");
         Button exam = inputButton("SET EXAM MARK");
 
-        makeModal( lab, "ASSIGN LAB MARK", new VBox(),  false);
-        makeModal( exam, "ASSIGN EXAM MARK", new VBox(),  false);
+        if (students.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("students"));
+            singlePanelLayout(mainPanel, "Marks");
+        } else {
 
-        VBox accountDetails = new VBox(new VBox());
+            makeModal(lab, "ASSIGN LAB MARK", new VBox(), false);
+            makeModal(exam, "ASSIGN EXAM MARK", new VBox(), false);
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, accountDetails);
-        rightActionPanel.setVisible(false);
+            VBox accountDetails = new VBox(new VBox());
 
-        VBox leftActionPanel = markButtons(students, rightActionPanel, accountDetails);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Accounts");
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, accountDetails);
+            rightActionPanel.setVisible(false);
+
+            VBox leftActionPanel = markButtons(students, rightActionPanel, accountDetails);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Marks");
+        }
     }
 
     private VBox markButtons(List<Map<String, String>> accountList, VBox rightPanel, VBox details){
@@ -158,6 +169,9 @@ public class LecturerUI extends UIElements{
         );
     }
 
+    /**
+     * Material dashboard
+     */
     public void materials(String moduleID, List<Map<String, Boolean>> materialList, String semesters){
         resetCurrentValues();
         currentValues.put("ID",moduleID);
@@ -168,21 +182,27 @@ public class LecturerUI extends UIElements{
         inputButton("CHANGE LECTURE MATERIAL").setOnAction(event -> uploadFile());
         inputButton("CHANGE LAB MATERIAL");
 
-        VBox materialDetails = new VBox(new VBox());
+        if(materialList.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("materials"));
+            singlePanelLayout(mainPanel, "Materials");
+        } else {
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, materialDetails);
-        rightActionPanel.setVisible(false);
+            VBox materialDetails = new VBox(new VBox());
 
-        VBox leftActionPanel;
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, materialDetails);
+            rightActionPanel.setVisible(false);
 
-        if(semesters.equals("1&2")){
-            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
-        }else{
-            leftActionPanel = weekButtons(Integer.parseInt(semesters), materialList, rightActionPanel, materialDetails);
+            VBox leftActionPanel;
+
+            if (semesters.equals("1&2")) {
+                leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
+            } else {
+                leftActionPanel = weekButtons(Integer.parseInt(semesters), materialList, rightActionPanel, materialDetails);
+            }
+
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Materials");
         }
-
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
 
 
     }

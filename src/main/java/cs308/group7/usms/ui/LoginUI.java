@@ -105,7 +105,9 @@ public class LoginUI extends UIElements{
         formContent.setAlignment(Pos.CENTER);
         HBox formBtns = bottomButtons(new HBox(Submit, returnBtn));
 
-        createScene("SIGN UP", formContent, formBtns);
+        Text validHandler = inputText("OUTPUT");
+
+        createScene("SIGN UP", formContent, new VBox(formBtns, validHandler));
     }
 
     protected ChangeListener<Toggle> toggleUser(ScrollPane formContent, VBox qualificationField) {

@@ -6,6 +6,7 @@ import cs308.group7.usms.ui.LoginUI;
 import cs308.group7.usms.utils.Password;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
@@ -99,23 +100,19 @@ public class LoginController {
         final String forename = ((TextField) textFields.get("FORENAME")).getText();
         final String surname = ((TextField) textFields.get("SURNAME")).getText();
         final String email = ((TextField) textFields.get("EMAIL")).getText();
+        final String dob = ((TextField) textFields.get("DATE OF BIRTH")).getText();
+        final String gender = ((ComboBox) textFields.get("GENDER")).getValue().toString();
         final String password = ((TextField) textFields.get("PASSWORD")).getText();
-        final String confirmPassword = ((TextField) textFields.get("CONFIRM PASSWORD")).getText();
 
-        if (!password.equals(confirmPassword)) {
-            text.get("output").setText("Passwords do not match");
-            return;
-        }
-
-        // Determine whether the user is a lecturer by checking if the qualification field exists
-        final boolean isLecturerSignUp = textFields.containsKey("QUALIFICATION");
+        // Determine whether the user is a lecturer by checking if the qualification field is non-empty
+        final boolean isLecturerSignUp = textFields.get("QUALIFICATION").getAccessibleText() != null;
 
         final boolean success;
         if (isLecturerSignUp) {
             final String qualification = ((TextField) textFields.get("QUALIFICATION")).getText();
-            success = signup(forename, surname, email, password, qualification);
+            success = signup(forename, surname, email, password, dob, gender, qualification);
         } else {
-            success = signup(forename, surname, email, password);
+            success = signup(forename, surname, email, password, dob, gender);
         }
 
         if(success) {
@@ -168,11 +165,11 @@ public class LoginController {
      * Attempts to perform a signup for a student
      * @return Whether the signup was successful
      */
-    public static boolean signup(String forename, String surname, String email, String unencryptedPassword) {
+    public static boolean signup(String forename, String surname, String email, String unencryptedPassword,
+                                 String dobVal, String gender) {
         final String type = "Student";
         final String userID = "S" + forename.charAt(0) + surname.substring(0, 3);
-        final Date dob = new Date(0); // TODO: need to get DOB from somewhere
-        final String gender = "?????"; // TODO: need to get gender from somewhere
+        final Date dob = Date.valueOf(dobVal);
 
         DatabaseConnection db = App.getDatabaseConnection();
         try {
@@ -194,11 +191,11 @@ public class LoginController {
      * Attempts to perform a signup for a lecturer
      * @return Whether the signup was successful
      */
-    public static boolean signup(String forename, String surname, String email, String unencryptedPassword, String qualification) {
+    public static boolean signup(String forename, String surname, String email, String unencryptedPassword,
+                                 String dobVal, String gender, String qualification) {
         final String type = "Lecturer";
         final String userID = "L" + forename.charAt(0) + surname.substring(0, 3);
-        final Date dob = new Date(0); // TODO: need to get DOB from somewhere
-        final String gender = "?????"; // TODO: need to get gender from somewhere
+        final Date dob = Date.valueOf(dobVal);
 
         DatabaseConnection db = App.getDatabaseConnection();
         try {
@@ -226,6 +223,7 @@ public class LoginController {
         values.put("DoB", db.sqlString(String.valueOf(dob)));
         values.put("Gender", db.sqlString(gender));
         values.put("Type", db.sqlString(type));
+        values.put("Activated", db.sqlString(String.valueOf(0)));
         int res = db.insert("Users", values);
         return res > 0;
     }

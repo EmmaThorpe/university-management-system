@@ -195,15 +195,16 @@ public class UIElements extends MainUI{
     private void checkValidPasswordFields(String type, Boolean value, Boolean manager, Boolean signup){
         boolean disabled;
         validFields.put(type, value);
-        disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD") ||
-        !validFields.get("PASSWORD") || !validFields.get("CONFIRM PASSWORD");
 
         if(manager){
+            disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
             currentButtons.get("RESET USER PASSWORD").setDisable(disabled);
         } else if(signup) {
+            disabled = !validFields.get("PASSWORD") || !validFields.get("CONFIRM PASSWORD");
             currentButtons.get("SUBMIT").setDisable(disabled);
         }
         else{
+            disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
             currentButtons.get("CHANGE PASSWORD").setDisable(disabled);
         }
 
@@ -545,7 +546,7 @@ public class UIElements extends MainUI{
      *                  notice that the model is empty to the user
      */
     protected VBox emptyModelContent(String model) {
-        Text emptyNotice = new Text("There are no " + model);
+        Text emptyNotice = new Text("No " + model);
         emptyNotice.getStyleClass().add("empty-notice-text");
         VBox emptyContainer = new VBox(emptyNotice);
         emptyContainer.setAlignment(Pos.CENTER);

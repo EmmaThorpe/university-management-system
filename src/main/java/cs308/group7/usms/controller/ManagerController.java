@@ -437,10 +437,26 @@ public class ManagerController{
             boolean suggestResit = false;
             boolean suggestWithdraw = false;
             boolean maxCompen = false;
+            boolean classesUnmarked = false;
+            int classesMarked = 0;
             List<String> maxResits = new ArrayList<>();
+            List<String> studentModules = new ArrayList<>();
             String reason = "";
 
+            if (s.getCourse() != null) {
+                for (Module studentModule : s.getCourse().getModules(s.getYearOfStudy())) {
+                    studentModules.add(studentModule.getModuleID());
+                }
+            } else {
+                classesUnmarked = true;
+            }
+
             while(result.next()){
+                String currentModule = result.getString("ModuleID");
+                if (studentModules.contains(currentModule)) {
+                    classesMarked++;
+                }
+
                 Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
 
                 // check against rules
@@ -475,6 +491,10 @@ public class ManagerController{
                 }
             }
 
+            if(classesMarked < studentModules.size()) {
+                classesUnmarked = true;
+            }
+
             // add reason for max compensations
             if(maxCompen){
                 reason = reason + "The maximum number of passes by compensation has been passed.\n";
@@ -495,6 +515,9 @@ public class ManagerController{
             else if (suggestResit){
                 suggestion.add("RESIT");
                 suggestion.add(reason);
+            } else if (classesUnmarked) {
+                suggestion.add("N/A");
+                suggestion.add("Student has not got all their marks so no decision suggestion can be determined");
             }
             else{
                 suggestion.add("AWARD");

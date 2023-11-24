@@ -38,13 +38,18 @@ public class StudentUI extends UIElements{
     public void decision(List<Map<String, String>> moduleList, List<Map<String,String>> markList, String decision) {
         resetCurrentValues();
 
-        VBox topPanel = makeTopPanel(decisionDisplay(decision));
+        if (moduleList.isEmpty() || markList.isEmpty()) {
+            VBox mainPanel = makePanel(decisionDisplay(decision));
+            singlePanelLayout(mainPanel, "Decision");
+        } else {
+            VBox topPanel = makeTopPanel(decisionDisplay(decision));
 
-        VBox rightActionPanel = makeScrollableBottomPanel(new ScrollPane());
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makeScrollableBottomPanel(new ScrollPane());
+            rightActionPanel.setVisible(false);
 
-        VBox leftActionPanel = decisionButtons(moduleList, markList, rightActionPanel);
-        threePanelLayout(leftActionPanel, rightActionPanel, topPanel, "Decision");
+            VBox leftActionPanel = decisionButtons(moduleList, markList, rightActionPanel);
+            threePanelLayout(leftActionPanel, rightActionPanel, topPanel, "Decision");
+        }
     }
 
     private VBox decisionButtons(List<Map<String, String>> moduleList, List<Map<String,String>> markList,
@@ -105,15 +110,20 @@ public class StudentUI extends UIElements{
 
         inputButton("VIEW MATERIALS");
 
-        VBox moduleDetails = new VBox(new VBox());
+        if (moduleList.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("modules"));
+            singlePanelLayout(mainPanel, "Modules");
+        } else {
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, moduleDetails);
-        rightActionPanel.setVisible(false);
+            VBox moduleDetails = new VBox(new VBox());
 
-        VBox leftActionPanel = moduleButtons(moduleList, rightActionPanel, moduleDetails);
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, moduleDetails);
+            rightActionPanel.setVisible(false);
 
+            VBox leftActionPanel = moduleButtons(moduleList, rightActionPanel, moduleDetails);
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
+        }
     }
 
     private VBox moduleButtons(List<Map<String, String>> moduleList, VBox rightPanel, VBox moduleDetails){
@@ -160,7 +170,12 @@ public class StudentUI extends UIElements{
      **/
 
     public void course(Map<String, String> studentCourse) {
-        VBox courseDetails = makePanel(new VBox(infoContainer(courseDetailDisplay(studentCourse))));
+        VBox courseDetails;
+        if (studentCourse.isEmpty()) {
+            courseDetails = makePanel(emptyModelContent("course"));
+        } else {
+            courseDetails = makePanel(new VBox(infoContainer(courseDetailDisplay(studentCourse))));
+        }
         singlePanelLayout(courseDetails, "Course");
     }
 
@@ -175,23 +190,27 @@ public class StudentUI extends UIElements{
         inputButton("VIEW LECTURE MATERIAL");
         inputButton("VIEW LAB MATERIAL");
 
-        VBox materialDetails = new VBox(new VBox());
+        if (materialList.isEmpty()) {
+            VBox mainPanel = makePanel(emptyModelContent("materials"));
+            singlePanelLayout(mainPanel, "Modules");
+        } else {
+            VBox materialDetails = new VBox(new VBox());
 
-        VBox rightActionPanel = makePanel(new VBox());
-        rightActionPanel.getChildren().add(0, materialDetails);
-        rightActionPanel.setVisible(false);
+            VBox rightActionPanel = makePanel(new VBox());
+            rightActionPanel.getChildren().add(0, materialDetails);
+            rightActionPanel.setVisible(false);
 
 
-        VBox leftActionPanel;
+            VBox leftActionPanel;
 
-        if(twoSems){
-            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
-        }else{
-            leftActionPanel = weekButtons(materialList, rightActionPanel, materialDetails);
+            if (twoSems) {
+                leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
+            } else {
+                leftActionPanel = weekButtons(materialList, rightActionPanel, materialDetails);
+            }
+
+            twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
         }
-
-        twoPanelLayout(leftActionPanel, rightActionPanel, "Modules");
-
 
     }
 

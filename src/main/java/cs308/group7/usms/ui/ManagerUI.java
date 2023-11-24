@@ -182,10 +182,15 @@ public class ManagerUI extends UIElements{
                 decisionAction(currStudent, decisionRec, decisionReason),
                 false);
 
-        VBox DecisionActionPanel = makeScrollablePanelWithAction(
-                new ScrollPane(markListDisplay(markList)),
-                issueDecBtn
-        );
+        VBox DecisionActionPanel;
+        if (markList.isEmpty()) {
+            DecisionActionPanel = makePanelWithAction(emptyModelContent("marks"), issueDecBtn);
+        } else {
+            DecisionActionPanel = makeScrollablePanelWithAction(
+                    new ScrollPane(markListDisplay(markList)),
+                    issueDecBtn
+            );
+        }
 
         singlePanelLayout(DecisionActionPanel, "Accounts: Student Decision");
     }
