@@ -19,26 +19,26 @@ Drop Table IF EXISTS Department;
 
 
 Create Table Department(
-    DeptNo VARCHAR(5) NOT NULL,
+    DeptNo VARCHAR(10) NOT NULL,
     Name VARCHAR(50) NOT NULL,
     CONSTRAINT pkDepartment PRIMARY KEY(DeptNo)
 );
 
 
 Create Table Course(
-    CourseID VARCHAR(5) NOT NULL,
+    CourseID VARCHAR(10) NOT NULL,
     Name VARCHAR(50) NOT NULL,
     Description VARCHAR(100) NOT NULL,
     LevelOfStudy VARCHAR(20) NOT NULL,
     AmountOfYears Int NOT NULL,
-    DeptNo VARCHAR(5) NOT NULL,
+    DeptNo VARCHAR(10) NOT NULL,
     CONSTRAINT pkCourse PRIMARY KEY(CourseID),
     Constraint fkCourse FOREIGN KEY(DeptNo) REFERENCES Department(DeptNo) 
 );
 
 
 Create Table Module(
-    ModuleID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
     Name VARCHAR(50) NOT NULL,
     Description VARCHAR(100) NOT NULL,
     Credit INT NOT NULL,
@@ -47,7 +47,7 @@ Create Table Module(
 
 
 CREATE TABLE Material(
-    ModuleID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
     Semester INT NOT NULL,
     Week INT NOT NULL,
     LectureNote LONGBLOB,
@@ -58,8 +58,8 @@ CREATE TABLE Material(
 
 
 Create Table Curriculum(
-    CourseID VARCHAR(5) NOT NULL,
-    ModuleID VARCHAR(5) NOT NULL,
+    CourseID VARCHAR(10) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
     Semester1 Boolean NOT NULL,
     Semester2 Boolean NOT NULL,
     Year Int NOT NULL, 
@@ -70,7 +70,7 @@ Create Table Curriculum(
 
 
 Create Table Users(
-    UserID VARCHAR(5) NOT NULL,
+    UserID VARCHAR(10) NOT NULL,
     Forename VARCHAR(20) NOT NULL,
     Surname VARCHAR(20) NOT NULL,
     Email VARCHAR(20) NOT NULL,
@@ -78,7 +78,7 @@ Create Table Users(
     DoB Date NOT NULL,
     Gender VARCHAR(20) NOT NULL,
     Type VARCHAR(10) NOT NULL,
-    ManagedBy VARCHAR(5),
+    ManagedBy VARCHAR(10),
     Activated Boolean NOT NULL,
     CONSTRAINT pkUser PRIMARY KEY(UserID),
     Constraint fkUser FOREIGN KEY(ManagedBy) REFERENCES Users(UserID)
@@ -96,20 +96,20 @@ Create Table Lecturer(
 
 
 Create Table Student(
-    UserID VARCHAR(5) NOT NULL,
-    CourseID VARCHAR(5),
-    Decision VARCHAR(11) NOT NULL,
+    UserID VARCHAR(10) NOT NULL,
+    CourseID VARCHAR(10),
+    Decision VARCHAR(20) NOT NULL,
     yearOfStudy Int NOT NULL,
     CONSTRAINT pkStudent PRIMARY KEY(UserID),
     Constraint fkStudent FOREIGN KEY(UserID) REFERENCES Users(UserID),
     Constraint fkStudent2 FOREIGN KEY(CourseID) REFERENCES Course(CourseID),
-    CONSTRAINT chk_Decision CHECK (Decision in ('Award', 'Resit', 'Withdrawal', 'No Decision'))
+    CONSTRAINT chk_Decision CHECK (Decision in ('Award', 'Resit', 'Withdrawal'))
 );
 
 
 Create Table Mark(
-    ModuleID VARCHAR(5) NOT NULL,
-    UserID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
+    UserID VARCHAR(10) NOT NULL,
     AttNo INT NOT NULL,
     Lab FLOAT,
     Exam FLOAT,
@@ -129,7 +129,7 @@ Create Table BusinessRule(
 
 
 Create Table BusinessRuleModule(
-    ModuleID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
     RuleID INT NOT NULL,
     CONSTRAINT pkRuleModule PRIMARY KEY(ModuleID, RuleID),
     CONSTRAINT fkRuleModule FOREIGN KEY(ModuleID) REFERENCES Module(ModuleID),
@@ -138,7 +138,7 @@ Create Table BusinessRuleModule(
 
 
 Create Table BusinessRuleCourse(
-    CourseID VARCHAR(5) NOT NULL,
+    CourseID VARCHAR(10) NOT NULL,
     RuleID INT NOT NULL,
     CONSTRAINT pkRuleCourse PRIMARY KEY(CourseID, RuleID),
     CONSTRAINT fkRuleCourse FOREIGN KEY(CourseID) REFERENCES Course(CourseID),
@@ -146,8 +146,8 @@ Create Table BusinessRuleCourse(
 );
 
 CREATE TABLE BusinessRuleApplication(
-    ModuleID VARCHAR(5) NOT NULL,
-    UserID VARCHAR(5) NOT NULL,
+    ModuleID VARCHAR(10) NOT NULL,
+    UserID VARCHAR(10) NOT NULL,
     AttNo INT NOT NULL,
     RuleID INT NOT NULL,
     CONSTRAINT pkRuleApplication PRIMARY KEY(ModuleID, UserID, AttNo, RuleID),

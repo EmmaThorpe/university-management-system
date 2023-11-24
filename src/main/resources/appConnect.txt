@@ -1,0 +1,17 @@
+ssh -L 3306:devweb2023.cis.strath.ac.uk:3306 xqb21129@cafe.cis.strath.ac.uk
+
+student:
+Matthew@Strathclyde
+NeverGonna
+
+lecturer:
+Veronica@Strathclyde
+GiveYouUp
+
+manager that manages everyone:
+boss@Strathclyde
+YouKnowTheRules
+
+manager that manages the big boss :
+Fred@Strathclyde
+AndSoDoI

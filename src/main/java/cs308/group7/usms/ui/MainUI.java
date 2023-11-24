@@ -431,7 +431,9 @@ public class MainUI {
         header.setSpacing(10);
 
         modalDialog.setHeader(header);
-        VBox content = new VBox(new Text(modalContent));
+        Text modalText = new Text(modalContent);
+        modalText.setWrappingWidth(200.0);
+        VBox content = new VBox(modalText);
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.CENTER);
 

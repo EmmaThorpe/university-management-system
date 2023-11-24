@@ -248,7 +248,7 @@ public class ManagerUI extends UIElements{
      * Course Dashboard
      **/
 
-    public void courses(List<Map<String, String>> courseList, List<Map<String, String>> moduleList, List<String> departmentList) {
+    public void courses(List<Map<String, String>> courseList, List<Map<String, String>> moduleList, List<Map<String, String>> departmentList) {
         resetCurrentValues();
 
         Button add = inputButton("ADD COURSE");
@@ -276,7 +276,7 @@ public class ManagerUI extends UIElements{
     }
 
     private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel,
-                               VBox courseDetails, List<String> departmentList, List<Map<String, String>> moduleList){
+                               VBox courseDetails, List<Map<String, String>> departmentList, List<Map<String, String>> moduleList){
         VBox panel = new VBox();
         HBox tempButton;
         for (Map<String, String> course : courseList) {
@@ -306,7 +306,7 @@ public class ManagerUI extends UIElements{
     }
 
     private EventHandler<Event> pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails,
-                                    List<String> departments, List<Map<String, String>> moduleList){
+                                           List<Map<String, String>> departments, List<Map<String, String>> moduleList){
         return event -> {
             courseDetails.getChildren().set(0, infoContainer(courseDetailDisplay(tempCourse)));
 
@@ -335,7 +335,7 @@ public class ManagerUI extends UIElements{
     /**
      * Course Dashboard - modals
      **/
-    private VBox addCourse(List<String> department) {
+    private VBox addCourse(List<Map<String, String>> department) {
         VBox setCode = textAndField("ADD CODE",
                 lengthCheck(1, 5,"ADD CODE", "Code", "COURSE", "ADD"));
         VBox setName = textAndField("ADD NAME",
@@ -346,12 +346,16 @@ public class ManagerUI extends UIElements{
                 lengthCheck(1,20,"ADD LEVEL OF STUDY", "Level of study", "COURSE", "ADD"));
         VBox setYears = textAndField("ADD LENGTH OF COURSE",
                 rangeCheck(1, 5, "ADD LENGTH OF COURSE", "Length of course", "COURSE", "ADD"));
-        VBox setDept = dropdownField("ADD DEPARTMENT", department);
+        List<String> departments = new ArrayList<>();
+        for (Map<String, String> d : department) {
+            departments.add(d.get("Name"));
+        }
+        VBox setDept = dropdownField("ADD DEPARTMENT", departments);
 
         return new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
     }
 
-    private VBox editCourse(Map<String, String> currentCourse, List<String> department) {
+    private VBox editCourse(Map<String, String> currentCourse, List<Map<String, String>> department) {
         VBox setCode = setTextAndField("EDIT CODE", currentCourse.get("Id"),
                 lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "EDIT"));
         VBox setName = setTextAndField("EDIT NAME", currentCourse.get("Name"),
@@ -363,9 +367,14 @@ public class ManagerUI extends UIElements{
         VBox setYears = setTextAndField("EDIT LENGTH OF COURSE", currentCourse.get("Years"),
                 rangeCheck(1, 5, "EDIT LENGTH OF COURSE", "Length of course", "COURSE", "EDIT"));
 
-       department.remove(currentCourse.get("Department"));
-       department.add(0, currentCourse.get("Department"));
-       VBox setDept = dropdownField("EDIT DEPARTMENT", department);
+        List<String> departments = new ArrayList<>();
+        for (Map<String, String> d : department) {
+            departments.add(d.get("Name"));
+        }
+
+        departments.remove(currentCourse.get("Department"));
+        departments.add(0, currentCourse.get("Department"));
+        VBox setDept = dropdownField("EDIT DEPARTMENT", departments);
 
         return new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
     }

@@ -157,6 +157,7 @@ public class ManagerController{
             return users;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching users " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -194,6 +195,8 @@ public class ManagerController{
             return users;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching manager " + managerID + "'s users " + e.getMessage(),
+                    false);
             throw new RuntimeException(e);
         }
     }
@@ -237,6 +240,7 @@ public class ManagerController{
             return modules;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching courses " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -274,6 +278,7 @@ public class ManagerController{
             return modules;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching modules " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -302,6 +307,7 @@ public class ManagerController{
             return lecturers;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching lecturers " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -312,19 +318,23 @@ public class ManagerController{
      *
      * @return List of maps containing the name and the department no. of all departments
      */
-    public List<String> getDepartments(){
+    public List<Map<String, String>> getDepartments(){
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Department"}, null, null);
-            List<String> departments = new ArrayList<>();
+            List<Map<String, String>> departments = new ArrayList<>();
 
             while(result.next()){
-                departments.add(result.getString("Name"));
+                Map<String, String> temp = new HashMap<>();
+                temp.put("Name", result.getString("Name"));
+                temp.put("Id", result.getString("DeptNo"));
+                departments.add(temp);
             }
 
             return departments;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching departments " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -358,6 +368,7 @@ public class ManagerController{
             return user;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching student " + userID + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -415,6 +426,7 @@ public class ManagerController{
             return marks;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching student marks " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
 
@@ -527,6 +539,7 @@ public class ManagerController{
             return suggestion;
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null, "Error issuing student decision " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -539,18 +552,13 @@ public class ManagerController{
     public void activateUser(String userID, String managerID) {
         try {
             User u = new User(userID);
-            boolean success = u.setActivated();
-
-            if (success) {
-                u.setManager(managerID);
-                pageSetter("MANAGE SIGN-UP WORKFLOW", false);
-                manUI.makeNotificationModal(null, "Account successfully activated", true);
-            } else {
-                manUI.makeNotificationModal(null, "Error activating account", false);
-            }
+            u.setActivated();
+            u.setManager(managerID);
+            pageSetter("MANAGE ACCOUNTS", false);
+            manUI.makeNotificationModal(null, "Account successfully activated", true);
         }
         catch(SQLException e){
-            throw new RuntimeException(e);
+            manUI.makeNotificationModal(null, "Error activating account " + e.getMessage(), false);
         }
     }
 
@@ -561,19 +569,14 @@ public class ManagerController{
         System.out.println(userID);
         try {
             User u = new User(userID);
-            boolean success = u.setDeactivated();
+            u.setDeactivated();
+            manUI.makeNotificationModal(null, "Account successfully deactivated", true);
+            pageSetter("MANAGE ACCOUNTS", false);
 
-            if (success) {
-                manUI.makeNotificationModal(null, "Account successfully deactivated", true);
-                pageSetter("MANAGE ACCOUNTS", false);
-            } else {
-                manUI.makeNotificationModal(null, "Error deactivating account", false);
-            }
         }
         catch(SQLException e){
-            throw new RuntimeException(e);
+            manUI.makeNotificationModal(null, "Error deactivating account " + e.getMessage(), false);
         }
-        System.out.println(userID);
     }
 
     /**Takes in a userID and password, and sets the selected user's password to be the set password
@@ -612,6 +615,7 @@ public class ManagerController{
             pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
+            manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning module " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
         System.out.println(lecturerID +" "+moduleID);
@@ -624,11 +628,17 @@ public class ManagerController{
     public void assignStudentCourse(String studentID, String courseID){
         try {
             Student s = new Student(studentID);
-            s.setCourse(courseID);
-            manUI.makeNotificationModal("ENROL STUDENT","Assigned course successfully!", true);
-            pageSetter("MANAGE ACCOUNTS", false);
+            if (s.setCourse(courseID)) {
+                manUI.makeNotificationModal("ENROL STUDENT","Assigned course successfully!", true);
+                pageSetter("MANAGE ACCOUNTS", false);
+            } else {
+                manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course", false);
+            }
+
+
         }
         catch(SQLException e){
+            manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
         System.out.println(studentID +" "+ courseID);
@@ -654,11 +664,15 @@ public class ManagerController{
         }
         try {
             Course c = new Course(courseID);
-            c.addModule(moduleID, sem1, sem2, year);
-            manUI.makeNotificationModal("ASSIGN","Assigned module successfully!", true);
-            pageSetter("MANAGE COURSES", false);
+            if (c.addModule(moduleID, sem1, sem2, year)) {
+                manUI.makeNotificationModal("ASSIGN", "Assigned module successfully!", true);
+                pageSetter("MANAGE COURSES", false);
+            } else {
+                manUI.makeNotificationModal("ASSIGN", "Error assigning module", false);
+            }
         }
         catch(SQLException e){
+            manUI.makeNotificationModal("ASSIGN", "Error assigning module " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
         System.out.println(courseID + " " +moduleID);
@@ -681,6 +695,7 @@ public class ManagerController{
             pageSetter("MANAGE ACCOUNTS", false);
         }
         catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error issuing student decision " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
         System.out.println(studentID + " " +decision);
@@ -693,8 +708,17 @@ public class ManagerController{
      * @param levelOfStudy
      * @param length
      */
-    public void addCourse(String code, String name, String description, String levelOfStudy, int length, String deptNo) {
+    public void addCourse(String code, String name, String description, String levelOfStudy, int length,
+                          String deptName) {
         DatabaseConnection db = App.getDatabaseConnection();
+
+        String deptNo = "";
+        for (Map<String, String> d : getDepartments()) {
+            if (d.get("Name").equals(deptName)) {
+                deptNo = d.get("Id").toString();
+                break;
+            }
+        }
 
         HashMap<String, String> values = new HashMap<>();
         values.put("CourseID", db.sqlString(code));
@@ -709,6 +733,7 @@ public class ManagerController{
             manUI.makeNotificationModal("ADD", "Added course successfully!", true);
             pageSetter("MANAGE COURSES", false);
         } catch (SQLException e) {
+            manUI.makeNotificationModal("ADD","Error adding course " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -719,21 +744,32 @@ public class ManagerController{
      * @param name
      * @param description
      */
-    public void editCourse(String oldCode, String code, String name, String description, String level, String length, String department){
+    public void editCourse(String oldCode, String code, String name, String description, String level, String length,
+                           String deptName){
         DatabaseConnection db = App.getDatabaseConnection();
+
+        String deptNo = "";
+        for (Map<String, String> d : getDepartments()) {
+            if (d.get("Name").equals(deptName)) {
+                deptNo = d.get("Id").toString();
+                break;
+            }
+        }
+
         HashMap<String, String> values = new HashMap<>();
         values.put("CourseID", db.sqlString(code));
         values.put("Name", db.sqlString(name));
         values.put("Description", db.sqlString(description));
         values.put("LevelOfStudy", db.sqlString(level));
         values.put("AmountOfYears", String.valueOf(length));
-        values.put("Department", String.valueOf(department));
+        values.put("DeptNo", String.valueOf(deptNo));
 
         try {
             db.update("Course", values, new String[]{"CourseID = " + db.sqlString(oldCode)});
             manUI.makeNotificationModal("EDIT", "Updated course successfully!", true);
             pageSetter("MANAGE COURSES", false);
         } catch (SQLException e) {
+            manUI.makeNotificationModal("EDIT","Error updating course " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -758,6 +794,7 @@ public class ManagerController{
             pageSetter("MANAGE MODULES", false);
         }
         catch(SQLException e){
+            manUI.makeNotificationModal("ADD","Error adding module " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
@@ -781,6 +818,7 @@ public class ManagerController{
                 manUI.makeNotificationModal("EDIT", "Updated module successfully!", true);
                 pageSetter("MANAGE MODULES", false);
             } catch (SQLException e) {
+                manUI.makeNotificationModal("EDIT","Error updating module " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }
@@ -809,6 +847,7 @@ public class ManagerController{
                 return rules;
             }
             catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error fetching business rules " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }
@@ -851,6 +890,8 @@ public class ManagerController{
                     rulesAssoc.put(ruleID, idList);
                 }
                 catch(SQLException e){
+                    manUI.makeNotificationModal(null,"Error fetching business rules associations " + e.getMessage(),
+                            false);
                     throw new RuntimeException(e);
                 }
             }
@@ -895,6 +936,7 @@ public class ManagerController{
                 return courseRules;
             }
             catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error fetching course business rules " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }
@@ -918,6 +960,7 @@ public class ManagerController{
                 return ruleMap;
             }
             catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error fetching module business rules " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }
@@ -937,6 +980,7 @@ public class ManagerController{
                 pageSetter("MANAGE BUSINESS RULES", false);
             }
             catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }
@@ -950,6 +994,7 @@ public class ManagerController{
                 pageSetter("MANAGE BUSINESS RULES", false);
             }
             catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
                 throw new RuntimeException(e);
             }
         }

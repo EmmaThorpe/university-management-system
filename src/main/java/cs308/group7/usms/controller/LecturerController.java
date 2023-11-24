@@ -260,9 +260,12 @@ public class LecturerController{
         try {
             DatabaseConnection db = App.getDatabaseConnection();
             int res = db.update("Material", values, new String[]{"Week = '"+ week +"' AND ModuleID = '"+ getCurrentLecturer().getModule().getModuleID() +"'"});
-            if (res > 0) return;
+            if (res > 0) {
+                lecUI.makeNotificationModal(null, "Module material updated successfully", true);
+            };
         } catch (SQLException e) {
-            System.out.println("Failed to update module material for with file " + String.valueOf(file) + e.getMessage());
+            lecUI.makeNotificationModal(null,
+                    "Failed to update module material for with file " + String.valueOf(file) + e.getMessage(), false);
             return;
         }
 
@@ -280,9 +283,10 @@ public class LecturerController{
         try {
             DatabaseConnection db = App.getDatabaseConnection();
             int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
+            lecUI.makeNotificationModal("ASSIGN LAB MARK", "Lab mark set successfully", true);
         } catch (SQLException e) {
-            System.out.println("Failed to update lab mark for student " + studentID + " (attempt #" + attNo + ")." + e.getMessage());
-            return;
+            lecUI.makeNotificationModal("ASSIGN LAB MARK", "Failed to update lab mark for student " + studentID +
+                    " (attempt #" + attNo + ")." + e.getMessage(), false);
         }
     }
 
@@ -299,8 +303,10 @@ public class LecturerController{
         try {
             DatabaseConnection db = App.getDatabaseConnection();
             int res = db.update("Mark", values, new String[]{"AttNo = '"+ attNo +"' AND UserID = '"+ studentID +"'"});
+            lecUI.makeNotificationModal("ASSIGN EXAM MARK", "Exam mark set successfully", true);
         } catch (SQLException e) {
-            System.out.println("Failed to update exam mark for student " + studentID + " (attempt #" + attNo + ")." + e.getMessage());
+            lecUI.makeNotificationModal("ASSIGN EXAM MARK", "Failed to update exam mark for student " + studentID +
+                    " (attempt #" + attNo + ")." + e.getMessage(), false);
             return;
         }
     }
@@ -323,8 +329,10 @@ public class LecturerController{
 
         try {
             db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
+            lecUI.makeNotificationModal("EDIT", "Module updated successfully", true);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            lecUI.makeNotificationModal("EDIT", "Failed to update module" + e.getMessage(), false);
+            return;
         }
 
     }
