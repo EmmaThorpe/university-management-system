@@ -194,7 +194,7 @@ public class LecturerUI extends UIElements{
     /**
      * Material dashboard
      */
-    public void materials(String moduleID, List<Map<String, Boolean>> materialList, String semesters){
+    public void materials(String moduleID, List<Map<String, Boolean>> materialList){
         resetCurrentValues();
         currentValues.put("ID",moduleID);
 
@@ -217,11 +217,7 @@ public class LecturerUI extends UIElements{
 
             VBox leftActionPanel;
 
-            if (semesters.equals("1&2")) {
-                leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
-            } else {
-                leftActionPanel = weekButtons(Integer.parseInt(semesters), materialList, rightActionPanel, materialDetails);
-            }
+            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
 
             twoPanelLayout(leftActionPanel, rightActionPanel, "Materials");
         }
@@ -229,22 +225,6 @@ public class LecturerUI extends UIElements{
 
     }
 
-
-    private VBox weekButtons(int semNo, List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
-        VBox panel = new VBox();
-        HBox tempButton;
-        for (int i=1; i<=2;i++) {
-            tempButton = makeWeekButton(i);
-            tempButton.setOnMouseClicked(pickWeek(i, semNo, materialList.get(i-1), rightPanel, materialDetails));
-            panel.getChildren().add(tempButton);
-        }
-
-        panel.setSpacing(20.0);
-        panel.setPadding(new Insets(10, 2, 10, 2));
-
-        ScrollPane courseListPanel = new ScrollPane(panel);
-        return makeScrollablePanel(courseListPanel);
-    }
 
 
 

@@ -97,7 +97,7 @@ public class LecturerController{
             case "MATERIALS":
                 try{
                     Map<String, String> moduleInfo = getModuleInformation();
-                    lecUI.materials(moduleInfo.get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")), moduleInfo.get("Semesters"));
+                    lecUI.materials(moduleInfo.get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")));
                     buttons = lecUI.getCurrentButtons();
                     buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
                     buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
@@ -152,7 +152,7 @@ public class LecturerController{
         Module mod = new Module(moduleID);
         Map<String,String> moduleInfo = new HashMap<String, String>();
         DatabaseConnection db = App.getDatabaseConnection();
-        String Semesters = "";
+       /* String Semesters = "";
         CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"ModuleID = " + db.sqlString(moduleID)});
         result.next();
         if (result.getBoolean("Semester1")) {
@@ -160,13 +160,13 @@ public class LecturerController{
             if(result.getBoolean("Semester2")) {
                 Semesters += "&2";
             }
-        } else Semesters += "2";
+        } else Semesters += "2";*/
 
         moduleInfo.put("Id", mod.getModuleID());
         moduleInfo.put("Name", mod.getName());
         moduleInfo.put("Description", mod.getDescription());
         moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
-        moduleInfo.put("Semesters", Semesters );
+        //moduleInfo.put("Semesters", Semesters );
         moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
         return moduleInfo;
 
