@@ -37,7 +37,7 @@ public class LecturerController{
 
 
     public void pageSetter(String page, Boolean initial) {
-        Map<String, Button> buttons = null;
+        Map<String, Button> buttons;
         switch (page){
             case "DASHBOARD":
                 lecUI.dashboard();
@@ -60,7 +60,8 @@ public class LecturerController{
                             )
                     );
                 }catch(java.sql.SQLException e){
-                    System.out.println("testing");
+                    lecUI.makeNotificationModal(null, "ERROR GETTING MODULE INFORMATION", false);
+                    pageSetter("DASHBOARD", false);
                 };
 
                 break;
@@ -72,10 +73,6 @@ public class LecturerController{
                             (event)->
                                     updateStudentLabMark(
                                             lecUI.getValues().get("StudentID"),
-                                            // NOTE: assuming that
-                                            // attempt number should not be a lecturer's concern when setting
-                                            // a student's
-                                            // mark and the attempt number should be controlled on controller
                                             Integer.parseInt(lecUI.getValues().get("AttemptNo")),
                                             Double.parseDouble(((TextField)lecUI.getCurrentFields().get("LAB MARK")).getText())
                                     )
@@ -89,11 +86,9 @@ public class LecturerController{
                                     )
                     );
                 }catch(java.sql.SQLException e){
-
+                    lecUI.makeNotificationModal(null, "ERROR GETTING ENROLLED STUDENTS", false);
+                    pageSetter("DASHBOARD", false);
                 }
-
-
-
 
                 break;
 
@@ -109,13 +104,13 @@ public class LecturerController{
 
                 }
                 catch(java.sql.SQLException e){
-
+                    lecUI.makeNotificationModal(null, "FAILED TO GET MATERIALS FROM SERVER", false);
+                    pageSetter("DASHBOARD", false);
                 }
 
                 break;
             case "OPEN PDF":
                 lecUI.displayPDF(null, "LECTURER NOTES");
-                buttons = lecUI.getCurrentButtons();
                 break;
 
 
