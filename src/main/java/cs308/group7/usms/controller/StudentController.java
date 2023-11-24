@@ -109,7 +109,7 @@ public class StudentController{
             );
             return res.next();
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get whether module " + moduleID + " spans both semesters: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET WHETHER MODULE " + moduleID + " SPANS BOTH SEMESTERS: " + e.getMessage(), false);
             return false;
         }
     }
@@ -131,7 +131,7 @@ public class StudentController{
             courseMap.put("Department", String.valueOf(c.getDepartment()));
             return courseMap;
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get course info for student " + studentID + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET COURSE INFO FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyMap();
         }
     }
@@ -151,7 +151,7 @@ public class StudentController{
             try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
             return f;
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "Failed to get the lecture note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GEET THE LECTURE NOTES FOR MODULE  " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
             return null;
         }
     }
@@ -171,7 +171,7 @@ public class StudentController{
             try (OutputStream out = new FileOutputStream(f)) { out.write(labNote.get()); }
             return f;
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "Failed to get the lab note for module " + moduleID + " in week " + week + " of semester " + semester + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET THE LAB NOTES FOR MODULE " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
             return null;
         }
     }
@@ -210,7 +210,7 @@ public class StudentController{
             }
             return materials;
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get lecture materials for module " + moduleID + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO THE LECTURE MATERIALS FOR MODULE " + moduleID + "!: " + e.getMessage(), false);
             return Collections.emptyList();
         }
     }
@@ -223,7 +223,7 @@ public class StudentController{
         try {
             return Student.stringFromStudentDecision(getCurrentStudent().getDecision());
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get decision for student " + studentID + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET DECISION FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return "Unable to load student decision.";
         }
     }
@@ -259,7 +259,7 @@ public class StudentController{
             }
             return marks;
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get marks for student " + studentID + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET MARKS FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();
         }
     }
@@ -291,7 +291,7 @@ public class StudentController{
             }
             return modules;
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to get modules for student " + studentID + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET MODULES FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();
         }
 
