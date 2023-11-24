@@ -27,8 +27,8 @@ public class ManagerUI extends UIElements{
 
         Button mngModuleBtn = inputButton("MANAGE MODULES");
         Button mngCourseBtn = inputButton("MANAGE COURSES");
-        Button mngSignupBtn = inputButton("MANAGE SIGN-UP WORKFLOW");
         Button mngAccountsBtn = inputButton("MANAGE ACCOUNTS");
+        Button mngSignupBtn = inputButton("MANAGE SIGN-UP WORKFLOW");
         Button mngRulesBtn = inputButton("MANAGE BUSINESS RULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
 

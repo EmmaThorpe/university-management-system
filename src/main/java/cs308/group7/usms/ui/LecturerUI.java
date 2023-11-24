@@ -16,6 +16,9 @@ import java.util.Map;
 
 public class LecturerUI extends UIElements{
 
+    /**
+     * Dashboard lecturers see when they log in
+     */
     public void dashboard() {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Lecturer");
@@ -33,7 +36,11 @@ public class LecturerUI extends UIElements{
 
 
 
-    /* Module dashboard */
+    /* Module dashboard components*/
+
+    /** Lecturer module dashboard
+     * @param lecturerModule - map containing information on the module the lecturer runs
+     */
     public void module(Map<String, String> lecturerModule){
         resetCurrentValues();
         currentValues = new HashMap<>();
@@ -55,10 +62,14 @@ public class LecturerUI extends UIElements{
 
 
     /**
-     * Mark Dashboard
+     * Mark Dashboard Elements
      **/
 
-    public void mark (List<Map<String, String>> students){
+
+    /** Mark  Dashboard
+     * @param students - List of student info of people who take the module the lecturer runs
+     */
+    public void mark(List<Map<String, String>> students){
         resetCurrentValues();
 
         Button newMark = inputButton("SET NEW MARK");
@@ -84,7 +95,12 @@ public class LecturerUI extends UIElements{
     }
 
 
-
+    /** Creates the buttons for students that shows their mark
+     * @param accountList - a list of student details
+     * @param rightPanel - the panel on the right hand side of the screen that gets filled when the buttons are pressed
+     * @param details - the panel that will be filled with user details based on the button that is clicked
+     * @return - a vbox containing the buttons
+     */
     private VBox markButtons(List<Map<String, String>> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
         HBox tempButton;
@@ -108,7 +124,12 @@ public class LecturerUI extends UIElements{
     }
 
 
-
+    /** generates the event that handles a student being picked
+     * @param user - map of user details
+     * @param rightPanel - the panel on the right hand side of the screen that gets filled when the buttons are pressed
+     * @param accDetails - the panel on account details that gets filled when the buttons are pressed
+     * @return - the event handler that handles the button click event
+     */
     private EventHandler<Event> pickStudent(Map<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             currentValues = new HashMap<>();
@@ -116,7 +137,7 @@ public class LecturerUI extends UIElements{
 
             ArrayList<Button> studentBtnsList = new ArrayList<>();
 
-            if(user.get("labMark")!=null || user.get("examMark") != null){
+            if(user.get("labMark")!=null || user.get("examMark") != null){  //if at least 1 mark exists than display that mark and allow it to be updated
                 currentValues.put("AttemptNo", user.get("attemptNo"));
 
                 accDetails.getChildren().set(0, infoContainer(studentMarkDisplay(
