@@ -45,9 +45,7 @@ public class LecturerController{
                 buttons.get("VIEW MODULE").setOnAction((event)->pageSetter("VIEW MODULE", false));
                 buttons.get("GIVE MARK").setOnAction((event)->pageSetter("GIVE MARK", false));
                 buttons.get("CHECK MATERIAL").setOnAction((event)->pageSetter("MATERIALS", false));
-                Map<String, Node> currFields = lecUI.getCurrentFields();
-                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
-
+                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(((TextField)lecUI.getCurrentFields().get("OLD PASSWORD")).getText(), ((TextField)lecUI.getCurrentFields().get("NEW PASSWORD")).getText()));
                 break;
             case "VIEW MODULE":
                 try{

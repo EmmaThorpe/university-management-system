@@ -23,12 +23,11 @@ public class StudentUI extends UIElements{
         Button viewCourseBtn = inputButton("VIEW COURSE");
         Button viewModuleBtn = inputButton("VIEW MODULES");
         Button passwordBtn = inputButton("CHANGE PASSWORD");
-        Button fileBtn = inputButton("OPEN FILE");
 
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
 
-        Button[] mngBtns = {viewDecisionBtn, viewCourseBtn, viewModuleBtn, passwordBtn, fileBtn};
+        Button[] mngBtns = {viewDecisionBtn, viewCourseBtn, viewModuleBtn, passwordBtn};
         createDashboard(mngBtns, toolbar);
     }
 
@@ -274,6 +273,17 @@ public class StudentUI extends UIElements{
                 materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
 
                 courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
+
+            }else if(materials.get("Lecture")){
+                ArrayList<Button> materialBtnsList = new ArrayList<>();
+                materialBtnsList.add(currentButtons.get("VIEW LECTURE MATERIAL"));
+                courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
+
+            }else if(materials.get("Lab")){
+                ArrayList<Button> materialBtnsList = new ArrayList<>();
+                materialBtnsList.add(currentButtons.get("VIEW LAB MATERIAL"));
+                courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
+
             }else{
                 courseActionsDisplay = makeScrollablePart(new VBox(new Text("No Material to Show!")));
             }

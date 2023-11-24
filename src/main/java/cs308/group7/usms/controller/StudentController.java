@@ -8,6 +8,7 @@ import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import org.jetbrains.annotations.Nullable;
 import org.jpedal.exception.PdfException;
 
@@ -36,14 +37,10 @@ public class StudentController{
                 buttons.get("VIEW DECISION").setOnAction((event)->pageSetter("VIEW DECISION", false));
                 buttons.get("VIEW COURSE").setOnAction((event)->pageSetter("VIEW COURSE", false));
                 buttons.get("VIEW MODULES").setOnAction((event)->pageSetter("VIEW MODULES", false));
-                buttons.get("OPEN FILE").setOnAction((event)->pageSetter("OPEN PDF", false));
-
-                Map<String, Node> currFields = stuUI.getCurrentFields();
-                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
-
+                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(((TextField)stuUI.getCurrentFields().get("OLD PASSWORD")).getText(), ((TextField)stuUI.getCurrentFields().get("NEW PASSWORD")).getText()));
                 break;
             case "VIEW DECISION":
-                stuUI.decision(getModules(), getMarks(), "AWARD");
+                stuUI.decision(getModules(), getMarks(), getDecision());
                 buttons = stuUI.getCurrentButtons();
                 break;
             case "VIEW COURSE":
@@ -63,7 +60,7 @@ public class StudentController{
 
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(null, "LECTURER NOTES");
+                stuUI.displayPDF(getLectureNote(stuUI.getValues().get("ID"), 1, Integer.parseInt(stuUI.getValues().get("WEEK"))), "LECTURER NOTES");
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
@@ -131,6 +128,7 @@ public class StudentController{
             courseMap.put("Description", c.getDescription());
             courseMap.put("Level", c.getLevel());
             courseMap.put("Years", String.valueOf(c.getLength()));
+            courseMap.put("Department", String.valueOf(c.getDepartment()));
             return courseMap;
         } catch (SQLException e) {
             System.out.println("Failed to get course info for student " + studentID + "!: " + e.getMessage());
@@ -200,13 +198,13 @@ public class StudentController{
                 int week = res.getInt("Week");
                 Map<String, Boolean> w = new HashMap<>();
                 if (week == i) {
-                    w.put("LectureNote", res.getBoolean("LectureNote"));
-                    w.put("LabNote", res.getBoolean("LabNote"));
+                    w.put("Lecture", res.getBoolean("LectureNote"));
+                    w.put("Lab", res.getBoolean("LabNote"));
                     materials.add(w);
                     res.next();
                 } else {
-                    w.put("LectureNote", false);
-                    w.put("LabNote", false);
+                    w.put("Lecture", false);
+                    w.put("Lab", false);
                     materials.add(w);
                 }
             }

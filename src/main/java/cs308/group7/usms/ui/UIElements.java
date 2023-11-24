@@ -976,7 +976,7 @@ public class UIElements extends MainUI{
     public void displayPDF(File file, String type){
         resetCurrentValues();
 
-        Document pdf = showPage();
+        Document pdf = showPage(file);
 
         int amount = pdf.getNumberOfPages()-1;
 
@@ -1062,10 +1062,9 @@ public class UIElements extends MainUI{
      * @return A document that can be used in the PDF viewer to show
      *          material
      */
-    protected Document showPage() {
+    protected Document showPage(File file) {
         Document currentDocument = new Document();
         try {
-            File file = new File("src/main/resources/CS308_Coursework.pdf");
             currentDocument.setFile(file.getAbsolutePath());
             return currentDocument;
 

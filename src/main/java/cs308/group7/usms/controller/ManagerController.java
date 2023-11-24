@@ -44,9 +44,7 @@ public class ManagerController{
                 buttons.get("MANAGE SIGN-UP WORKFLOW").setOnAction((event)->pageSetter("MANAGE SIGN-UP WORKFLOW", false));
                 buttons.get("MANAGE ACCOUNTS").setOnAction((event)->pageSetter("MANAGE ACCOUNTS", false));
                 buttons.get("MANAGE BUSINESS RULES").setOnAction((event)->pageSetter("MANAGE BUSINESS RULES", false));
-
-                Map<String, Node> currFields = manUI.getCurrentFields();
-                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(currFields.get("OLD PASSWORD").getAccessibleText(), currFields.get("NEW PASSWORD").getAccessibleText()));
+                buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(((TextField)manUI.getCurrentFields().get("OLD PASSWORD")).getText(), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
 
                 break;
             case "MANAGE ACCOUNTS":
@@ -232,7 +230,7 @@ public class ManagerController{
                 courseDetailsMap.put("Description", cour.getDescription());
                 courseDetailsMap.put("Level", cour.getLevel());
                 courseDetailsMap.put("Years", String.valueOf(cour.getLength()));
-                courseDetailsMap.put("Department", "ABC1");   //todo actually make this work
+                courseDetailsMap.put("Department", cour.getDepartment());
                 modules.add(courseDetailsMap);
             }
 
