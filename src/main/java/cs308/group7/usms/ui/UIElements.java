@@ -2,6 +2,8 @@ package cs308.group7.usms.ui;
 
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -284,8 +287,7 @@ public class UIElements extends MainUI{
                                                 String markType){
         return (obs, oldText, newText) -> {
             if (newText.isEmpty()
-                    || !(newText.matches("^\\d*\\.\\d+|\\d+\\.\\d*$"))
-                    || !(newText.matches("\\d+"))
+                    || !(newText.matches("^\\d*\\.?\\d+|\\d+\\.\\d*$"))
                     || Double.parseDouble(newText) < minValue
                     || Double.parseDouble(newText) >maxValue) {
                 currentText.get(field).setText(fieldName + " must be between " + minValue
@@ -968,6 +970,33 @@ public class UIElements extends MainUI{
         VBox weekDetails = new VBox(nameDisplay);
         weekDetails.setSpacing(5.0);
         return makeListButton(null, new FontIcon(FontAwesomeSolid.CHALKBOARD), weekDetails);
+    }
+
+
+
+
+    protected VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails,
+                                   VBox panelSem1, VBox panelSem2){
+        ToggleGroup semSelected = new ToggleGroup();
+        ToggleButton sem1 = setToggleOption(semSelected, "Semester 1");
+        ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
+        sem1.setSelected(true);
+
+        HBox.setHgrow(sem1, Priority.ALWAYS);
+        HBox.setHgrow(sem2, Priority.ALWAYS);
+        HBox semOptions = new HBox(sem1, sem2);
+
+        panelSem1.setSpacing(20.0);
+        panelSem1.setPadding(new Insets(10, 2, 10, 2));
+
+        panelSem2.setSpacing(20.0);
+        panelSem2.setPadding(new Insets(10, 2, 10, 2));
+
+        ScrollPane weekListPanel = new ScrollPane(panelSem1);
+
+        semSelected.selectedToggleProperty().addListener(toggleSem(semSelected, weekListPanel, panelSem1, panelSem2, rightPanel));
+
+        return new VBox(semOptions, makeScrollablePanel(weekListPanel));
     }
 
     /** Creates a view for showing a PDF for a module's week's material

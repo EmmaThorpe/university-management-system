@@ -141,9 +141,8 @@ public class LecturerUI extends UIElements{
 
             Button[] studentBtns = studentBtnsList.toArray(new Button[0]);
             stylePanelActions(studentBtns);
+
             VBox studentBtnView = new VBox(studentBtns);
-
-
 
             studentBtnView.setAlignment(Pos.CENTER);
             studentBtnView.setSpacing(20.0);
@@ -217,62 +216,31 @@ public class LecturerUI extends UIElements{
 
             VBox leftActionPanel;
 
-            leftActionPanel = weekButtons2Sem(materialList, rightActionPanel, materialDetails);
+            leftActionPanel = weekButtons2Sem(
+                    materialList, rightActionPanel, materialDetails,
+                    getSemWeekButtons(1, materialList, rightActionPanel, materialDetails),
+                    getSemWeekButtons(2, materialList, rightActionPanel, materialDetails));
 
             twoPanelLayout(leftActionPanel, rightActionPanel, "Materials");
         }
-
-
     }
 
-
-
-
-    private VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
-        ToggleGroup semSelected = new ToggleGroup();
-        ToggleButton sem1 = setToggleOption(semSelected, "Semester 1");
-        ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
-        sem1.setSelected(true);
-
-        HBox.setHgrow(sem1, Priority.ALWAYS);
-        HBox.setHgrow(sem2, Priority.ALWAYS);
-        HBox semOptions = new HBox(sem1, sem2);
-
-        VBox panelSem1 = new VBox();
-        VBox panelSem2 = new VBox();
-
+    private VBox getSemWeekButtons(int semester, List<Map<String, Boolean>> materialList, VBox rightPanel,
+                                   VBox materialDetails) {
         HBox tempButton;
+        VBox semWeekButtonList = new VBox();
         for (int sem=1; sem<=2;sem++) {
             for (int week=1; week<=10;week++) {
-                tempButton = makeWeekButton(week);
-                tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get((sem-1)*10 +(week-1)), rightPanel, materialDetails));
-
-                if(sem==1){
-                    panelSem1.getChildren().add(tempButton);
-                }else{
-                    panelSem2.getChildren().add(tempButton);
+                if(sem==semester){
+                    tempButton = makeWeekButton(week);
+                    tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get((sem-1)*10 +(week-1)), rightPanel,
+                            materialDetails));
+                    semWeekButtonList.getChildren().add(tempButton);
                 }
-
-
             }
         }
-
-
-        panelSem1.setSpacing(20.0);
-        panelSem1.setPadding(new Insets(10, 2, 10, 2));
-
-        panelSem2.setSpacing(20.0);
-        panelSem2.setPadding(new Insets(10, 2, 10, 2));
-
-        ScrollPane weekListPanel = new ScrollPane(panelSem1);
-
-        semSelected.selectedToggleProperty().addListener(toggleSem(semSelected, weekListPanel, panelSem1, panelSem2, rightPanel));
-
-
-        return new VBox(semOptions, makeScrollablePanel(weekListPanel));
+        return semWeekButtonList;
     }
-
-
 
     private EventHandler<Event> pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
