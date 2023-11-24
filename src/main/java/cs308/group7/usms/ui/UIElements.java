@@ -285,6 +285,7 @@ public class UIElements extends MainUI{
         return (obs, oldText, newText) -> {
             if (newText.isEmpty()
                     || !(newText.matches("^\\d*\\.\\d+|\\d+\\.\\d*$"))
+                    || !(newText.matches("\\d+"))
                     || Double.parseDouble(newText) < minValue
                     || Double.parseDouble(newText) >maxValue) {
                 currentText.get(field).setText(fieldName + " must be between " + minValue
