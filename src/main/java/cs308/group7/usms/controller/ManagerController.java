@@ -8,6 +8,7 @@ import cs308.group7.usms.model.businessRules.BusinessRule;
 import cs308.group7.usms.model.businessRules.CourseBusinessRule;
 import cs308.group7.usms.model.businessRules.ModuleBusinessRule;
 import cs308.group7.usms.ui.ManagerUI;
+import cs308.group7.usms.utils.Password;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -33,6 +34,7 @@ public class ManagerController{
         pageSetter("DASHBOARD",true);
     }
 
+    private User getCurrentManager() throws SQLException { return new User(userID); }
 
     /** Sets the page and assigns the events that will occur when you press the buttons
      * @param page - the page being moved to
@@ -560,27 +562,44 @@ public class ManagerController{
         }
     }
 
-    /**Takes in a userID and password, and sets the selected user's password to be the set password
-     * @param userID
-     * @param password
+    /**
+     * Updates a given User's password
+     * @param userID The user's ID
+     * @param password The new password
      */
     public void resetPassword(String userID, String password){
-        manUI.makeNotificationModal("RESET USER PASSWORD", "Changed password successfully!", true);
-        pageSetter("MANAGE ACCOUNTS", false);
-        System.out.println(userID + " " +password);
+        try {
+            User u = new User(userID);
+            final boolean success = u.changePassword(password);
+            if (success) {
+                manUI.makeNotificationModal("RESET USER PASSWORD", "Changed password successfully!", true);
+                pageSetter("MANAGE ACCOUNTS", false);
+            } else throw new SQLException();
+        } catch (SQLException e) {
+            manUI.makeNotificationModal("RESET USER PASSWORD", "There was an error updating this user's password!", false);
+        }
     }
 
 
-    /**Changes the password for a user. And updates the view accordingly
-     * @param userID - the id of the user whose password is being changed
-     * @param newPass - the new password
+    /**
+     * Updates the logged in Manager's password
+     * @param oldPass The old password
+     * @param newPass The new password
      */
-    public void changePassword(String userID, String newPass){
-        // password changing
-        System.out.println(userID + " " +newPass);
-        manUI.makeNotificationModal("CHANGE PASSWORD", "Changed password successfully!", true);
-        pageSetter("DASHBOARD", false);
-
+    public void changePassword(String oldPass, String newPass){
+        try {
+            final User m = getCurrentManager();
+            final boolean AUTHORISED = Password.matches(oldPass, m.getEncryptedPassword());
+            if (AUTHORISED) {
+                final boolean success = m.changePassword(newPass);
+                if (success) {
+                    manUI.makeNotificationModal("CHANGE PASSWORD", "Changed password successfully!", true);
+                    pageSetter("DASHBOARD", false);
+                } else throw new SQLException();
+            } else manUI.makeNotificationModal("CHANGE PASSWORD", "Old password provided is incorrect!", false);
+        } catch (SQLException e) {
+            manUI.makeNotificationModal("CHANGE PASSWORD", "There was an error updating your password!", false);
+        }
     }
 
 

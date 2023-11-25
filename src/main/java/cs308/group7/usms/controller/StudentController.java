@@ -6,6 +6,7 @@ import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
+import cs308.group7.usms.utils.Password;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -85,12 +86,22 @@ public class StudentController{
     private Student getCurrentStudent() throws SQLException { return new Student(studentID); }
 
     /**
-     * Changes the password for a user.
-     * @param oldPass
-     * @param newPass
+     * Changes a student's password.
      */
-    public boolean changePassword(String oldPass, String newPass){
-        return true;
+    public void changePassword(String oldPass, String newPass){
+        try {
+            final Student s = getCurrentStudent();
+            final boolean AUTHORISED = Password.matches(oldPass, s.getEncryptedPassword());
+            if (AUTHORISED) {
+                final boolean success = s.changePassword(newPass);
+                if (success) stuUI.makeNotificationModal(null, "Successfully changed your password!", true);
+                else throw new SQLException();
+            } else {
+                stuUI.makeNotificationModal(null, "Couldn't change your password! Old password provided is incorrect.", false);
+            }
+        } catch (SQLException e) {
+            stuUI.makeNotificationModal(null, "Failed to change your password! A database error occurred.", false);
+        }
     }
 
 
