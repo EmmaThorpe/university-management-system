@@ -432,61 +432,63 @@ public class ManagerController{
             boolean suggestWithdraw = false;
             boolean maxCompen = false;
             boolean classesUnmarked = false;
+            boolean noCourse = false;
             int classesMarked = 0;
             List<String> maxResits = new ArrayList<>();
             List<String> studentModules = new ArrayList<>();
             String reason = "";
 
-            if (s.getCourse() != null) {
+            if (s.getCourseID() == null) {
+                noCourse = true;
+            }
+            else {
                 for (Module studentModule : s.getCourse().getModules(s.getYearOfStudy())) {
                     studentModules.add(studentModule.getModuleID());
                 }
-            } else {
-                classesUnmarked = true;
-            }
 
-            while(result.next()){
-                String currentModule = result.getString("ModuleID");
-                if (studentModules.contains(currentModule)) {
-                    classesMarked++;
-                }
+                while(result.next()){
+                    String currentModule = result.getString("ModuleID");
+                    if (studentModules.contains(currentModule)) {
+                        classesMarked++;
+                    }
 
-                Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
+                    Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
 
-                // check against rules
-                List<BusinessRule> rules = BusinessRule.getRules(s.getCourseID(), m);
-                for(BusinessRule r : rules){
-                    // if student doesn't pass the rule
-                    if(!r.passes(s)){
-                        switch(r.getType()){
-                            case MAX_COMPENSATED_MODULES:
-                                // if at the max compensated modules, set flag for reason and suggest resit
-                                maxCompen = true;
-                                suggestResit = true;
-                                break;
+                    // check against rules
+                    List<BusinessRule> rules = BusinessRule.getRules(s.getCourseID(), m);
+                    for(BusinessRule r : rules){
+                        // if student doesn't pass the rule
+                        if(!r.passes(s)){
+                            switch(r.getType()){
+                                case MAX_COMPENSATED_MODULES:
+                                    // if at the max compensated modules, set flag for reason and suggest resit
+                                    maxCompen = true;
+                                    suggestResit = true;
+                                    break;
 
-                            case MAX_RESITS:
-                                // add module to list of maximum resit reached and suggest withdraw
-                                if(!maxResits.contains(m.getModuleID() + "\n")) {
-                                    maxResits.add(m.getModuleID() + "\n");
-                                }
-                                suggestWithdraw = true;
-                                break;
+                                case MAX_RESITS:
+                                    // add module to list of maximum resit reached and suggest withdraw
+                                    if(!maxResits.contains(m.getModuleID() + "\n")) {
+                                        maxResits.add(m.getModuleID() + "\n");
+                                    }
+                                    suggestWithdraw = true;
+                                    break;
+                            }
+                        }
+                    }
+
+                    // check for regular failure
+                    if(m.getLabMark()!=null & m.getExamMark()!=null) {
+                        if (!m.passes()) {
+                            reason = reason + "Failed " + m.getModuleID() + ".\n";
+                            suggestResit = true;
                         }
                     }
                 }
 
-                // check for regular failure
-                if(m.getLabMark()!=null & m.getExamMark()!=null) {
-                    if (!m.passes()) {
-                        reason = reason + "Failed " + m.getModuleID() + ".\n";
-                        suggestResit = true;
-                    }
+                if(classesMarked < studentModules.size()) {
+                    classesUnmarked = true;
                 }
-            }
-
-            if(classesMarked < studentModules.size()) {
-                classesUnmarked = true;
             }
 
             // add reason for max compensations
@@ -502,7 +504,11 @@ public class ManagerController{
             }
 
             ArrayList<String> suggestion = new ArrayList<>();
-            if (classesUnmarked) {
+            if (noCourse) {
+                suggestion.add("N/A");
+                suggestion.add("Student is not assigned to a course, so no decision suggestion can be determined.");
+            }
+            else if (classesUnmarked) {
                 suggestion.add("N/A");
                 suggestion.add("Student has not yet received all marks, so no decision suggestion can be determined.");
             }
