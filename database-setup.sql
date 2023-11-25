@@ -48,11 +48,10 @@ Create Table Module(
 
 CREATE TABLE Material(
     ModuleID VARCHAR(10) NOT NULL,
-    Semester INT NOT NULL,
     Week INT NOT NULL,
     LectureNote LONGBLOB,
     LabNote LONGBLOB,
-    CONSTRAINT pkMaterial PRIMARY KEY(ModuleID, Semester, Week),
+    CONSTRAINT pkMaterial PRIMARY KEY(ModuleID, Week),
     CONSTRAINT fkMaterial FOREIGN KEY(ModuleID) REFERENCES Module(ModuleID)
 );
 

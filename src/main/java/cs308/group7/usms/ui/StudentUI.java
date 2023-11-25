@@ -224,6 +224,8 @@ public class StudentUI extends UIElements{
 
     // Materials
 
+    public final static int WEEKS_PER_SEM = 12;
+
     /** Creates the materials dashboard
      * @param moduleID - The module id of the materials being looked at
      * @param materialList - The list of materials
@@ -276,7 +278,7 @@ public class StudentUI extends UIElements{
         HBox tempButton;
         VBox semWeekButtonList = new VBox();
         for (int sem=1; sem<=2;sem++) {
-            for (int week=1; week<=12;week++) {
+            for (int week=1; week<=WEEKS_PER_SEM;week++) {
                 if(sem==semester){
                     tempButton = makeWeekButton(week);
                     tempButton.setOnMouseClicked(pickWeek(week, materialList.get((sem-1)*12 +(week-1)), rightPanel, materialDetails));
@@ -299,7 +301,7 @@ public class StudentUI extends UIElements{
     private VBox weekButtons(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
         VBox panel = new VBox();
         HBox tempButton;
-        for (int i=1; i<=12;i++) {
+        for (int i=1; i<=WEEKS_PER_SEM;i++) {
             tempButton = makeWeekButton(i);
             tempButton.setOnMouseClicked(pickWeek(i, materialList.get(i-1), rightPanel, materialDetails));
             panel.getChildren().add(tempButton);

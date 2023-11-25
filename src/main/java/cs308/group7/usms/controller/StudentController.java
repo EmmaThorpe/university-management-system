@@ -4,14 +4,11 @@ import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
-import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
 import cs308.group7.usms.utils.Password;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import org.jetbrains.annotations.Nullable;
-import org.jpedal.exception.PdfException;
 
 import java.io.*;
 import javax.sql.rowset.CachedRowSet;
@@ -59,14 +56,14 @@ public class StudentController{
                 buttons.get("VIEW MATERIALS").setOnAction(event -> pageSetter("MATERIALS", false));
                 break;
             case "MATERIALS":
-                stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), getTwoSems(stuUI.getValues().get("ID")));
+                stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), spansTwoSems(stuUI.getValues().get("ID")));
                 buttons = stuUI.getCurrentButtons();
                 buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
                 buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
 
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(getLectureNote(stuUI.getValues().get("ID"), 1, Integer.parseInt(stuUI.getValues().get("WEEK"))), "LECTURER NOTES");
+                stuUI.displayPDF(getLectureNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))), "LECTURER NOTES");
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
@@ -108,7 +105,7 @@ public class StudentController{
     /**
      * Gets whether a given module spans both semesters for a given course.
      */
-    private boolean getTwoSems(String moduleID) {
+    private boolean spansTwoSems(String moduleID) {
         try {
             Student s = getCurrentStudent();
             if(s.getCourseID()!=null) {
@@ -165,13 +162,13 @@ public class StudentController{
     }
 
     /**
-     * Get the lecture note for a module, from a given semester and week.
+     * Get the lecture note for a module, from a given week.
      * @return A file representing the lecture note, or null if it doesn't exist
      */
     @Nullable
-    public File getLectureNote(String moduleID, int semester, int week) {
+    public File getLectureNote(String moduleID, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(semester, week);
+            Material m = new Module(moduleID).getMaterial(week);
             Optional<byte[]> lectureNote = m.getLectureNote();
             if (lectureNote.isEmpty()) return null;
 
@@ -179,19 +176,19 @@ public class StudentController{
             try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
             return f;
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GEET THE LECTURE NOTES FOR MODULE  " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
+            stuUI.makeNotificationModal(null, "FAILED TO GET THE LECTURE NOTES FOR MODULE  " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
             return null;
         }
     }
 
     /**
-     * Get the lab note for a module, from a given semester and week.
+     * Get the lab note for a module, from a given week.
      * @return A file representing the lab note, or null if it doesn't exist
      */
     @Nullable
     public File getLabNote(String moduleID, int semester, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(semester, week);
+            Material m = new Module(moduleID).getMaterial(week);
             Optional<byte[]> labNote = m.getLabNote();
             if (labNote.isEmpty()) return null;
 
@@ -212,18 +209,15 @@ public class StudentController{
         List<Map<String, Boolean>> materials = new ArrayList<>();
 
         try {
-            CachedRowSet max_res = db.select(
-                new String[]{"Material"},
-                new String[]{"MAX(Week) AS MaxWeek"},
-                new String[]{"ModuleID = " + db.sqlString(moduleID)}
-            );
-            max_res.next();
-            int maxWeek = max_res.getInt("MaxWeek");
+            final boolean SPANS_TWO_SEMS = spansTwoSems(moduleID);
+            final int WEEKS = StudentUI.WEEKS_PER_SEM * (SPANS_TWO_SEMS ? 2 : 1);
 
             CachedRowSet res = db.executeQuery("SELECT Week, (CASE WHEN LectureNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LectureNote, (CASE WHEN LabNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LabNote FROM Material WHERE ModuleID = " + db.sqlString(moduleID) + " ORDER BY Week ASC");
             res.next();
-            for (int i = 1; i <= maxWeek; i++) {
-                int week = res.getInt("Week");
+            for (int i = 1; i <= WEEKS; i++) {
+                int week;
+                if (res.getRow() == 0) week = -1;
+                else week = res.getInt("Week");
                 Map<String, Boolean> w = new HashMap<>();
                 if (week == i) {
                     w.put("Lecture", res.getBoolean("LectureNote"));

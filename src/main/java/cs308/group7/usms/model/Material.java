@@ -14,24 +14,19 @@ import java.util.Optional;
 public class Material {
 
     private final String moduleID;
-    private final int semester;
     private final int week;
 
     /**
      * Creates a new Material object from the database. If the material does not exist, updating it will create it.
      * @param moduleID The module's ID
-     * @param semester The semester of the module
      * @param week The week of the module
      */
-    public Material(String moduleID, int semester, int week) {
+    public Material(String moduleID, int week) {
         this.moduleID = moduleID;
-        this.semester = semester;
         this.week = week;
     }
 
     public Module getModule() throws SQLException { return new Module(moduleID); }
-
-    public int getSemester() { return semester; }
 
     public int getWeek() { return week; }
 
@@ -44,12 +39,12 @@ public class Material {
             CachedRowSet res = db.select(
                     new String[]{"Material"},
                     new String[]{"LectureNote"},
-                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
             res.next();
             return Optional.ofNullable(res.getBytes("LectureNote"));
         } catch (SQLException e) {
-            System.out.println("Failed to get lecture note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            System.out.println("Failed to get lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -65,25 +60,24 @@ public class Material {
             CachedRowSet res = db.select(
                     new String[]{"Material"},
                     new String[]{"LectureNote"},
-                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
             res.next();
 
             try (FileInputStream fis = new FileInputStream(lectureNote)) {
                 byte[] bytes = fis.readAllBytes();
                 try (Connection conn = db.getConnection()) {
-                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LectureNote = ? WHERE ModuleID = ? AND Semester = ? AND Week = ?");
+                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LectureNote = ? WHERE ModuleID = ? AND Week = ?");
                     pstmt.setBytes(1, bytes);
                     pstmt.setString(2, moduleID);
-                    pstmt.setInt(3, semester);
-                    pstmt.setInt(4, week);
+                    pstmt.setInt(3, week);
                     pstmt.executeUpdate();
                 }
             }
 
             return true;
         } catch (Exception e) {
-            System.out.println("Failed to set lecture note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            System.out.println("Failed to set lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
             return false;
         }
     }
@@ -97,12 +91,12 @@ public class Material {
             CachedRowSet res = db.select(
                     new String[]{"Material"},
                     new String[]{"LabNote"},
-                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
             res.next();
             return Optional.ofNullable(res.getBytes("LabNote"));
         } catch (SQLException e) {
-            System.out.println("Failed to get lab note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            System.out.println("Failed to get lab note for " + moduleID + " week " + week + ": " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -118,25 +112,24 @@ public class Material {
             CachedRowSet res = db.select(
                     new String[]{"Material"},
                     new String[]{"LabNote"},
-                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Semester = " + semester, "Week = " + week}
+                    new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
             res.next();
 
             try (FileInputStream fis = new FileInputStream(labNote)) {
                 byte[] bytes = fis.readAllBytes();
                 try (Connection conn = db.getConnection()) {
-                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LabNote = ? WHERE ModuleID = ? AND Semester = ? AND Week = ?");
+                    PreparedStatement pstmt = conn.prepareStatement("UPDATE Material SET LabNote = ? WHERE ModuleID = ? AND Week = ?");
                     pstmt.setBytes(1, bytes);
                     pstmt.setString(2, moduleID);
-                    pstmt.setInt(3, semester);
-                    pstmt.setInt(4, week);
+                    pstmt.setInt(3, week);
                     pstmt.executeUpdate();
                 }
             }
 
             return true;
         } catch (Exception e) {
-            System.out.println("Failed to set lab note for " + moduleID + " week " + week + " of semester " + semester + ": " + e.getMessage());
+            System.out.println("Failed to set lab note for " + moduleID + " week " + week + ": " + e.getMessage());
             return false;
         }
     }
