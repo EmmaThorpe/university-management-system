@@ -103,7 +103,7 @@ Create Table Student(
     CONSTRAINT pkStudent PRIMARY KEY(UserID),
     Constraint fkStudent FOREIGN KEY(UserID) REFERENCES Users(UserID),
     Constraint fkStudent2 FOREIGN KEY(CourseID) REFERENCES Course(CourseID),
-    CONSTRAINT chk_Decision CHECK (Decision in ('Award', 'Resit', 'Withdrawal'))
+    CONSTRAINT chk_Decision CHECK (Decision in ('Award', 'Resit', 'Withdrawal', 'No Decision'))
 );
 
 

@@ -4,6 +4,7 @@ import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.businessRules.BusinessRule;
 import cs308.group7.usms.model.businessRules.CourseBusinessRule;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import javax.sql.rowset.CachedRowSet;
@@ -50,6 +51,7 @@ public class Student extends User {
         this.decision = decision;
     }
 
+    @Nullable
     public String getCourseID() { return courseID; }
 
     /**

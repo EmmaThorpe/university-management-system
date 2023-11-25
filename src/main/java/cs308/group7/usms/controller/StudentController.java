@@ -100,19 +100,25 @@ public class StudentController{
     private boolean getTwoSems(String moduleID) {
         try {
             Student s = getCurrentStudent();
-            String courseID = s.getCourseID();
-            DatabaseConnection db = App.getDatabaseConnection();
-            CachedRowSet res = db.select(
-                    new String[]{"Curriculum"},
-                    new String[]{"ModuleID"},
-                    new String[]{
-                            "CourseID = " + db.sqlString(courseID),
-                            "ModuleID = " + db.sqlString(moduleID),
-                            "Semester1 = TRUE",
-                            "Semester2 = TRUE"
-                    }
-            );
-            return res.next();
+            if(s.getCourseID()!=null) {
+                String courseID = s.getCourseID();
+                DatabaseConnection db = App.getDatabaseConnection();
+                CachedRowSet res = db.select(
+                        new String[]{"Curriculum"},
+                        new String[]{"ModuleID"},
+                        new String[]{
+                                "CourseID = " + db.sqlString(courseID),
+                                "ModuleID = " + db.sqlString(moduleID),
+                                "Semester1 = TRUE",
+                                "Semester2 = TRUE"
+                        }
+                );
+                return res.next();
+            }
+            else{
+                stuUI.makeNotificationModal(null, "STUDENT IS NOT ASSIGNED TO ANY MODULE", false);
+                return false;
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET WHETHER MODULE " + moduleID + " SPANS BOTH SEMESTERS: " + e.getMessage(), false);
             return false;
@@ -126,15 +132,21 @@ public class StudentController{
      */
     public Map<String,String> getCourseInfo() {
         try {
-            Course c = getCurrentStudent().getCourse();
-            Map<String, String> courseMap = new HashMap<>();
-            courseMap.put("Id", c.getCourseID());
-            courseMap.put("Name", c.getName());
-            courseMap.put("Description", c.getDescription());
-            courseMap.put("Level", c.getLevel());
-            courseMap.put("Years", String.valueOf(c.getLength()));
-            courseMap.put("Department", String.valueOf(c.getDepartment()));
-            return courseMap;
+            Student s = getCurrentStudent();
+            if(s.getCourseID()!=null) {
+                Course c = s.getCourse();
+                Map<String, String> courseMap = new HashMap<>();
+                courseMap.put("Id", c.getCourseID());
+                courseMap.put("Name", c.getName());
+                courseMap.put("Description", c.getDescription());
+                courseMap.put("Level", c.getLevel());
+                courseMap.put("Years", String.valueOf(c.getLength()));
+                courseMap.put("Department", String.valueOf(c.getDepartment()));
+                return courseMap;
+            }
+            else{
+                return Collections.emptyMap();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET COURSE INFO FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyMap();
@@ -252,17 +264,22 @@ public class StudentController{
             Student s = getCurrentStudent();
             final int currentYear = s.getYearOfStudy();
             List<Map<String, String>> marks = new ArrayList<>();
-            for (Module m : s.getCourse().getModules(currentYear)) {
-                // Add most recent mark
-                Mark mostRecentMark = s.getMark(m.getModuleID());
-                marks.add(mapMark(mostRecentMark));
-                // Add previous marks
-                for (int i = mostRecentMark.getAttemptNo() - 1; i > 0; i--) {
-                    Mark mark = s.getMark(m.getModuleID(), i);
-                    marks.add(mapMark(mark));
+            if(s.getCourseID()!=null) {
+                for (Module m : s.getCourse().getModules(currentYear)) {
+                    // Add most recent mark
+                    Mark mostRecentMark = s.getMark(m.getModuleID());
+                    marks.add(mapMark(mostRecentMark));
+                    // Add previous marks
+                    for (int i = mostRecentMark.getAttemptNo() - 1; i > 0; i--) {
+                        Mark mark = s.getMark(m.getModuleID(), i);
+                        marks.add(mapMark(mark));
+                    }
                 }
+                return marks;
             }
-            return marks;
+            else{
+                return Collections.emptyList();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET MARKS FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();
@@ -275,26 +292,30 @@ public class StudentController{
      *         {@code Id, Name, Description, Credit, Lecturers}
      */
     public List<Map<String, String>> getModules(){
-        DatabaseConnection db = App.getDatabaseConnection();
         List<Map<String, String>> modules = new ArrayList<>();
         try {
             Student s = getCurrentStudent();
             final int currentYear = s.getYearOfStudy();
-            for (Module m : s.getCourse().getModules(currentYear)) {
-                Map<String, String> moduleMap = new HashMap<>();
-                moduleMap.put("Id", m.getModuleID());
-                moduleMap.put("Name", m.getName());
-                moduleMap.put("Description", m.getDescription());
-                moduleMap.put("Credit", String.valueOf(m.getCredit()));
-                StringBuilder lecturers = new StringBuilder();
-                for (Lecturer l : m.getLecturers()) {
-                    if (!lecturers.isEmpty()) lecturers.append(", ");
-                    lecturers.append(l.getForename()).append(" ").append(l.getSurname());
+            if(s.getCourseID()!=null) {
+                for (Module m : s.getCourse().getModules(currentYear)) {
+                    Map<String, String> moduleMap = new HashMap<>();
+                    moduleMap.put("Id", m.getModuleID());
+                    moduleMap.put("Name", m.getName());
+                    moduleMap.put("Description", m.getDescription());
+                    moduleMap.put("Credit", String.valueOf(m.getCredit()));
+                    StringBuilder lecturers = new StringBuilder();
+                    for (Lecturer l : m.getLecturers()) {
+                        if (!lecturers.isEmpty()) lecturers.append(", ");
+                        lecturers.append(l.getForename()).append(" ").append(l.getSurname());
+                    }
+                    moduleMap.put("Lecturers", lecturers.toString());
+                    modules.add(moduleMap);
                 }
-                moduleMap.put("Lecturers", lecturers.toString());
-                modules.add(moduleMap);
+                return modules;
             }
-            return modules;
+            else{
+                return Collections.emptyList();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET MODULES FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();

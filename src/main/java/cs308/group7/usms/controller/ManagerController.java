@@ -53,12 +53,15 @@ public class ManagerController{
 
                 break;
             case "MANAGE ACCOUNTS":
-                manUI.accounts(getUsers(), getCourses(), getModules());
+                manUI.accounts(getUsers(userID), getCourses(), getModules());
                 buttons = manUI.getCurrentButtons();
                 buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID"), userID));
                 buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
                 buttons.get("RESET USER PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
-                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
+
+                //TODO: please send help @ assignLecturer from the accounts side - unsure how to make the button work with the new function
+                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModuleFromAcc(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
+
                 buttons.get("ENROL STUDENT").setOnAction((event)-> assignStudentCourse(manUI.getValues().get("UserID"), ((ComboBox)manUI.getCurrentFields().get("COURSE TO ENROL TO")).getValue().toString()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
@@ -130,6 +133,35 @@ public class ManagerController{
     //Connections with models
 
 
+    /** Organises the output of a query for getUsers (avoiding duplicate code)
+     * @return List of maps with user fields and their values (eg: forename, "john")
+     */
+    private List<HashMap<String, String>> getUserHashMaps(CachedRowSet result) throws SQLException {
+        List<HashMap<String, String>> users = new ArrayList<>();
+
+        while(result.next()){
+            User acc = new User(result.getString("UserID"));
+            HashMap<String, String> userDetailsMap = new HashMap<>();
+            userDetailsMap.put("userID", acc.getUserID());
+            try {
+                User m = acc.getManager();
+                userDetailsMap.put("managerID", m.getUserID());
+            }
+            catch(SQLException e){
+                userDetailsMap.put("managerID", "N/A");
+            }
+            userDetailsMap.put("forename", acc.getForename());
+            userDetailsMap.put("surname", acc.getSurname());
+            userDetailsMap.put("email", acc.getEmail());
+            userDetailsMap.put("DOB", acc.getDOB().toString());
+            userDetailsMap.put("gender", acc.getGender());
+            userDetailsMap.put("userType", acc.getType().toString());
+            userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
+            users.add(userDetailsMap);
+        }
+
+        return users;
+    }
 
     /** Gets all the users
      * @return List of maps with user fields and their values (eg: forename, "john")
@@ -138,30 +170,7 @@ public class ManagerController{
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, null);
-            List<HashMap<String, String>> users = new ArrayList<>();
-
-            while(result.next()){
-                User acc = new User(result.getString("UserID"));
-                HashMap<String, String> userDetailsMap = new HashMap<>();
-                userDetailsMap.put("userID", acc.getUserID());
-                try {
-                    User m = acc.getManager();
-                    userDetailsMap.put("managerID", m.getUserID());
-                }
-                catch(SQLException e){
-                    userDetailsMap.put("managerID", "N/A");
-                }
-                userDetailsMap.put("forename", acc.getForename());
-                userDetailsMap.put("surname", acc.getSurname());
-                userDetailsMap.put("email", acc.getEmail());
-                userDetailsMap.put("DOB", acc.getDOB().toString());
-                userDetailsMap.put("gender", acc.getGender());
-                userDetailsMap.put("userType", acc.getType().toString());
-                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
-                users.add(userDetailsMap);
-            }
-
-            return users;
+            return getUserHashMaps(result);
         }
         catch(SQLException e){
             manUI.makeNotificationModal(null,"Error fetching users " + e.getMessage(), false);
@@ -172,34 +181,11 @@ public class ManagerController{
     /** Gets all the users that the manager manages
      * @return List of maps with user fields and their values (eg: forename, "john")
      */
-    public List <HashMap <String, String>> getManagedUsers(String managerID) {
+    public List <HashMap <String, String>> getUsers(String managerID) {
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, new String[]{"ManagedBy = " + db.sqlString(managerID)});
-            List<HashMap<String, String>> users = new ArrayList<>();
-
-            while(result.next()){
-                User acc = new User(result.getString("UserID"));
-                HashMap<String, String> userDetailsMap = new HashMap<>();
-                userDetailsMap.put("userID", acc.getUserID());
-                try {
-                    User m = acc.getManager();
-                    userDetailsMap.put("managerID", m.getUserID());
-                }
-                catch(SQLException e){
-                    userDetailsMap.put("managerID", "N/A");
-                }
-                userDetailsMap.put("forename", acc.getForename());
-                userDetailsMap.put("surname", acc.getSurname());
-                userDetailsMap.put("email", acc.getEmail());
-                userDetailsMap.put("DOB", acc.getDOB().toString());
-                userDetailsMap.put("gender", acc.getGender());
-                userDetailsMap.put("userType", acc.getType().toString());
-                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
-                users.add(userDetailsMap);
-            }
-
-            return users;
+            return getUserHashMaps(result);
         }
         catch(SQLException e){
             manUI.makeNotificationModal(null,"Error fetching manager " + managerID + "'s users " + e.getMessage(),
@@ -292,14 +278,16 @@ public class ManagerController{
 
 
     /**
-     * Gets a list of all lecturers
+     * Gets a list of all lecturers that the manager manages
      *
      * @return List of maps containing the name and the id of all lecturers
      */
     public List<Map<String, String>> getFreeLecturers(){
         DatabaseConnection db = App.getDatabaseConnection();
         try {
-            CachedRowSet result = db.select(new String[]{"Lecturer"}, new String[]{"UserID"}, null);
+            CachedRowSet result = db.select(new String[]{"Lecturer", "Users"}, new String[]{"Lecturer.UserID"},
+                                            new String[]{"Lecturer.UserID = Users.UserID",
+                                                         "Users.ManagedBy = " + db.sqlString(userID)});
             List<Map<String, String>> lecturers = new ArrayList<>();
 
             while(result.next()){
@@ -378,22 +366,6 @@ public class ManagerController{
         catch(SQLException e){
             manUI.makeNotificationModal(null,"Error fetching student " + userID + e.getMessage(), false);
             throw new RuntimeException(e);
-        }
-    }
-
-
-
-    public String[] checkPassFail(Mark m){
-        if(m.getLabMark()!=null && m.getExamMark()!=null) {
-            if (m.getLabMark() >= 50 && m.getExamMark() >= 50) {
-                return new String[]{"grade", "PASS"};
-            }
-            else{
-                return new String[]{"grade", "FAIL"};
-            }
-        }
-        else{
-            return new String[]{"grade", "N/A"};
         }
     }
 
@@ -504,7 +476,7 @@ public class ManagerController{
 
                 // check for regular failure
                 if(m.getLabMark()!=null & m.getExamMark()!=null) {
-                    if (m.getLabMark() < 40 || m.getExamMark() < 40) {
+                    if (!m.passes()) {
                         reason = reason + "Failed " + m.getModuleID() + ".\n";
                         suggestResit = true;
                     }
@@ -528,16 +500,17 @@ public class ManagerController{
             }
 
             ArrayList<String> suggestion = new ArrayList<>();
-            if (suggestWithdraw){
+            if (classesUnmarked) {
+                suggestion.add("N/A");
+                suggestion.add("Student has not yet received all marks, so no decision suggestion can be determined.");
+            }
+            else if (suggestWithdraw){
                 suggestion.add("WITHDRAW");
                 suggestion.add(reason);
             }
             else if (suggestResit){
                 suggestion.add("RESIT");
                 suggestion.add(reason);
-            } else if (classesUnmarked) {
-                suggestion.add("N/A");
-                suggestion.add("Student has not got all their marks so no decision suggestion can be determined");
             }
             else{
                 suggestion.add("AWARD");
@@ -611,54 +584,98 @@ public class ManagerController{
     }
 
 
-    /** Assign a lecturer to a module
-     * @param lecturerID
+    /** Assign a lecturer to a module (for use in the manage models page)
+     * @param lecturerName
      * @param moduleID
      */
-    public void assignLecturerModule(String lecturerID, String moduleID){
+    public void assignLecturerModule(String lecturerName, String moduleID){
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
-            Lecturer l = new Lecturer(lecturerID);
-            l.assignModule(moduleID);
-            manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
-            pageSetter("MANAGE ACCOUNTS", false);
+            String[] splitName = lecturerName.split(" ");
+
+            CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"},
+                    new String[]{"Forename = " + db.sqlString(splitName[0]),
+                            "Surname = " + db.sqlString(splitName[1])});
+
+            if (result.next()) {
+                String lecturerID = result.getString("UserID");
+                Lecturer l = new Lecturer(lecturerID);
+                l.assignModule(moduleID);
+                manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
+                pageSetter("MANAGE MODULES", false);
+            } else {
+                manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer - lecturer name not found.", false);
+            }
+
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer " + e.getMessage(), false);
+            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer.", false);
             throw new RuntimeException(e);
         }
-        System.out.println(lecturerID +" "+moduleID);
+    }
+
+    /** Assign a lecturer to a module (for use in the manage accounts page)
+     * @param lecturerID
+     * @param moduleName
+     */
+    public void assignLecturerModuleFromAcc(String moduleName, String lecturerID){
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, new String[]{"Name = " + db.sqlString(moduleName)});
+
+            if(result.next()) {
+                String moduleID = result.getString("ModuleID");
+                Lecturer l = new Lecturer(lecturerID);
+                l.assignModule(moduleID);
+                manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
+                pageSetter("MANAGE ACCOUNTS", false);
+            }
+            else{
+                manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer - module name not found.", false);
+            }
+        }
+        catch(SQLException e){
+            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer.", false);
+            throw new RuntimeException(e);
+        }
     }
 
     /** Assign a student to a course
      * @param studentID
-     * @param courseID
+     * @param courseName
      */
-    public void assignStudentCourse(String studentID, String courseID){
+    public void assignStudentCourse(String studentID, String courseName){
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
-            Student s = new Student(studentID);
-            if (s.setCourse(courseID)) {
-                manUI.makeNotificationModal("ENROL STUDENT","Assigned course successfully!", true);
-                pageSetter("MANAGE ACCOUNTS", false);
-            } else {
-                manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course", false);
+            CachedRowSet result = db.select(new String[]{"Course"}, new String[]{"CourseID"}, new String[]{"Name = " + db.sqlString(courseName)});
+            if(result.next()) {
+                String courseID = result.getString("CourseID");
+                Student s = new Student(studentID);
+                if (s.setCourse(courseID)) {
+                    manUI.makeNotificationModal("ENROL STUDENT", "Assigned course successfully!", true);
+                    pageSetter("MANAGE ACCOUNTS", false);
+                } else {
+                    manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course.", false);
+                }
             }
-
+            else{
+                manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course - course name not found.", false);
+            }
 
         }
         catch(SQLException e){
             manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
-        System.out.println(studentID +" "+ courseID);
     }
 
     /**Assign a module to a course
      * @param courseID
-     * @param moduleID
+     * @param moduleName
      * @param sem - the string choice representing the semesters this module is for in the course
      * @param year
      */
-    public void assignModuleCourse(String courseID, String moduleID, String sem, int year){
+    public void assignModuleCourse(String courseID, String moduleName, String sem, int year){
         Boolean sem1 = false;
         Boolean sem2 = false;
 
@@ -670,20 +687,29 @@ public class ManagerController{
             sem1 = true;
             sem2 = true;
         }
+
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
             Course c = new Course(courseID);
-            if (c.addModule(moduleID, sem1, sem2, year)) {
-                manUI.makeNotificationModal("ASSIGN", "Assigned module successfully!", true);
-                pageSetter("MANAGE COURSES", false);
-            } else {
-                manUI.makeNotificationModal("ASSIGN", "Error assigning module", false);
+
+            CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, new String[]{"Name = " + db.sqlString(moduleName)});
+            if(result.next()) {
+                String moduleID = result.getString("ModuleID");
+                if (c.addModule(moduleID, sem1, sem2, year)) {
+                    manUI.makeNotificationModal("ASSIGN", "Assigned module successfully!", true);
+                    pageSetter("MANAGE COURSES", false);
+                } else {
+                    manUI.makeNotificationModal("ASSIGN", "Error assigning module.", false);
+                }
+            }
+            else{
+                manUI.makeNotificationModal("ASSIGN", "Error assigning module - module name not found.", false);
             }
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN", "Error assigning module " + e.getMessage(), false);
+            manUI.makeNotificationModal("ASSIGN", "Error assigning module.", false);
             throw new RuntimeException(e);
         }
-        System.out.println(courseID + " " +moduleID);
     }
 
     /**Issue a student with a decision
@@ -812,7 +838,6 @@ public class ManagerController{
          * @param name
          * @param credit
          */
-        // TODO: couldn't test this in the ui because the button wasn't buttoning (but no errors showed)
         public void editModule(String oldCode, String code, String name, String description, String credit){
             DatabaseConnection db = App.getDatabaseConnection();
             HashMap<String, String> values = new HashMap<>();

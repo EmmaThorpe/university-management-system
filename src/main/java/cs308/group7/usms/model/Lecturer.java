@@ -51,6 +51,8 @@ public class Lecturer extends User {
     public String getQualification() { return qualification; }
 
     @Nullable
+    public String getModuleID(){ return moduleID; }
+
     public Module getModule() throws SQLException {
         try {
             return new Module(moduleID);

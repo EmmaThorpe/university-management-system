@@ -70,25 +70,27 @@ public class LecturerController{
             case "GIVE MARK":
                 try{
                     lecUI.mark(getEnrolledStudents());
-                    buttons =lecUI.getCurrentButtons();
-                    buttons.get("ASSIGN MARK").setOnAction(
-                            (event)->updateStudentMark(
+                    buttons = lecUI.getCurrentButtons();
+                    if(!getEnrolledStudents().isEmpty()) {
+                        buttons.get("ASSIGN MARK").setOnAction(
+                                (event) -> updateStudentMark(
                                         lecUI.getValues().get("StudentID"),
-                                        Integer.parseInt(lecUI.getValues().get("AttemptNo"))+1,
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN LAB MARK")).getText()),
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN EXAM MARK")).getText()),
+                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")) + 1,
+                                        Double.parseDouble(((TextField) lecUI.getCurrentFields().get("ASSIGN LAB MARK")).getText()),
+                                        Double.parseDouble(((TextField) lecUI.getCurrentFields().get("ASSIGN EXAM MARK")).getText()),
                                         false
-                            )
-                    );
-                    buttons.get("CHANGE MARK").setOnAction(
-                            (event)->updateStudentMark(
-                                    lecUI.getValues().get("StudentID"),
-                                    Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE LAB MARK")).getText()),
-                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE EXAM MARK")).getText()),
-                                    true
-                            )
-                    );
+                                )
+                        );
+                        buttons.get("CHANGE MARK").setOnAction(
+                                (event) -> updateStudentMark(
+                                        lecUI.getValues().get("StudentID"),
+                                        Integer.parseInt(lecUI.getValues().get("AttemptNo")),
+                                        Double.parseDouble(((TextField) lecUI.getCurrentFields().get("CHANGE LAB MARK")).getText()),
+                                        Double.parseDouble(((TextField) lecUI.getCurrentFields().get("CHANGE EXAM MARK")).getText()),
+                                        true
+                                )
+                        );
+                    }
 
 
                 }catch(java.sql.SQLException e){
@@ -152,10 +154,12 @@ public class LecturerController{
      * @return A map containing module information
      */
     public Map<String,String> getModuleInformation() throws SQLException {
-        String moduleID = getCurrentLecturer().getModule().getModuleID();
-        Module mod = new Module(moduleID);
-        Map<String,String> moduleInfo = new HashMap<String, String>();
-        DatabaseConnection db = App.getDatabaseConnection();
+        Lecturer l = getCurrentLecturer();
+        if(l.getModuleID()!=null) {
+            String moduleID = l.getModuleID();
+            Module mod = new Module(moduleID);
+            Map<String, String> moduleInfo = new HashMap<String, String>();
+            DatabaseConnection db = App.getDatabaseConnection();
        /* String Semesters = "";
         CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"ModuleID = " + db.sqlString(moduleID)});
         result.next();
@@ -166,13 +170,17 @@ public class LecturerController{
             }
         } else Semesters += "2";*/
 
-        moduleInfo.put("Id", mod.getModuleID());
-        moduleInfo.put("Name", mod.getName());
-        moduleInfo.put("Description", mod.getDescription());
-        moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
-        //moduleInfo.put("Semesters", Semesters );
-        moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
-        return moduleInfo;
+            moduleInfo.put("Id", mod.getModuleID());
+            moduleInfo.put("Name", mod.getName());
+            moduleInfo.put("Description", mod.getDescription());
+            moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
+            //moduleInfo.put("Semesters", Semesters );
+            moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
+            return moduleInfo;
+        }
+        else{
+            return Collections.emptyMap();
+        }
 
     }
 
@@ -205,10 +213,12 @@ public class LecturerController{
      * @return List of maps with user fields and their values (eg: forename, "john"), including mark fields and values
      */
     public List<Map<String, String>> getEnrolledStudents() throws SQLException {
-        String moduleID = getCurrentLecturer().getModule().getModuleID();
-        List<Map<String, String>> enrolled = new ArrayList<>();
-        DatabaseConnection db = App.getDatabaseConnection();
-            CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
+        Lecturer l = getCurrentLecturer();
+        if(l.getModuleID()!=null) {
+            String moduleID = l.getModuleID();
+            List<Map<String, String>> enrolled = new ArrayList<>();
+            DatabaseConnection db = App.getDatabaseConnection();
+            CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"}, new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
             List<HashMap<String, String>> users = new ArrayList<>();
 
             while (result.next()) {
@@ -227,15 +237,15 @@ public class LecturerController{
                 studentDetailsMap.put("YearOfStudy", Integer.toString(stu.getYearOfStudy()));
                 studentDetailsMap.put("decision", stu.getDecision().toString());
 
-                if(stu.getMark(moduleID).getLabMark() != null){
+                if (stu.getMark(moduleID).getLabMark() != null) {
                     studentDetailsMap.put("labMark", Double.toString(stu.getMark(moduleID).getLabMark()));
-                }else{
+                } else {
                     studentDetailsMap.put("labMark", null);
                 }
 
-                if(stu.getMark(moduleID).getExamMark() != null){
+                if (stu.getMark(moduleID).getExamMark() != null) {
                     studentDetailsMap.put("examMark", Double.toString(stu.getMark(moduleID).getExamMark()));
-                }else{
+                } else {
                     studentDetailsMap.put("examMark", null);
                 }
 
@@ -245,6 +255,10 @@ public class LecturerController{
             }
 
             return enrolled;
+        }
+        else{
+            return Collections.emptyList();
+        }
 
     }
 
@@ -297,17 +311,22 @@ public class LecturerController{
             values.put("Lab", String.valueOf(labMark));
             values.put("Exam", String.valueOf(examMark));
             Lecturer lec = new Lecturer(lecturerID);
-            Mark m = new Mark(studentID, lec.getModule().getModuleID(),attNo);
-            m.setLabMark(labMark);
-            m.setExamMark(examMark);
+            if(lec.getModuleID()!=null) {
+                Mark m = new Mark(studentID, lec.getModuleID(), attNo);
+                m.setLabMark(labMark);
+                m.setExamMark(examMark);
 
-            if(existing){
-                lecUI.makeNotificationModal("CHANGE MARK", "MARK CHANGED SUCCESSFULLY", true);
-            }else{
-                lecUI.makeNotificationModal("ASSIGN MARK", "MARK ADDED SUCCESSFULLY", true);
+                if (existing) {
+                    lecUI.makeNotificationModal("CHANGE MARK", "MARK CHANGED SUCCESSFULLY", true);
+                } else {
+                    lecUI.makeNotificationModal("ASSIGN MARK", "MARK ADDED SUCCESSFULLY", true);
 
+                }
+                pageSetter("GIVE MARK", false);
             }
-            pageSetter("GIVE MARK", false);
+            else{
+                lecUI.makeNotificationModal("ASSIGN MARK", "FAILED TO UPDATE MARK FOR STUDENT " + studentID + " (ATTEMPT #" + attNo + ").", false);
+            }
         } catch (SQLException e) {
             lecUI.makeNotificationModal("ASSIGN MARK", "FAILED TO UPDATE MARK FOR STUDENT " + studentID + " (ATTEMPT #" + attNo + ")." + e.getMessage(), false);
 
