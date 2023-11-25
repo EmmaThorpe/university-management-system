@@ -109,7 +109,7 @@ public class LoginController {
         final String password = ((TextField) textFields.get("PASSWORD")).getText();
 
         // Determine whether the user is a lecturer by checking if the qualification field is non-empty
-        final boolean isLecturerSignUp = textFields.get("QUALIFICATION").getAccessibleText() != null;
+        final boolean isLecturerSignUp = !((TextField) textFields.get("QUALIFICATION")).getText().isEmpty();
 
         final boolean success;
         if (isLecturerSignUp) {
@@ -172,7 +172,7 @@ public class LoginController {
     public static boolean signup(String forename, String surname, String email, String unencryptedPassword,
                                  String dobVal, String gender) {
         final String type = "Student";
-        final String userID = "S" + forename.charAt(0) + surname.substring(0, 3);
+        final String userID = "s" + forename.charAt(0) + surname.substring(0, Math.max(3, surname.length()));
         final Date dob = Date.valueOf(dobVal);
 
         DatabaseConnection db = App.getDatabaseConnection();

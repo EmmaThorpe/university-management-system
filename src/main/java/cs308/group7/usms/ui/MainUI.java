@@ -465,9 +465,16 @@ public class MainUI {
      * @param modalKey - String containing a key of the modal
      */
     protected void closeOpenedModal(String modalKey) {
-        Scene scene = currentModals.get(modalKey).getDialogPane().getScene();
-        Window currentModalWindow = currentModals.get(modalKey).getDialogPane().getScene().getWindow();
-        currentModalWindow.hide();
+        Dialog modal = currentModals.get(modalKey);
+
+        if (modal == null) {
+            System.err.println("Attempted to hide non-existing modal '" + modalKey + "'!\n" +
+                    "Current modals:\n - " + String.join("\n - ", currentModals.keySet()));
+            return;
+        }
+
+        Window modalWindow = modal.getDialogPane().getScene().getWindow();
+        modalWindow.hide();
     }
 
 

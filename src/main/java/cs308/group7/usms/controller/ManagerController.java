@@ -614,11 +614,10 @@ public class ManagerController{
         }
     }
 
-    /** Assign a lecturer to a module (for use in the manage accounts page)
-     * @param lecturerID
-     * @param moduleName
+    /**
+     * Assign a lecturer to a module (for use in the manage accounts page)
      */
-    public void assignLecturerModuleFromAcc(String moduleName, String lecturerID){
+    public void assignLecturerModuleFromAcc(String lecturerID, String moduleName){
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, new String[]{"Name = " + db.sqlString(moduleName)});
@@ -627,15 +626,15 @@ public class ManagerController{
                 String moduleID = result.getString("ModuleID");
                 Lecturer l = new Lecturer(lecturerID);
                 l.assignModule(moduleID);
-                manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
+                manUI.makeNotificationModal("ASSIGN LECTURER", "Assigned lecturer successfully!", true);
                 pageSetter("MANAGE ACCOUNTS", false);
             }
             else{
-                manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer - module name not found.", false);
+                manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning lecturer - module name not found.", false);
             }
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer.", false);
+            manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning lecturer.", false);
             throw new RuntimeException(e);
         }
     }
