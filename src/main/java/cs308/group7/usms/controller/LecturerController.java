@@ -34,6 +34,10 @@ public class LecturerController{
     }
 
 
+    /** Sets the page and assigns the events that will occur when you press the buttons
+     * @param page - the page being moved to
+     * @param initial - if this is the initial page or not
+     */
     public void pageSetter(String page, Boolean initial) {
         Map<String, Button> buttons;
         switch (page){

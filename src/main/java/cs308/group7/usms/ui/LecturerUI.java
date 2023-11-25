@@ -3,7 +3,6 @@ package cs308.group7.usms.ui;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -61,9 +60,9 @@ public class LecturerUI extends UIElements{
     }
 
 
-    /**
-     * Mark Dashboard Elements
-     **/
+
+     // Mark Dashboard Elements
+
 
 
     /** Mark  Dashboard
@@ -160,16 +159,8 @@ public class LecturerUI extends UIElements{
                 studentBtnsList.add(currentButtons.get("SET NEW MARK"));
             }
 
-            Button[] studentBtns = studentBtnsList.toArray(new Button[0]);
-            stylePanelActions(studentBtns);
 
-            VBox studentBtnView = new VBox(studentBtns);
-
-            studentBtnView.setAlignment(Pos.CENTER);
-            studentBtnView.setSpacing(20.0);
-            studentBtnView.setPadding(new Insets(10));
-
-            VBox studentActionsDisplay = makeScrollablePart(studentBtnView);
+            VBox studentActionsDisplay = makeScrollablePart(createButtonsVBox(studentBtnsList));
 
 
             rightPanel.getChildren().set(0, accDetails);
@@ -178,10 +169,16 @@ public class LecturerUI extends UIElements{
         };
     }
 
-    /**
-     * Mark Dashboard - modals
-     **/
 
+
+
+    /** Creates the set mark fields
+     * @param type - the type of action the field represents (either assigning or changing)
+     * @param labMark - the lab mark to be set to the field
+     * @param examMark - the exam mark to be set to the field
+     * @param valid - boolean of whether to set the field to be valid or not when it starts
+     * @return - VBox containing the mark fields
+     */
     private VBox setMark(String type, String labMark, String examMark, boolean valid) {
         VBox lab = setTextAndField(type+" LAB MARK",
                 String.valueOf(labMark),
@@ -211,8 +208,12 @@ public class LecturerUI extends UIElements{
 
 
 
-    /**
-     * Material dashboard
+    // Material dashboard
+
+
+    /** Creates the materials dashboard
+     * @param moduleID - The id of the module the material is for
+     * @param materialList - a list mapping if the materials exist or not
      */
     public void materials(String moduleID, List<Map<String, Boolean>> materialList){
         resetCurrentValues();
@@ -246,23 +247,36 @@ public class LecturerUI extends UIElements{
         }
     }
 
-    private VBox getSemWeekButtons(int semester, List<Map<String, Boolean>> materialList, VBox rightPanel,
+
+    /** Creates the week and semester and week buttons
+     * @param sem - The semester to show
+     * @param materialList - The list containing whether material exists or not for a given week
+     * @param rightPanel - The right panel that will be shown
+     * @param materialDetails - The panel where the materials section will be displayed
+     * @return - VBox containing the week and semesters buttons
+     */
+    private VBox getSemWeekButtons(int sem, List<Map<String, Boolean>> materialList, VBox rightPanel,
                                    VBox materialDetails) {
         HBox tempButton;
         VBox semWeekButtonList = new VBox();
-        for (int sem=1; sem<=2;sem++) {
-            for (int week=1; week<=10;week++) {
-                if(sem==semester){
-                    tempButton = makeWeekButton(week);
-                    tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get((sem-1)*10 +(week-1)), rightPanel,
-                            materialDetails));
-                    semWeekButtonList.getChildren().add(tempButton);
-                }
-            }
+        for (int week=1; week<=12;week++) {
+            tempButton = makeWeekButton(week);
+            tempButton.setOnMouseClicked(pickWeek(week, sem, materialList.get((sem-1)*12 +(week-1)), rightPanel, materialDetails));
+            semWeekButtonList.getChildren().add(tempButton);
         }
         return semWeekButtonList;
     }
 
+
+
+    /** Creates the event that handles when the week buttons are pressed
+     * @param weekNo - the week number selected
+     * @param semNo - the semester selected
+     * @param materials - the list of whether the material exists or not
+     * @param rightPanel  - The right panel that will be shown
+     * @param materialDetails - The panel where the materials section will be displayed
+     * @return - An event handler that handles the event of clicking on a week button
+     */
     private EventHandler<Event> pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
             materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
@@ -307,6 +321,10 @@ public class LecturerUI extends UIElements{
         };
     }
 
+
+    /** Uploads a file button
+     * @return File - the file the user picks
+     */
     public File uploadFile(){
         FileChooser fileChooser = new FileChooser();
         List<File> listOfFiles = fileChooser.showOpenMultipleDialog(currentStage);

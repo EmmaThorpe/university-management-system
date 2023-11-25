@@ -34,7 +34,7 @@ public class ManagerUI extends UIElements{
 
         makeModal(passwordBtn, "CHANGE PASSWORD", resetPassUser(), true);
 
-        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngSignupBtn, mngAccountsBtn, mngRulesBtn, passwordBtn};
+        Button[] mngBtns = {mngModuleBtn, mngCourseBtn, mngAccountsBtn, mngSignupBtn, mngRulesBtn, passwordBtn};
         createDashboard(mngBtns, toolbar);
     }
 
@@ -565,14 +565,7 @@ public class ManagerUI extends UIElements{
 
             accountBtnsList.add(currentButtons.get("APPROVE SIGN UP"));
 
-            Button[] accountBtns = accountBtnsList.toArray(new Button[0]);
-            VBox accountBtnView = new VBox(accountBtns);
-
-            accountBtnView.setAlignment(Pos.CENTER);
-            accountBtnView.setSpacing(20.0);
-            accountBtnView.setPadding(new Insets(10));
-
-            VBox accountActionsDisplay = makeScrollablePart(accountBtnView);
+            VBox accountActionsDisplay = makeScrollablePart(createButtonsVBox(accountBtnsList));
 
             rightPanel.getChildren().set(0, accDetails);
             rightPanel.getChildren().set(1, accountActionsDisplay);
