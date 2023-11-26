@@ -1001,9 +1001,8 @@ public class UIElements extends MainUI{
 
     /** Creates a view for showing a PDF for a module's week's material
      * @param file  The file (PDF) that has the materials to display
-     * @param type  The title for the toolbar
      */
-    public void displayPDF(File file, String type){
+    public void displayPDF(File file){
         resetCurrentValues();
 
         Document pdf = showPage(file);
@@ -1031,7 +1030,7 @@ public class UIElements extends MainUI{
 
         VBox pdfDisplay = new VBox(new ScrollPane(pdfImg));
         BorderPane root = new BorderPane(pdfDisplay);
-        HBox toolbar = makeToolbar(type);
+        HBox toolbar = makeToolbar("Notes");
 
         root.setTop(toolbar);
         root.setBottom(paginationDisplay);
@@ -1099,11 +1098,12 @@ public class UIElements extends MainUI{
             return currentDocument;
 
 
-        } catch (PDFException | PDFSecurityException | IOException ex) {
+        } catch (PDFException | PDFSecurityException | IOException e) {
+            return null;
         }
 
 
-        return null;
+
     }
 
     /** Converts a document to an image view for displaying materials

@@ -652,7 +652,7 @@ public class ManagerUI extends UIElements{
         Button setModuleBtn = inputButton("SET MODULE RULE");
 
         setCourseBtn.setDisable(true);
-        setCourseBtn.setDisable(true);
+        setModuleBtn.setDisable(true);
 
         VBox actionPanel = rulesForm(courseList, moduleList, setCourseBtn, setModuleBtn);
         actionPanel.setAlignment(Pos.CENTER);
@@ -810,7 +810,7 @@ public class ManagerUI extends UIElements{
         String value = ((TextField)currentFields.get(type+" VALUE")).getText();
 
         if((value.isEmpty() || !(value.matches("\\d+")) || Integer.parseInt(value) < 0 || Integer.parseInt(value) >5)){
-            currentText.get(type + " CHECK").setText("ERROR: VALUE MUST BE A NUMBER BETWEEN 1 AND 5");
+            currentText.get(type + " CHECK").setText("ERROR: VALUE MUST BE A NUMBER BETWEEN 0 AND 5");
             currentButtons.get("SET " + type + " RULE").setDisable(true);
             return;
         }
@@ -833,6 +833,7 @@ public class ManagerUI extends UIElements{
             }
 
         };
+
 
     }
 
@@ -865,7 +866,7 @@ public class ManagerUI extends UIElements{
                         "REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
             }
 
-            checkRulesValidity("COURSE");
+            checkRulesValidity("MODULE");
         };
     }
 
@@ -874,7 +875,7 @@ public class ManagerUI extends UIElements{
         List<String> appliedTo = new ArrayList<>();
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
         for(int i=1; i<=val; i++){
-            appliedTo.add(((ComboBox) currentFields.get(type +" " + val)).getValue().toString());
+            appliedTo.add(((ComboBox) currentFields.get(type +" " + i)).getValue().toString());
         }
         return appliedTo;
     }

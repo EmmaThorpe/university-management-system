@@ -9,7 +9,6 @@ import cs308.group7.usms.model.businessRules.CourseBusinessRule;
 import cs308.group7.usms.model.businessRules.ModuleBusinessRule;
 import cs308.group7.usms.ui.ManagerUI;
 import cs308.group7.usms.utils.Password;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -18,7 +17,6 @@ import javafx.scene.control.TextField;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.sql.Date;
 
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_RESITS;
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_COMPENSATED_MODULES;
@@ -555,7 +553,6 @@ public class ManagerController extends BaseController {
      * @param userID
      */
     public void deactivateUser(String userID){
-        System.out.println(userID);
         try {
             User u = new User(userID);
             u.setDeactivated();
@@ -756,7 +753,6 @@ public class ManagerController extends BaseController {
             manUI.makeNotificationModal(null,"Error issuing student decision " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
-        System.out.println(studentID + " " +decision);
     }
 
     /**Add a new course

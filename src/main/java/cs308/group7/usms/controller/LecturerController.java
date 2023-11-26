@@ -23,7 +23,7 @@ public class LecturerController extends BaseController {
     private final String lecturerID;
     private final LecturerUI lecUI;
 
-    public LecturerController(String id) throws SQLException {
+    public LecturerController(String id) {
         this.lecturerID = id;
         lecUI = new LecturerUI();
         pageSetter("DASHBOARD", true);
@@ -95,7 +95,7 @@ public class LecturerController extends BaseController {
 
                 break;
             case "OPEN PDF":
-                lecUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"), "LECTURER NOTES");
+                lecUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"));
                 break;
 
 
@@ -204,8 +204,11 @@ public class LecturerController extends BaseController {
 
                 final Double labMark = stu.getMark(moduleID).getLabMark();
                 final Double examMark = stu.getMark(moduleID).getExamMark();
+                final int attempt = stu.getNumberOfAttempts(moduleID);
+
                 studentDetailsMap.put("labMark", (labMark == null) ? "N/A" : Double.toString(labMark));
                 studentDetailsMap.put("examMark", (examMark == null) ? "N/A" : Double.toString(examMark));
+                studentDetailsMap.put("attemptNo", Integer.toString(attempt));
 
                 enrolled.add(studentDetailsMap);
             }

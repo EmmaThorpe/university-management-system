@@ -59,7 +59,7 @@ public class StudentController extends BaseController {
 
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"), "LECTURER NOTES");
+                stuUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"));
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
