@@ -25,17 +25,21 @@ public class Course {
     public Course(String courseID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         CachedRowSet res = db.select(new String[]{"Course"}, null, new String[]{"CourseID = " + db.sqlString(courseID)});
-        res.next();
-        this.courseID = res.getString("CourseID");
-        this.name = res.getString("Name");
-        this.description = res.getString("Description");
-        this.levelOfStudy = res.getString("LevelOfStudy");
-        this.amountOfYears = res.getInt("AmountOfYears");
+        if(res.next()) {
+            this.courseID = res.getString("CourseID");
+            this.name = res.getString("Name");
+            this.description = res.getString("Description");
+            this.levelOfStudy = res.getString("LevelOfStudy");
+            this.amountOfYears = res.getInt("AmountOfYears");
 
-        // get department name from id
-        CachedRowSet depRes = db.select(new String[]{"Department"}, null, new String[]{"DeptNo = " + res.getInt("DeptNo")});
-        depRes.next();
-        this.department = depRes.getString("Name");
+            // get department name from id
+            CachedRowSet depRes = db.select(new String[]{"Department"}, null, new String[]{"DeptNo = " + res.getInt("DeptNo")});
+            depRes.next();
+            this.department = depRes.getString("Name");
+        }
+        else{
+            throw new SQLException("Course " + courseID + " does not exist!");
+        }
     }
 
     /**

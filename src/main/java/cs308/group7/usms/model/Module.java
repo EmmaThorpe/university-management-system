@@ -23,11 +23,15 @@ public class Module {
     public Module(String moduleID) throws SQLException {
         DatabaseConnection db = App.getDatabaseConnection();
         CachedRowSet res = db.select(new String[]{"Module"}, null, new String[]{"ModuleID = " + db.sqlString(moduleID)});
-        res.next();
-        this.moduleID = res.getString("ModuleID");
-        this.name = res.getString("Name");
-        this.description = res.getString("Description");
-        this.credit = res.getInt("Credit");
+        if(res.next()) {
+            this.moduleID = res.getString("ModuleID");
+            this.name = res.getString("Name");
+            this.description = res.getString("Description");
+            this.credit = res.getInt("Credit");
+        }
+        else{
+            throw new SQLException("Module " + moduleID + " does not exist!");
+        }
     }
 
     /**
