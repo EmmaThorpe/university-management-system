@@ -288,9 +288,9 @@
 
 .panel {
     -fx-min-width: 400;
-    -fx-max-width: 500;
+    -fx-max-width: 600;
     -fx-max-height: 450;
-    -fx-min-height: 450;
+    -fx-min-height: 400;
 }
 
 .top-panel {

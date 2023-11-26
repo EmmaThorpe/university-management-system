@@ -419,7 +419,9 @@ public class ManagerUI extends UIElements{
 
         makeModal(add, "ADD", addModule(), true);
         makeModal(edit, "EDIT", new VBox(), false);
-        makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
+        makeModal( assign, "ASSIGN", new VBox(), false);
+
+        setModalContent("ASSIGN", assignModuleLecturers(lecturerList));
 
         if (moduleList.isEmpty()) {
             VBox mainPanel = makePanelWithAction(emptyModelContent("modules"), add);
@@ -495,11 +497,23 @@ public class ManagerUI extends UIElements{
 
     private VBox assignModuleLecturers(List<Map<String, String>> lecturers) {
         List<String> lecturersList = new ArrayList<>();
+        VBox setCourse = new VBox();
 
-        for (Map<String, String> lec : lecturers) {
-            lecturersList.add(lec.get("Name"));
+        if (lecturers.isEmpty()) {
+            Label label = new Label("LECTURER TO ASSIGN TO");
+            VBox field = emptyModelContent("lecturers under your management that you can assign");
+
+            VBox inputField = new VBox(label, field);
+            inputField.setPadding(new Insets(10));
+
+            setCourse = inputField;
+            currentButtons.get("ASSIGN").setDisable(true);
+        } else {
+            for (Map<String, String> lec : lecturers) {
+                lecturersList.add(lec.get("Name"));
+            }
+            setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
         }
-        VBox setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
 
         return new VBox(setCourse);
     }

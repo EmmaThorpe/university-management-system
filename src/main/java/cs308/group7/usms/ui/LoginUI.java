@@ -45,11 +45,7 @@ public class LoginUI extends UIElements{
         ToggleButton lecturerOp = setToggleOption(userSelected, "lecturer", new FontIcon(FontAwesomeSolid.CHALKBOARD_TEACHER));
         studentOp.setSelected(true);
 
-        HBox.setHgrow(studentOp, Priority.ALWAYS);
-        HBox.setHgrow(lecturerOp, Priority.ALWAYS);
-        HBox userOptions = new HBox(studentOp, lecturerOp);
-        userOptions.setSpacing(20.0);
-        userOptions.setAlignment(Pos.BASELINE_CENTER);
+        HBox userOptions = styleToggleOptions(studentOp, lecturerOp);
 
         Label userFieldLabel = new Label("USER TYPE");
         VBox userField = new VBox(userFieldLabel, userOptions);

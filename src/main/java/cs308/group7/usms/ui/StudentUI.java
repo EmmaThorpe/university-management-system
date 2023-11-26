@@ -324,7 +324,7 @@ public class StudentUI extends UIElements{
      */
     private EventHandler<Event> pickWeek(int weekNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
-            materialDetails.getChildren().set(0, new VBox(new Text("Week " + weekNo)));
+            materialDetails.getChildren().set(0, listDetail("Materials for week " + String.valueOf(weekNo), ""));
 
             currentValues.put("WEEK", String.valueOf(weekNo));
 
@@ -349,7 +349,7 @@ public class StudentUI extends UIElements{
                 courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
 
             }else{
-                courseActionsDisplay = makeScrollablePart(new VBox(new Text("No Material to Show!")));
+                courseActionsDisplay = emptyModelContent("Materials to Show!");
             }
 
             rightPanel.getChildren().set(0, materialDetails);
