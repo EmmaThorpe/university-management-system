@@ -480,7 +480,7 @@ public class ManagerController extends BaseController {
 
                     // check for regular failure
                     if(m.getLabMark()!=null & m.getExamMark()!=null) {
-                        if (!m.passes()) {
+                        if (!m.passes() && !m.canBeCompensated()) {
                             reason = reason + "Failed " + m.getModuleID() + ".\n";
                             suggestResit = true;
                         }

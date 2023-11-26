@@ -214,9 +214,10 @@ public class Mark {
      */
     public boolean passes() throws IllegalStateException {
         if (labMark == null || examMark == null) throw new IllegalStateException("Cannot check if mark passes if it is incomplete!");
-        return ((labMark + examMark) / 2.0) >= 40;
+        return ((labMark + examMark) / 2.0) >= 50;
     }
 
+    //TODO: modify to work off of average instead of individual marks
     public boolean canBeCompensated() {
         final boolean labCompensation = labMark != null && (labMark >= 40 && labMark < 50);
         final boolean examCompensation = examMark != null && (examMark >= 40 && examMark < 50);
