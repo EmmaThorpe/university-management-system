@@ -436,7 +436,7 @@ public class ManagerController extends BaseController {
             List<String> studentModules = new ArrayList<>();
             String reason = "";
 
-            if (s.getCourseID() == null) {
+            if (s.getCourseID() == null || s.getCourse().getModules(s.getYearOfStudy()).size() == 0 ) {
                 noCourse = true;
             }
             else {
@@ -446,11 +446,14 @@ public class ManagerController extends BaseController {
 
                 while(result.next()){
                     String currentModule = result.getString("ModuleID");
-                    if (studentModules.contains(currentModule)) {
+                    Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
+
+                    // add any new module mark to the classes marker counter. if this counter is less
+                    // than the number of modules at the end, there is classes that the student has not
+                    //yet got marks for and therefore no decision can yet be decided
+                    if (studentModules.contains(currentModule) && m.getAttemptNo() == 1) {
                         classesMarked++;
                     }
-
-                    Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
 
                     // check against rules
                     List<BusinessRule> rules = BusinessRule.getRules(s.getCourseID(), m);
@@ -483,10 +486,10 @@ public class ManagerController extends BaseController {
                         }
                     }
                 }
+            }
 
-                if(classesMarked < studentModules.size()) {
-                    classesUnmarked = true;
-                }
+            if(classesMarked < studentModules.size() && studentModules.size() > 0) {
+                classesUnmarked = true;
             }
 
             // add reason for max compensations
@@ -746,11 +749,11 @@ public class ManagerController extends BaseController {
                 case "WITHDRAWAL" -> s.issueWithdrawal();
                 default -> throw new IllegalArgumentException("Invalid decision string!");
             };
-            manUI.makeNotificationModal(null,"Issued student decision successfully!", true);
-            pageSetter("MANAGE ACCOUNTS", false);
+            manUI.makeNotificationModal("ISSUE STUDENT DECISION","Issued student decision successfully!", true);
+            pageSetter("STUDENT DECISION", false);
         }
         catch(SQLException e){
-            manUI.makeNotificationModal(null,"Error issuing student decision " + e.getMessage(), false);
+            manUI.makeNotificationModal("ISSUE STUDENT DECISION","Error issuing student decision " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
     }
