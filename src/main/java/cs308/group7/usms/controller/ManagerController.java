@@ -744,9 +744,9 @@ public class ManagerController{
         try {
             Student s = new Student(studentID);
             switch (decision) {
-                case "Award" -> s.issueAward();
-                case "Resit" -> s.issueResit();
-                case "Withdrawal" -> s.issueWithdrawal();
+                case "AWARD" -> s.issueAward();
+                case "RESIT" -> s.issueResit();
+                case "WITHDRAWAL" -> s.issueWithdrawal();
                 default -> throw new IllegalArgumentException("Invalid decision string!");
             };
             manUI.makeNotificationModal(null,"Issued student decision successfully!", true);
