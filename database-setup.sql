@@ -188,7 +188,8 @@ INSERT INTO `Users` (`UserID`, `Forename`, `Surname`, `Email`, `Password`, `DoB`
     ('mng1', 'Big', 'Boss', 'boss@Strathclyde', 'LbhXabjGurEhyrf', '1983-04-27', 'Male', 'Manager', NULL, 1),
     ('mng2', 'Fred', 'Fredrick', 'Fred@Strathclyde', 'NaqFbQbV', '1999-03-13', 'Male', 'Manager', 'mng1', 1),
     ('lec1', 'Veronica', 'Sawyer', 'Veronica@Strathclyde', 'TvirLbhHc', '2003-02-07', 'Female', 'Lecturer', 'mng1', 1),
-    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 0);
+    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 1),
+    ('stu2', 'Fiona', 'McLaren', 'Fiona@Strathclyde', 'YrgL0hQ0ja*', '2002-06-26', 'Female', 'Student', 'mng1', 0);;
 UPDATE `Users` SET `ManagedBy` = 'mng2' WHERE `UserID` = 'mng1';
 
 INSERT INTO `Lecturer` (`UserID`, `ModuleID`, `Qualification`) VALUES
