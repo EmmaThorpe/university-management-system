@@ -161,18 +161,33 @@ DUMMY INSERT DATA
 
 INSERT INTO `Department` (`DeptNo`, `Name`) VALUES
     ('1', 'Computing and Information Sciences'),
-    ('2', 'Physics');
+    ('2', 'Physics'),
+    ('3', 'English'),
+    ('4', 'Mathematics & Statistics');
 
 INSERT INTO `Course` (`CourseID`, `Name`, `Description`, `LevelOfStudy`, `AmountOfYears`, `DeptNo`) VALUES
     ('BScCS', 'Computing Science', 'We do programming', 'Undergraduate', 4, '1'),
-    ('BScSE', 'Software Engineering', 'We do programming but with work placement', 'Undergraduate', 5, '1');
+    ('BScSE', 'Software Engineering', 'We do programming but with work placement', 'Undergraduate', 5, '1'),
+    ('BScMS', 'Mathematics & Statistics', 'We do maths stuff', 'Undergraduate', 4, '4'),
+    ('BACW', 'Creative Writing', 'We do writing', 'Undergraduate', 4, '3'),
+    ('BAML', 'Media & Literature', 'We do tv stuff', 'Undergraduate', 4, '3'),
+    ('BScAS', 'Astronomy', 'We do star stuff', 'Undergraduate', 4, '2');
 
 INSERT INTO `Module` (`ModuleID`, `Name`, `Description`, `Credit`) VALUES
     ('CS101', 'Topics in Computing', 'module description for cs101 :)', 20),
     ('CS103', 'Machines, Languages & Computation', 'module description for cs103 :3', 20),
     ('CS104', 'Information & Information Systems', 'module description for cs104 :ppp', 20),
     ('CS105', 'Programming Foundations', 'module description for cs105 x3', 20),
-    ('CS106', 'Computer Systems & Organisation', 'module description for cs106 :o', 20);
+    ('CS106', 'Computer Systems & Organisation', 'module description for cs106 :o', 20),
+    ('MS101', 'Calculus', 'module description for ms101', 20),
+    ('MS150', 'Probability', 'module description for ms150', 20),
+    ('MS125', 'Logic', 'module description for ms125', 20),
+    ('CW103', 'Short Story', 'module description for cw103', 20),
+    ('CW104', 'Script Writing', 'module description for cw104', 20),
+    ('AS101', 'Motion', 'module description for as101', 20),
+    ('AS120', 'Stars and Planets', 'module description for as120', 20),
+    ('ML107', 'Journalism', 'module description for ml107', 20);
+
 
 INSERT INTO `Curriculum` (`CourseID`, `ModuleID`, `Semester1`, `Semester2`, `Year`) VALUES
     ('BScCS', 'CS101', TRUE,  FALSE, 1),
@@ -182,20 +197,45 @@ INSERT INTO `Curriculum` (`CourseID`, `ModuleID`, `Semester1`, `Semester2`, `Yea
     ('BScSE', 'CS103', TRUE,  FALSE, 1),
     ('BScSE', 'CS104', FALSE, TRUE,  1),
     ('BScSE', 'CS105', TRUE,  FALSE, 1),
-    ('BScSE', 'CS106', FALSE, TRUE,  1);
+    ('BScSE', 'CS106', FALSE, TRUE,  1),
+    ('BScMS', 'MS101', TRUE, FALSE,  1),
+    ('BScMS', 'MS150', TRUE, FALSE,  1),
+    ('BScMS', 'MS125', FALSE, TRUE,  1),
+    ('BScAS', 'MS150', FALSE, TRUE,  1),
+    ('BScAS', 'AS101', TRUE, FALSE,  1),
+    ('BScAS', 'AS120', TRUE, FALSE,  1),
+    ('BACW', 'CW103', FALSE, TRUE,  1),
+    ('BACW', 'CW104', TRUE, FALSE,  1),
+    ('BAML', 'ML107', TRUE, FALSE,  1),
+    ('BAML', 'CW104', FALSE, TRUE,  1);
 
 INSERT INTO `Users` (`UserID`, `Forename`, `Surname`, `Email`, `Password`, `DoB`, `Gender`, `Type`, `ManagedBy`, `Activated`) VALUES
     ('mng1', 'Big', 'Boss', 'boss@Strathclyde', 'LbhXabjGurEhyrf', '1983-04-27', 'Male', 'Manager', NULL, 1),
     ('mng2', 'Fred', 'Fredrick', 'Fred@Strathclyde', 'NaqFbQbV', '1999-03-13', 'Male', 'Manager', 'mng1', 1),
     ('lec1', 'Veronica', 'Sawyer', 'Veronica@Strathclyde', 'TvirLbhHc', '2003-02-07', 'Female', 'Lecturer', 'mng1', 1),
-    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 0);
+    ('lec2', 'Emmett', 'Brown', 'Emmett@Strathclyde', 'TerngFpbgg1?', '1940-12-17', 'Male', 'Lecturer', 'mng2', 1),
+    ('lec3', 'Rupert', 'Giles', 'Rupert@Strathclyde', 'Fynlre1?', '1960-06-04', 'Male', 'Lecturer', 'mng1', 1),
+    ('lec4', 'Sarah', 'Connor', 'Sarah@Strathclyde', 'Fxlarg2!', '1965-07-27', 'Female', 'Lecturer', 'mng2', 1),
+    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 0),
+    ('stu2', 'David', 'Tennant', 'DTen@Strathclyde', 'oyn123??N', '1971-04-25', 'Male', 'Student', NULL, 0),
+    ('stu3', 'Rose', 'Tyler', 'Rose@Strathclyde', 'OnqJbys1!', '1985-11-02', 'Female', 'Student', 'mng2', 1),
+    ('stu4', 'Amy', 'Pond', 'Amelia@Strathclyde', 'Jnvgvat9?', '1996-09-15', 'Female', 'Student', 'mng1', 1),
+    ('stu5', 'Jack', 'Harkness', 'Jack@Strathclyde', 'Gbepujbbq?2', '1870-09-03', 'Male', 'Student', NULL, 0);
+
 UPDATE `Users` SET `ManagedBy` = 'mng2' WHERE `UserID` = 'mng1';
 
 INSERT INTO `Lecturer` (`UserID`, `ModuleID`, `Qualification`) VALUES
-    ('lec1', 'CS106', 'MSc');
+    ('lec1', 'CS106', 'MSc'),
+    ('lec2', 'AS101', 'DSc'),
+    ('lec3', 'CW103', 'BA'),
+    ('lec4', 'CS103', 'MSc');
 
 INSERT INTO `Student` (`UserID`, `CourseID`, `Decision`, `yearOfStudy`) VALUES
-    ('stu1', 'BScSE', 'Award', 1);
+    ('stu1', 'BScSE', 'Award', 1),
+    ('stu2', 'BScAS', 'Resit', 2),
+    ('stu3', 'BAML', 'Award', 1),
+    ('stu4', 'BScMS', 'Award', 1),
+    ('stu5', 'BScCS', 'Award', 1);
 
 INSERT INTO `BusinessRule` (`RuleID`, `Active`, `Value`, `Type`) VALUES
     (1, FALSE, 1, 'MAX_RESITS'),
@@ -209,6 +249,12 @@ INSERT INTO `BusinessRule` (`RuleID`, `Active`, `Value`, `Type`) VALUES
 
 INSERT INTO `BusinessRuleCourse` (`CourseID`, `RuleID`) VALUES
     ('BScCS', 6),
+    ('BScMS', 3),
+    ('BScMS', 7),
+    ('BACW', 4),
+    ('BAML', 4),
+    ('BScAS', 6),
+    ('BScAS', 4),
     ('BScSE', 7),
     ('BScSE', 8);
 
@@ -217,7 +263,15 @@ INSERT INTO `BusinessRuleModule` (`ModuleID`, `RuleID`) VALUES
     ('CS103', 2),
     ('CS104', 3),
     ('CS105', 4),
-    ('CS106', 5);
+    ('CS106', 5),
+    ('MS101', 4),
+    ('MS150', 3),
+    ('MS125', 4),
+    ('CW103', 8),
+    ('CW104', 5),
+    ('AS101', 5),
+    ('AS120', 4),
+    ('ML107', 3);
 
 INSERT INTO `Mark` (`ModuleID`, `UserID`, `AttNo`, `Lab`, `Exam`) VALUES
     ('CS103', 'stu1', 1, 44, 76),
