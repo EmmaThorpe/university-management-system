@@ -421,116 +421,41 @@ public class ManagerController extends BaseController {
      * (this return value can be altered but the reason and the award type must be accessible as separate strings to be passed into the issueStudentDecision method)
      */
     //this thing chugs really badly i'm so sorry
-    public ArrayList<String> getDecisionRec(String userID) {
-        DatabaseConnection db = App.getDatabaseConnection();
+    public List<String> getDecisionRec(String userID) {
         try {
+
             Student s = new Student(userID);
-            CachedRowSet result = db.select(new String[]{"Mark"}, new String[]{"ModuleID", "AttNo"}, new String[]{"UserID = " + db.sqlString(userID)});
-            boolean suggestResit = false;
-            boolean suggestWithdraw = false;
-            boolean maxCompen = false;
-            boolean classesUnmarked = false;
-            boolean noCourse = false;
-            int classesMarked = 0;
-            List<String> maxResits = new ArrayList<>();
-            List<String> studentModules = new ArrayList<>();
-            String reason = "";
 
-            if (s.getCourseID() == null || s.getCourse().getModules(s.getYearOfStudy()).size() == 0 ) {
-                noCourse = true;
+            // Determine that a student is assigned to a course
+            if (s.getCourseID() == null) return List.of("N/A", "Student is not assigned to a course, so no decision suggestion can be determined.");
+
+            // Determine that a student has achieved a mark in each module
+            for (Module module : s.getCourse().getModules(s.getYearOfStudy())) {
+                Mark m = s.getMark(module.getModuleID());
+                final boolean HAS_VALID_MARK = m.getLabMark() != null && m.getExamMark() != null;
+                if (!HAS_VALID_MARK) return List.of("N/A", "Student has not yet received all marks, so no decision suggestion can be determined.");
             }
-            else {
-                for (Module studentModule : s.getCourse().getModules(s.getYearOfStudy())) {
-                    studentModules.add(studentModule.getModuleID());
-                }
 
-                while(result.next()){
-                    String currentModule = result.getString("ModuleID");
-                    Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
-
-                    // add any new module mark to the classes marker counter. if this counter is less
-                    // than the number of modules at the end, there is classes that the student has not
-                    //yet got marks for and therefore no decision can yet be decided
-                    if (studentModules.contains(currentModule) && m.getAttemptNo() == 1) {
-                        classesMarked++;
-                    }
-
-                    // check against rules
-                    List<BusinessRule> rules = BusinessRule.getRules(s.getCourseID(), m);
-                    for(BusinessRule r : rules){
-                        // if student doesn't pass the rule
-                        if(!r.passes(s)){
-                            switch(r.getType()){
-                                case MAX_COMPENSATED_MODULES:
-                                    // if at the max compensated modules, set flag for reason and suggest resit
-                                    maxCompen = true;
-                                    suggestResit = true;
-                                    break;
-
-                                case MAX_RESITS:
-                                    // add module to list of maximum resit reached and suggest withdraw
-                                    if(!maxResits.contains(m.getModuleID() + "\n")) {
-                                        maxResits.add(m.getModuleID() + "\n");
-                                    }
-                                    suggestWithdraw = true;
-                                    break;
-                            }
-                        }
-                    }
-
-                    // check for regular failure
-                    if(m.getLabMark()!=null & m.getExamMark()!=null) {
-                        if (!m.passes() && !m.canBeCompensated()) {
-                            reason = reason + "Failed " + m.getModuleID() + ".\n";
-                            suggestResit = true;
-                        }
-                    }
+            // Determine that a student has not failed any business rules
+            Set<BusinessRule> failedRules = s.getFailedBusinessRules();
+            Set<String> resit_reasons = new HashSet<>();
+            Set<String> withdraw_reasons = new HashSet<>();
+            for (BusinessRule rule : failedRules) {
+                if (rule.getType() == MAX_COMPENSATED_MODULES) {
+                    resit_reasons.add("Student has failed to pass more than the compensatable " + rule.getValue() + " modules.");
+                } else if (rule.getType() == MAX_RESITS) {
+                    if (rule instanceof CourseBusinessRule) withdraw_reasons.add("Student has resat more than " + rule.getValue() + " modules.");
+                    if (rule instanceof ModuleBusinessRule) withdraw_reasons.add("Student has resat module " + ((ModuleBusinessRule) rule).getModuleID() + " more than " + rule.getValue() + " times.");
                 }
             }
+            if (!withdraw_reasons.isEmpty()) return List.of("WITHDRAW", String.join("\n", withdraw_reasons));
+            if (!resit_reasons.isEmpty()) return List.of("RESIT", String.join("\n", resit_reasons));
 
-            if(classesMarked < studentModules.size() && studentModules.size() > 0) {
-                classesUnmarked = true;
-            }
+            return List.of("AWARD", "Student has passed all business rules.");
 
-            // add reason for max compensations
-            if(maxCompen){
-                reason = reason + "The maximum number of passes by compensation has been passed.\n";
-            }
-
-            if(!maxResits.isEmpty()){
-                reason = reason + "The maximum number of resits have been reached for the following modules:\n";
-                for(String modID : maxResits){
-                    reason = reason + modID;
-                }
-            }
-
-            ArrayList<String> suggestion = new ArrayList<>();
-            if (noCourse) {
-                suggestion.add("N/A");
-                suggestion.add("Student is not assigned to a course, so no decision suggestion can be determined.");
-            }
-            else if (classesUnmarked) {
-                suggestion.add("N/A");
-                suggestion.add("Student has not yet received all marks, so no decision suggestion can be determined.");
-            }
-            else if (suggestWithdraw){
-                suggestion.add("WITHDRAW");
-                suggestion.add(reason);
-            }
-            else if (suggestResit){
-                suggestion.add("RESIT");
-                suggestion.add(reason);
-            }
-            else{
-                suggestion.add("AWARD");
-                suggestion.add("No rules have been failed.");
-            }
-
-            return suggestion;
-        }
-        catch(SQLException e){
-            manUI.makeNotificationModal(null, "Error issuing student decision " + e.getMessage(), false);
-            throw new RuntimeException(e);
+        } catch(SQLException e) {
+            manUI.makeNotificationModal(null,"Error fetching student decision recommendation:" + e.getMessage(), false);
+            throw new RuntimeException(e); // why do we do this???
         }
     }
 

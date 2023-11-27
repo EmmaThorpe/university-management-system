@@ -20,6 +20,8 @@ public class CourseBusinessRule extends BusinessRule {
         this.courseID = courseID;
     }
 
+    public String getCourseID() { return courseID; }
+
     /* STATIC METHODS */
 
     /**

@@ -106,7 +106,7 @@ public class Student extends User {
     }
 
     /**
-     * Gets the business rules that the student has failed
+     * Gets the business rules that the student has failed in their current year of study
      * @return The set of failed business rules, empty if none
      * @throws SQLException If the query fails
      */
@@ -116,7 +116,7 @@ public class Student extends User {
 
         // For each module in the course, check pass/fail for every business rule applied to its most recently achieved mark
         Course c = this.getCourse();
-        List<Module> modules = c.getModules();
+        List<Module> modules = c.getModules(getYearOfStudy());
         for (Module module : modules) {
             Mark mark = this.getMark(module.getModuleID()); // Get the most recent mark for the module
             for (BusinessRule rule : BusinessRule.getRules(c.getCourseID(), mark)) {
