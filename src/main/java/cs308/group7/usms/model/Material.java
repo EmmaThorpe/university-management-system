@@ -18,7 +18,7 @@ public class Material {
     private final int week;
 
     /**
-     * Creates a new Material object from the database. If the material does not exist, updating it will create it.
+     * Creates a new Material object. If the material does not exist, updating it will create it.
      * @param moduleID The module's ID
      * @param week The week of the module
      */
@@ -27,7 +27,7 @@ public class Material {
         this.week = week;
     }
 
-    public Module getModule() throws SQLException { return new Module(moduleID); }
+    public String getModuleID() { return moduleID; }
 
     public int getWeek() { return week; }
 
@@ -45,7 +45,7 @@ public class Material {
             res.next();
             return Optional.ofNullable(res.getBytes("LectureNote"));
         } catch (SQLException e) {
-            System.out.println("Failed to get lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.err.println("Failed to get lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -86,7 +86,7 @@ public class Material {
 
             return true;
         } catch (Exception e) {
-            System.out.println("Failed to set lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.err.println("Failed to set lecture note for " + moduleID + " week " + week + ": " + e.getMessage());
             return false;
         }
     }
@@ -105,7 +105,7 @@ public class Material {
             res.next();
             return Optional.ofNullable(res.getBytes("LabNote"));
         } catch (SQLException e) {
-            System.out.println("Failed to get lab note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.err.println("Failed to get lab note for " + moduleID + " week " + week + ": " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -146,7 +146,7 @@ public class Material {
 
             return true;
         } catch (Exception e) {
-            System.out.println("Failed to set lab note for " + moduleID + " week " + week + ": " + e.getMessage());
+            System.err.println("Failed to set lab note for " + moduleID + " week " + week + ": " + e.getMessage());
             return false;
         }
     }
