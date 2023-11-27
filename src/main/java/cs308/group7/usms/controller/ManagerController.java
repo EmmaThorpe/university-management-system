@@ -429,8 +429,11 @@ public class ManagerController extends BaseController {
             // Determine that a student is assigned to a course
             if (s.getCourseID() == null) return List.of("N/A", "Student is not assigned to a course, so no decision suggestion can be determined.");
 
-            // Determine that a student has achieved a mark in each module
-            for (Module module : s.getCourse().getModules(s.getYearOfStudy())) {
+            // Determine that a student has achieved a mark in each module & that there are modules to be marked
+            List<Module> modules = s.getCourse().getModules(s.getYearOfStudy());
+            if (modules.isEmpty()) return List.of("N/A", "Current year of course has no modules, so no decision suggestion can be determined.");
+
+            for (Module module : modules) {
                 Mark m = s.getMark(module.getModuleID());
                 final boolean HAS_VALID_MARK = m.getLabMark() != null && m.getExamMark() != null;
                 if (!HAS_VALID_MARK) return List.of("N/A", "Student has not yet received all marks, so no decision suggestion can be determined.");
