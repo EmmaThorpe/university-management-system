@@ -120,6 +120,8 @@ public class CourseBusinessRule extends BusinessRule {
         return rules;
     }
 
+    /* INSTANCE METHODS */
+
     @Override
     public boolean passes(Student student) throws SQLException {
         switch(this.type) {

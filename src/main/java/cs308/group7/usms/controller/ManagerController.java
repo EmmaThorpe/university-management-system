@@ -454,7 +454,7 @@ public class ManagerController extends BaseController {
             if (!withdraw_reasons.isEmpty()) return List.of("WITHDRAW", String.join("\n", withdraw_reasons));
             if (!resit_reasons.isEmpty()) return List.of("RESIT", String.join("\n", resit_reasons));
 
-            return List.of("AWARD", "Student has passed all business rules.");
+            return List.of("AWARD", "Student has passed all business rules that were applied to their marks at the time they achieved them.");
 
         } catch(SQLException e) {
             manUI.makeNotificationModal(null,"Error fetching student decision recommendation:" + e.getMessage(), false);
