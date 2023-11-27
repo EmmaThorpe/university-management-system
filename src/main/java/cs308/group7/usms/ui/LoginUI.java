@@ -15,8 +15,13 @@ import java.util.*;
 
 public class LoginUI extends UIElements{
 
+    /*
+    Login Page
+     */
 
-    /** Returns the login scene so it can then be displayed
+    /**
+     * Constructs the form for a user signing into
+     * the system
      */
     public void loginScene() {
         resetCurrentValues();
@@ -36,6 +41,15 @@ public class LoginUI extends UIElements{
         createScene("LOGIN", formContent, new VBox(formBtns, validHandler));
     }
 
+
+    /*
+    Signup Page
+     */
+
+    /**
+     * Constructs the form for a new user making
+     * an account for the system
+     */
     public void signUpScene() {
         validFields = new HashMap<>();
         resetCurrentValues();
@@ -110,6 +124,15 @@ public class LoginUI extends UIElements{
         createScene("SIGN UP", formContent, new VBox(formBtns, validHandler));
     }
 
+
+    /** Toggles the signup form to either show the fields for a
+     * new student user or a new lecturer user
+     * @param formContent Where the form content will go
+     * @param qualificationField    The qualificaiton field that will appear when the
+     *                              selected user type to sign up is a lecturer, and is
+     *                              hidden when the user signs up as a student
+     * @return  A listener that will change the form to fit the selected type of user - a student or a lecturer
+     */
     protected ChangeListener<Toggle> toggleUser(ScrollPane formContent, VBox qualificationField) {
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {

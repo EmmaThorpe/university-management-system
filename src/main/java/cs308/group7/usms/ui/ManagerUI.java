@@ -705,7 +705,10 @@ public class ManagerUI extends UIElements{
      **/
 
     /**
-     * @param accountList
+     * Constructs the layout for the signup workflow dashboard
+     * @param accountList The list of user accounts that are to be activated, stored as a list of map of
+     *                    user fields and their values
+     *
      */
     public void signups(List<HashMap<String, String>> accountList)  {
         resetCurrentValues();
@@ -768,10 +771,16 @@ public class ManagerUI extends UIElements{
 
 
     /**
-     * @param user
-     * @param rightPanel
-     * @param accDetails
-     * @return
+     *  Constructs the list of signup approval actions that a manager can perform on a
+     *  selected user
+     * @param user The selected user the manager has
+     * @param rightPanel The right panel in which the button actions for said user will display
+     * @param accDetails    A VBox that will be shown on the right panel that reports the current
+     *                   state and information that the selected user is in (like the value
+     *                   of fields)
+     * @return          A VBox that displays to the right of the signup workflow
+     *                  layout with a list
+     *                  of signup approval actions tailored to selected user
      */
     private EventHandler<Event> pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
@@ -802,8 +811,12 @@ public class ManagerUI extends UIElements{
      **/
 
     /**
-     * @param activatedBusinessRules
-     * @param associatedOfRules
+     * Constructs the layout for the business rule dashboard
+     * @param activatedBusinessRules The list of activated business rules stored as
+     *                               a list of maps of fields and their values
+     * @param associatedOfRules     The modules/courses associated with an activated
+     *                              business rule, stored as a list of maps of fields
+     *                              and their values
      */
     public void manageBusinessRules(List<Map<String, String>> activatedBusinessRules, Map<String, List<String>> associatedOfRules){
         resetCurrentValues();
@@ -821,10 +834,17 @@ public class ManagerUI extends UIElements{
 
 
     /**
-     * @param activatedBusinessRules
-     * @param associatedOfRules
-     * @param addBtn
-     * @return
+     * Constructs the list of activated business rules
+     * @param activatedBusinessRules The list of activated business rules stored as
+     *                               a list of maps of fields and their values
+     * @param associatedOfRules     The modules/courses associated with an activated
+     *                              business rule, stored as a list of maps of fields
+     *                              and their values
+     * @param addBtn                The action button to add a new business rule to this
+     *                              list
+     * @return          A VBox that displays at the center of the business rules
+     *                  layout with a list
+     *                  of business rules that the manager can view
      */
     private VBox listOfRules(List<Map<String, String>> activatedBusinessRules,
                              Map<String, List<String>> associatedOfRules, Button addBtn){
@@ -846,11 +866,11 @@ public class ManagerUI extends UIElements{
     }
 
 
-    /**
-     * @param type
-     * @param value
-     * @param associated
-     * @return
+    /** Constructs the list item for a business rule
+     * @param type  The type of business rule
+     * @param value     The value of that business rule
+     * @param associated   The modules/courses that business rule is applied to
+     * @return  The HBox container that details the business rule for the list
      */
     private HBox makeRuleSection(String type, String value, List<String> associated){
         Text typeDisplay = new Text(type + ": " + value);
@@ -884,6 +904,10 @@ public class ManagerUI extends UIElements{
         return listButton;
     }
 
+    /*
+    * Business Rules dashboard - pages
+    */
+
     /**
      * @param courseList
      * @param moduleList
@@ -904,27 +928,22 @@ public class ManagerUI extends UIElements{
     }
 
     /**
-     * @param courseList
-     * @param moduleList
-     * @param course
-     * @param module
-     * @return
+     * Creates the form for making a new business rule
+     * @param courseList    A list of courses (with their fields and values)
+     *                      that the business rule can be applied to
+     * @param moduleList    A list of modules (with their fields and values)
+     *                     that the business rule can be applied to
+     * @param course       Action button for applying the business rule to a course
+     * @param module       Action button for applying the business rule to a module
+     * @return          A VBox containing the content for making a business rule
      */
     private VBox rulesForm(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, Button course, Button module){
-
-        HBox ruleSelector = new HBox();
 
         ToggleGroup rulesSelected = new ToggleGroup();
         ToggleButton rules1 = setToggleOption(rulesSelected, "Course Rules");
         ToggleButton rules2 = setToggleOption(rulesSelected, "Module Rules");
         rules1.setSelected(true);
-        ruleSelector.getChildren().add(rules1);
-        ruleSelector.getChildren().add(rules2);
-        ruleSelector.setSpacing(20.0);
-        ruleSelector.setAlignment(Pos.BASELINE_CENTER);
-
-        HBox.setHgrow(rules1, Priority.ALWAYS);
-        HBox.setHgrow(rules2, Priority.ALWAYS);
+        HBox ruleSelector = styleToggleOptions(rules1, rules2);
 
         List<String> types = new ArrayList<>();
         types.add("Max Number Of Resits");
@@ -988,12 +1007,17 @@ public class ManagerUI extends UIElements{
     }
 
 
-    /**
-     * @param course
-     * @param name
-     * @param courseList
-     * @param moduleList
-     * @return
+    /*
+     * Business Rules dashboard - form elements and validation
+     */
+
+    /** Creates a dropdown box for choosing a course or module to apply a rule to
+     * @param course    If the rule is for a course (<code>true</code>), or not (<code>false</code>)
+     * @param name      The name labelled to the dropdown field
+     * @param courseList    The list of courses that the business rule can be applied to
+     * @param moduleList    The list of modules that the business rule can be applied to
+     * @return  A VBOX containing dropdown field for choosing which modules/courses
+     *          the business rule will apply to
      */
     private VBox dropdownCreator(Boolean course, String name, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         ArrayList<String> fields;
@@ -1018,11 +1042,12 @@ public class ManagerUI extends UIElements{
         return dropdown;
     }
 
-    /**
-     * @param panel
-     * @param courseList
-     * @param moduleList
-     * @param type
+    /** Adds a new dropdown box so the user can select another module/
+     * course to apply the business rule to
+     * @param panel     The panel that the new dropdown is appended to
+     * @param courseList    The list of courses that the business rule can be applied to
+     * @param moduleList    The list of modules that the business rule can be applied to
+     * @param type          The type of business rule being made - a course business rule or a module business rule
      */
     private void addDropdown(VBox panel, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, String type){
         String newVal = String.valueOf(Integer.parseInt(currentValues.get("AMOUNT OF "+type))+1);
@@ -1040,9 +1065,10 @@ public class ManagerUI extends UIElements{
         checkRulesValidity(type);
     }
 
-    /**
-     * @param panel
-     * @param type
+    /** Removes the last additional dropdown from a business rule's
+     * course/module selection
+     * @param panel     The panel that the dropdown is removed from
+     * @param type          The type of business rule being made - a course business rule or a module business rule
      */
     private void removeDropdown(VBox panel, String type){
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
@@ -1061,7 +1087,8 @@ public class ManagerUI extends UIElements{
     }
 
     /**
-     * @param type
+     * Validates the user's input for rule's value
+     * @param type          The type of business rule being made - a course business rule or a module business rule
      */
     private void checkRulesValidity(String type){
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
@@ -1091,10 +1118,12 @@ public class ManagerUI extends UIElements{
     }
 
     /**
-     * @param ruleContent
-     * @param courseContent
-     * @param moduleContent
-     * @return
+     * Toggles the form to show either the business rule form for adding
+     * a module business rule or a course business rule
+     * @param ruleContent   Where the form content will go
+     * @param courseContent The form content for creating a new business rule for course(s)
+     * @param moduleContent The form content for creating a new business rule for module(s)
+     * @return  A listener that will change the form to fit the selected type of business rule - a course or a module
      */
     protected ChangeListener<Toggle> toggleRules(ScrollPane ruleContent, VBox courseContent, VBox moduleContent){
         return (observableValue, previousToggle, newToggle) -> {
@@ -1112,10 +1141,13 @@ public class ManagerUI extends UIElements{
 
     }
 
-    /**
-     * @param fieldChanged
-     * @param courseRules
-     * @return
+    /** Checks the value of dropdown boxes when they are set and
+     * reports to the user if the course selected is already applied
+     * to a rule
+     * @param fieldChanged  The dropdown being changed
+     * @param courseRules   List of course business rules
+     * @return  A listener that reports if the selected course has a
+     *          rule it is applied to
      */
     protected ChangeListener<String> onDropdownChangeCourse(String fieldChanged, Map<String, Map <String,Boolean>> courseRules){
         return (observableValue, previousSelect, newSelect) -> {
@@ -1135,10 +1167,13 @@ public class ManagerUI extends UIElements{
     }
 
 
-    /**
-     * @param fieldChanged
-     * @param moduleRules
-     * @return
+    /** Checks the value of dropdown boxes when they are set and
+     * reports to the user if the module selected is already applied
+     * to a rule
+     * @param fieldChanged  The dropdown being changed
+     * @param moduleRules   List of module business rules
+     * @return  A listener that reports if the selected module has a
+     *          rule it is applied to
      */
     protected ChangeListener<String> onDropdownChangeModule(String fieldChanged, Map <String,Boolean> moduleRules){
         return (observableValue, previousSelect, newSelect) -> {
@@ -1156,9 +1191,9 @@ public class ManagerUI extends UIElements{
     }
 
 
-    /**
-     * @param type
-     * @return
+    /** Returns what courses/modules a business rule will be applied to
+     * @param type The type of business rule - a module business rule or a course business rule
+     * @return  The list of business rules that a course/module is applied to
      */
     public List<String> getRulesAppliedTo(String type){
         List<String> appliedTo = new ArrayList<>();
