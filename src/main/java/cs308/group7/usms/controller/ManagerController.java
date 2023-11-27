@@ -518,19 +518,7 @@ public class ManagerController extends BaseController {
      * @param newPass The new password
      */
     public void changePassword(String oldPass, String newPass){
-        try {
-            final User m = getCurrentManager();
-            final boolean AUTHORISED = Password.matches(oldPass, m.getEncryptedPassword());
-            if (AUTHORISED) {
-                final boolean success = m.changePassword(newPass);
-                if (success) {
-                    manUI.makeNotificationModal("CHANGE PASSWORD", "Changed password successfully!", true);
-                    pageSetter("DASHBOARD", false);
-                } else throw new SQLException();
-            } else manUI.makeNotificationModal("CHANGE PASSWORD", "Old password provided is incorrect!", false);
-        } catch (SQLException e) {
-            manUI.makeNotificationModal("CHANGE PASSWORD", "There was an error updating your password!", false);
-        }
+        changePassword(manUI, userID, oldPass, newPass);
     }
 
 
