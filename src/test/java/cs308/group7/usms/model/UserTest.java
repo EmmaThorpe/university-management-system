@@ -26,6 +26,7 @@ public class UserTest {
     private final String SampleForename = "Fred";
     private final String SampleSurname = "Figglehorn";
     private final String SampleEmail = "fred.figglehorn.2021@uni.strath.ac.uk";
+    private final String SamplePassword = "cnffjbeq"; // "password" caesar ciphered by 13
     private final Date SampleDOB = java.sql.Date.valueOf("2002-12-18");
     private final String SampleGender = "Male";
     private final String SampleType = "Student";
@@ -41,12 +42,13 @@ public class UserTest {
         Mockito.when(res.next()).thenReturn(true);
     }
 
-    private void setupMockUserResponse(String UserID, String ManagedBy, String Forename, String Surname, String Email, Date DOB, String Gender, String Type, boolean Activated) throws SQLException {
+    private void setupMockUserResponse(String UserID, String ManagedBy, String Forename, String Surname, String Email, String Password, Date DOB, String Gender, String Type, boolean Activated) throws SQLException {
         Mockito.when(res.getString("UserID")).thenReturn(UserID);
         Mockito.when(res.getString("ManagedBy")).thenReturn(ManagedBy);
         Mockito.when(res.getString("Forename")).thenReturn(Forename);
         Mockito.when(res.getString("Surname")).thenReturn(Surname);
         Mockito.when(res.getString("Email")).thenReturn(Email);
+        Mockito.when(res.getString("Password")).thenReturn(Password);
         Mockito.when(res.getDate("DOB")).thenReturn(DOB);
         Mockito.when(res.getString("Gender")).thenReturn(Gender);
         Mockito.when(res.getString("Type")).thenReturn(Type);
@@ -57,12 +59,13 @@ public class UserTest {
     public void test_student() {
         final User.UserType Type = User.UserType.STUDENT;
 
-        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, Type, SampleActivated);
+        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, Type, SampleActivated);
 
         Assertions.assertEquals(SampleUserID, user.getUserID());
         Assertions.assertEquals(SampleForename, user.getForename());
         Assertions.assertEquals(SampleSurname, user.getSurname());
         Assertions.assertEquals(SampleEmail, user.getEmail());
+        Assertions.assertEquals(SamplePassword, user.getEncryptedPassword());
         Assertions.assertEquals(SampleDOB, user.getDOB());
         Assertions.assertEquals(SampleGender, user.getGender());
         Assertions.assertEquals(SampleActivated, user.getActivated());
@@ -74,7 +77,7 @@ public class UserTest {
     @Test
     public void test_student_database_construction() throws SQLException {
 
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, SampleType, SampleActivated);
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, SampleActivated);
 
         // Mock the App class to return the mock database connection & cached row set
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
@@ -86,6 +89,7 @@ public class UserTest {
             Assertions.assertEquals(SampleForename, user.getForename());
             Assertions.assertEquals(SampleSurname, user.getSurname());
             Assertions.assertEquals(SampleEmail, user.getEmail());
+            Assertions.assertEquals(SamplePassword, user.getEncryptedPassword());
             Assertions.assertEquals(SampleDOB, user.getDOB());
             Assertions.assertEquals(SampleGender, user.getGender());
             Assertions.assertEquals(SampleActivated, user.getActivated());
@@ -99,7 +103,7 @@ public class UserTest {
     public void test_lecturer() {
         final User.UserType Type = User.UserType.LECTURER;
 
-        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, Type, SampleActivated);
+        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, Type, SampleActivated);
         Assertions.assertEquals(User.UserType.LECTURER, user.getType());
         Assertions.assertFalse(user.isManager());
     }
@@ -108,7 +112,7 @@ public class UserTest {
     public void test_lecturer_database_construction() throws SQLException {
         final String Type = "Lecturer";
 
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, Type, SampleActivated);
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, Type, SampleActivated);
 
         // Mock the App class to return the mock database connection & cached row set
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
@@ -124,7 +128,7 @@ public class UserTest {
     public void test_manager() {
         final User.UserType TypeValue = User.UserType.MANAGER;
 
-        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, TypeValue, SampleActivated);
+        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, TypeValue, SampleActivated);
         Assertions.assertEquals(User.UserType.MANAGER, user.getType());
         Assertions.assertTrue(user.isManager());
     }
@@ -133,7 +137,7 @@ public class UserTest {
     public void test_manager_database_construction() throws SQLException {
         final String Type = "Manager";
 
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, Type, SampleActivated);
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, Type, SampleActivated);
 
         // Mock the App class to return the mock database connection & cached row set
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
@@ -149,7 +153,7 @@ public class UserTest {
     public void test_unexpected_user_type_in_db() throws SQLException {
         final String Type = "Unexpected";
 
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, Type, SampleActivated);
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, Type, SampleActivated);
 
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
             mockApp.when(App::getDatabaseConnection).thenReturn(db);
@@ -174,16 +178,34 @@ public class UserTest {
         final String Manager1 = "mng1";
         final String Manager2 = "mng2";
 
-        setupMockUserResponse(SampleUserID, Manager1, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, SampleType, SampleActivated);
+        setupMockUserResponse(SampleUserID, Manager1, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, SampleActivated);
 
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
             mockApp.when(App::getDatabaseConnection).thenReturn(db);
 
             User user = new User(SampleUserID);
 
-            setupMockUserResponse(Manager1, Manager2, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, SampleType, SampleActivated);
+            setupMockUserResponse(Manager1, Manager2, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, SampleActivated);
             User manager = user.getManager();
             Assertions.assertEquals(Manager1, manager.getUserID());
+        }
+    }
+
+    @Test
+    public void test_setManager() throws SQLException {
+        final String Manager1 = "mng1";
+        final String Manager2 = "mng2";
+
+        User user = new User(SampleUserID, Manager1, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleTypeValue, SampleActivated);
+
+        try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
+            mockApp.when(App::getDatabaseConnection).thenReturn(db);
+
+            Mockito.when(db.update(any(), any(), any())).thenReturn(1);
+
+            Assertions.assertTrue(user.setManager(Manager2));
+            Mockito.verify(db, Mockito.times(1)).update(any(), any(), any());
+            Assertions.assertEquals(Manager2, user.getManagerID());
         }
     }
 
@@ -191,7 +213,7 @@ public class UserTest {
     public void test_activated() throws SQLException {
         final boolean Activated = false;
 
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, SampleType, Activated);
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, Activated);
 
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
             mockApp.when(App::getDatabaseConnection).thenReturn(db);
@@ -208,21 +230,60 @@ public class UserTest {
     }
 
     @Test
-    public void test_db_fail() throws SQLException {
-        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SampleDOB, SampleGender, SampleType, SampleActivated);
+    public void test_deactivated() throws SQLException {
+        final boolean Activated = true;
+
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, Activated);
 
         try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
             mockApp.when(App::getDatabaseConnection).thenReturn(db);
 
             User user = new User(SampleUserID);
+            Assertions.assertTrue(user.getActivated());
 
-            // setActivated
-            Mockito.when(db.update(any(), any(), any())).thenThrow(SQLException.class);
-            Assertions.assertFalse(user.setActivated());
+            // setDeactivated
+            Mockito.when(db.update(any(), any(), any())).thenReturn(1);
+            Assertions.assertTrue(user.setDeactivated());
             Mockito.verify(db, Mockito.times(1)).update(any(), any(), any());
+            Assertions.assertFalse(user.getActivated());
         }
     }
 
-    // TODO: test passwords
+    @Test
+    public void test_db_fail() throws SQLException {
+        setupMockUserResponse(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleType, SampleActivated);
+
+        try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
+            mockApp.when(App::getDatabaseConnection).thenReturn(db);
+
+            User user = new User(SampleUserID);
+            Mockito.when(db.update(any(), any(), any())).thenThrow(SQLException.class);
+
+            Assertions.assertFalse(user.setManager(SampleManagedBy));
+            Assertions.assertFalse(user.setActivated());
+            Assertions.assertFalse(user.setDeactivated());
+            Assertions.assertFalse(user.changePassword(SamplePassword));
+
+            Mockito.verify(db, Mockito.times(4)).update(any(), any(), any());
+        }
+    }
+
+    @Test
+    public void test_change_password() throws SQLException {
+        final String NewPassword = "newpassword";
+        final String encryptedNewPassword = "arjcnffjbeq"; // caesar ciphered by 13
+
+        User user = new User(SampleUserID, SampleManagedBy, SampleForename, SampleSurname, SampleEmail, SamplePassword, SampleDOB, SampleGender, SampleTypeValue, SampleActivated);
+
+        try (MockedStatic<App> mockApp = Mockito.mockStatic(App.class)) {
+            mockApp.when(App::getDatabaseConnection).thenReturn(db);
+
+            Mockito.when(db.update(any(), any(), any())).thenReturn(1);
+
+            Assertions.assertTrue(user.changePassword(NewPassword));
+            Mockito.verify(db, Mockito.times(1)).update(any(), any(), any());
+            Assertions.assertEquals(encryptedNewPassword, user.getEncryptedPassword());
+        }
+    }
 
 }

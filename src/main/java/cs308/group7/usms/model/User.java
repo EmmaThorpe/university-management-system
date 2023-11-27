@@ -85,6 +85,27 @@ public class User {
     @Nullable
     public User getManager() throws SQLException { return new User(managedBy); }
 
+    @Nullable
+    public String getManagerID() { return managedBy; }
+
+    /**
+     * Sets the user's manager
+     * @return Whether the operation was successful
+     */
+    public boolean setManager(String managerID) {
+        DatabaseConnection db = App.getDatabaseConnection();
+        HashMap<String, String> values = new HashMap<>();
+        values.put("ManagedBy", db.sqlString(managerID));
+        try {
+            db.update("Users", values, new String[]{"UserID = " + db.sqlString(userID)});
+            managedBy = managerID;
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Failed to set user " + userID + "'s manager!");
+            return false;
+        }
+    }
+
     public String getForename() { return forename; }
 
     public String getSurname() { return surname; }
@@ -126,27 +147,11 @@ public class User {
         HashMap<String, String> values = new HashMap<>();
         values.put("Activated", "FALSE");
         try {
-            return activated = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
+            final boolean success = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
+            if (success) activated = false;
+            return success;
         } catch (SQLException e) {
             System.out.println("Failed to set user " + userID + " to deactivated!");
-            return false;
-        }
-    }
-
-    /**
-     * Sets the user's managedBy
-     * @return Whether the operation was successful
-     */
-    public boolean setManager(String managerID) {
-        DatabaseConnection db = App.getDatabaseConnection();
-        HashMap<String, String> values = new HashMap<>();
-        values.put("ManagedBy", db.sqlString(managerID));
-        try {
-            db.update("Users", values, new String[]{"UserID = '" + userID + "'"});
-            managedBy = managerID;
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Failed to set user " + userID + "'s manager!");
             return false;
         }
     }
