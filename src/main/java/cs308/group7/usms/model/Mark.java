@@ -221,8 +221,9 @@ public class Mark {
      * Checks if the mark passes the module
      * @throws IllegalStateException If the mark is incomplete
      */
-    public boolean passes() throws IllegalStateException {
-        return getOverallMark() >= 50;
+    public boolean passes() {
+        try { return getOverallMark() >= 50; }
+        catch (IllegalStateException e) { return false; }
     }
 
     /**

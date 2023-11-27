@@ -433,16 +433,21 @@ public class ManagerController extends BaseController {
             List<Module> modules = s.getCourse().getModules(s.getYearOfStudy());
             if (modules.isEmpty()) return List.of("N/A", "Current year of course has no modules, so no decision suggestion can be determined.");
 
+            Set<String> resit_reasons = new HashSet<>();
+            Set<String> withdraw_reasons = new HashSet<>();
+
             for (Module module : modules) {
                 Mark m = s.getMark(module.getModuleID());
-                final boolean HAS_VALID_MARK = m.getLabMark() != null && m.getExamMark() != null;
-                if (!HAS_VALID_MARK) return List.of("N/A", "Student has not yet received all marks, so no decision suggestion can be determined.");
+
+                final boolean HAS_INVALID_MARK = m.getLabMark() == null || m.getExamMark() == null;
+                if (HAS_INVALID_MARK) return List.of("N/A", "Student has not yet received all marks, so no decision suggestion can be determined.");
+
+                final boolean FAILED_AND_UNCOMPENSATABLE = !m.passes() && !m.canBeCompensated();
+                if (FAILED_AND_UNCOMPENSATABLE) resit_reasons.add("Student has failed module " + module.getModuleID() + ".");
             }
 
             // Determine that a student has not failed any business rules
             Set<BusinessRule> failedRules = s.getFailedBusinessRules();
-            Set<String> resit_reasons = new HashSet<>();
-            Set<String> withdraw_reasons = new HashSet<>();
             for (BusinessRule rule : failedRules) {
                 if (rule.getType() == MAX_COMPENSATED_MODULES) {
                     resit_reasons.add("Student has failed to pass more than the compensatable " + rule.getValue() + " modules.");
@@ -451,6 +456,7 @@ public class ManagerController extends BaseController {
                     if (rule instanceof ModuleBusinessRule) withdraw_reasons.add("Student has resat module " + ((ModuleBusinessRule) rule).getModuleID() + " more than " + rule.getValue() + " times.");
                 }
             }
+
             if (!withdraw_reasons.isEmpty()) return List.of("WITHDRAW", String.join("\n", withdraw_reasons));
             if (!resit_reasons.isEmpty()) return List.of("RESIT", String.join("\n", resit_reasons));
 
