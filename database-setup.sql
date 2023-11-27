@@ -216,11 +216,12 @@ INSERT INTO `Users` (`UserID`, `Forename`, `Surname`, `Email`, `Password`, `DoB`
     ('lec2', 'Emmett', 'Brown', 'Emmett@Strathclyde', 'TerngFpbgg1?', '1940-12-17', 'Male', 'Lecturer', 'mng2', 1),
     ('lec3', 'Rupert', 'Giles', 'Rupert@Strathclyde', 'Fynlre1?', '1960-06-04', 'Male', 'Lecturer', 'mng1', 1),
     ('lec4', 'Sarah', 'Connor', 'Sarah@Strathclyde', 'Fxlarg2!', '1965-07-27', 'Female', 'Lecturer', 'mng2', 1),
-    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 0),
-    ('stu2', 'David', 'Tennant', 'DTen@Strathclyde', 'oyn123??N', '1971-04-25', 'Male', 'Student', NULL, 0),
+    ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 1),
     ('stu3', 'Rose', 'Tyler', 'Rose@Strathclyde', 'OnqJbys1!', '1985-11-02', 'Female', 'Student', 'mng2', 1),
     ('stu4', 'Amy', 'Pond', 'Amelia@Strathclyde', 'Jnvgvat9?', '1996-09-15', 'Female', 'Student', 'mng1', 1),
-    ('stu5', 'Jack', 'Harkness', 'Jack@Strathclyde', 'Gbepujbbq?2', '1870-09-03', 'Male', 'Student', NULL, 0);
+    ('stu5', 'Jack', 'Harkness', 'Jack@Strathclyde', 'Gbepujbbq?2', '1870-09-03', 'Male', 'Student', 'mng1', 0),
+    ('stu6', 'David', 'Tennant', 'DTen@Strathclyde', 'oyn123??N', '1971-04-25', 'Male', 'Student', 'mng2', 0);
+
 
 UPDATE `Users` SET `ManagedBy` = 'mng2' WHERE `UserID` = 'mng1';
 
@@ -232,10 +233,10 @@ INSERT INTO `Lecturer` (`UserID`, `ModuleID`, `Qualification`) VALUES
 
 INSERT INTO `Student` (`UserID`, `CourseID`, `Decision`, `yearOfStudy`) VALUES
     ('stu1', 'BScSE', 'Award', 1),
-    ('stu2', 'BScAS', 'Resit', 2),
     ('stu3', 'BAML', 'Award', 1),
     ('stu4', 'BScMS', 'Award', 1),
-    ('stu5', 'BScCS', 'Award', 1);
+    ('stu5', NULL, 'No Decision', 1),
+    ('stu6', NULL, 'No Decision', 1);
 
 INSERT INTO `BusinessRule` (`RuleID`, `Active`, `Value`, `Type`) VALUES
     (1, FALSE, 1, 'MAX_RESITS'),
@@ -278,7 +279,14 @@ INSERT INTO `Mark` (`ModuleID`, `UserID`, `AttNo`, `Lab`, `Exam`) VALUES
     ('CS103', 'stu1', 2, 78, 82),
     ('CS104', 'stu1', 1, 44, 76),
     ('CS105', 'stu1', 1, 44, 76),
-    ('CS106', 'stu1', 1, 72, 76);
+    ('CS106', 'stu1', 1, 72, 76),
+    ('ML107', 'stu3', 1, 62, 50),
+    ('ML107', 'stu3', 2, 78, 52),
+    ('CW104', 'stu3', 1, 90, 68),
+    ('MS101', 'stu4', 1, 70, 83),
+    ('MS150', 'stu4', 1, 42, 63),
+    ('MS150', 'stu4', 2, 52, 76),
+    ('MS125', 'stu4', 1, 82, 61);
 
 INSERT INTO `BusinessRuleApplication` (`ModuleID`, `UserID`, `AttNo`, `RuleID`) VALUES
     ('CS103', 'stu1', 1, 1),
@@ -295,4 +303,12 @@ INSERT INTO `BusinessRuleApplication` (`ModuleID`, `UserID`, `AttNo`, `RuleID`) 
     ('CS105', 'stu1', 1, 8),
     ('CS106', 'stu1', 1, 5),
     ('CS106', 'stu1', 1, 7),
-    ('CS106', 'stu1', 1, 8);
+    ('CS106', 'stu1', 1, 8),
+    ('ML107', 'stu3', 1, 3),
+    ('ML107', 'stu3', 2, 3),
+    ('CW104', 'stu3', 1, 5),
+    ('MS101', 'stu4', 1, 4),
+    ('MS150', 'stu4', 1, 3),
+    ('MS150', 'stu4', 2, 3),
+    ('MS125', 'stu4', 1, 4);
+
