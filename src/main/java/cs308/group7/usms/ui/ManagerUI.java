@@ -17,10 +17,15 @@ import java.util.*;
 public class ManagerUI extends UIElements{
 
 
-    /**
+    /*
      * Main Dashboard
      **/
 
+
+    /**
+     * Constructs the dashboard that branches off to all of manager's actions
+     * and is a landing page to when a manager signs in
+     */
     public void dashboard() {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Manager");
@@ -38,10 +43,19 @@ public class ManagerUI extends UIElements{
         createDashboard(mngBtns, toolbar);
     }
 
-    /**
+    /*
      * Accounts Dashboard
      **/
 
+    /**
+     * Constructs the layout for the accounts dashboard
+     * @param accountList The list of user accounts that manager manages, stored as a list of map where
+     *                    user fields and their values
+     * @param coursesList List of courses that manager can apply in user management, stored as a list of
+     *                    map with course fields and their values
+     * @param moduleList   List of modules that manager can apply in user management, stored as a list of
+     *                     map with modules fields and their values
+     */
     public void accounts(List<HashMap<String, String>> accountList,  List<Map<String, String>> coursesList, List<Map<String, String>> moduleList)  {
         resetCurrentValues();
 
@@ -79,6 +93,17 @@ public class ManagerUI extends UIElements{
 
     }
 
+    /**
+     * Constructs the list of account buttons that, when clicked, will select that account for action
+     * @param accountList The list of user accounts that manager manages, stored as a list of map where
+     *                      user fields and their values
+     * @param rightPanel The right panel in which the button actions for said account will display
+     * @param details    A VBox that will be shown on the right panel that reports the current
+     *                   state and information that the selected account is in (like the value
+     *                   of fields)
+     * @return          A VBox that displays to the left of the account layout with a list
+     *                  of accounts that the manager can choose
+     */
     private VBox userButtons(List<HashMap<String, String>> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
         HBox tempButton;
@@ -101,6 +126,16 @@ public class ManagerUI extends UIElements{
         return makeScrollablePanel(accountListPanel);
     }
 
+    /**
+     *  Constructs the list of account actions that a manager can perform on a selected user
+     * @param user       The user the manager has selected to perform actions on
+     * @param rightPanel The right panel in which the button actions for said user will display
+     * @param accDetails    A VBox that will be shown on the right panel that reports the current
+     *                   state and information that the selected user is in (like the value
+     *                   of fields)
+     * @return          A VBox that displays to the right of the account layout with a list
+     *                  of account actions tailored to selected user
+     */
     private EventHandler<Event> pickUser(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
             currentValues = new HashMap<>();
@@ -138,14 +173,26 @@ public class ManagerUI extends UIElements{
         };
     }
 
+    /**
+     * Constructs an information box that details the user's account details, like
+     * the values of their user fields
+     * @param user  The selected user
+     * @param accDetails    Container of the user's details
+     */
     private void setUserDetails(HashMap<String, String> user, VBox accDetails) {
         accDetails.getChildren().set(0, infoContainer(userDetailDisplay(user.get("userID"), user.get("managerID"), user.get("forename"), user.get("surname"), user.get("email"), user.get("DOB"), user.get("gender"), user.get("userType"), user.get("activated"))));
     }
 
-    /**
+    /*
      * Account dashboard - modals
      **/
 
+    /**
+     * The content within popup for enrolling a student user into a course
+     * @param courses   A list of course fields and their values that the
+     *                  selected student can be enrolled into
+     * @return  The content for the modal popup, enrolCourse
+     */
     private VBox enrolCourse(List<Map<String, String>> courses) {
         List<String> courseNames = new ArrayList<>();
 
@@ -158,6 +205,12 @@ public class ManagerUI extends UIElements{
         return new VBox(setCourse);
     }
 
+    /**
+     * The content within popup for assigning a lecturer user to a module
+     * @param modules   A list of module fields and their values that the
+     *                  selected lecturer can be assigned to
+     * @return  The content for the modal popup, assignModule
+     */
     private VBox assignModule(List<Map<String, String>> modules) {
         List<String> moduleNames = new ArrayList<>();
 
@@ -169,10 +222,19 @@ public class ManagerUI extends UIElements{
         return new VBox(setCourse);
     }
 
-    /**
+    /*
      * Account dashboard - pages
      **/
 
+    /**
+     * Page that has actions for issuing a student decision
+     * @param currStudent   The student selected for decision issuing
+     * @param markList      The list of marks that the student has achieved
+     * @param decisionRec   The generated decision that the manager should
+     *                      select for the user based on the business rules
+     * @param decisionReason    The generated reason why the manager should
+     *                          select the decision given
+     */
     public void studentDecision(Map<String, String> currStudent, List<Map<String, String>> markList,
                                 String decisionRec, String decisionReason) {
 
@@ -195,6 +257,12 @@ public class ManagerUI extends UIElements{
         singlePanelLayout(DecisionActionPanel, "Accounts: Student Decision");
     }
 
+    /**
+     * Lists off all the marks a student has achieved
+     * @param markList  The marks that the selected student has obtained, with their fields
+     *                  and values mapped
+     * @return          A list of marks that a selected student has
+     */
     private VBox markListDisplay(List<Map<String, String>> markList) {
         VBox markListItems = new VBox();
 
@@ -215,6 +283,14 @@ public class ManagerUI extends UIElements{
         return markListItems;
     }
 
+    /** The content within popup for assigning a student user a decision
+     * @param currStudent The student selected for decision issuing
+     * @param decisionRec   The generated decision that the manager should
+     *                      select for the user based on the business rules
+     * @param decisionReason    The generated reason why the manager should
+     *                          select the decision given
+     * @return      The content for the modal popup, issueDecision
+     */
     private VBox decisionAction(Map<String, String> currStudent, String decisionRec, String decisionReason) {
         List<String> awardOptions = new ArrayList<>();
         awardOptions.add("AWARD");
@@ -227,6 +303,16 @@ public class ManagerUI extends UIElements{
 
         return new VBox(decisionInfo, setDecision);
     }
+
+    /**
+     * Constructs an information box that details the user's decision details
+     * @param studentID     The ID for student selected for decision issuing
+     * @param decisionRec   The generated decision that the manager should
+     *                      select for the user based on the business rules
+     * @param decisionReason    The generated reason why the manager should
+     *                          select the decision given
+     * @return    Container of the decision's details
+     */
 
     protected VBox decisionDisplay(String studentID, String decisionRec, String decisionReason) {
         Text idTitle = new Text(studentID);
@@ -244,10 +330,19 @@ public class ManagerUI extends UIElements{
         return new VBox(idTitle, row);
     }
 
-    /**
+    /*
      * Course Dashboard
      **/
 
+    /**
+     * Constructs the layout for the courses dashboard
+     * @param courseList The list of available courses, stored as a list of map where
+     *                    user fields and their values
+     * @param moduleList   List of modules that manager can apply in course management, stored as a list of
+     *                     map with modules fields and their values
+     * @param departmentList List of departments that manager can apply in course management,
+     *                       stored as a list of map with modules fields and their values
+     */
     public void courses(List<Map<String, String>> courseList, List<Map<String, String>> moduleList, List<Map<String, String>> departmentList) {
         resetCurrentValues();
 
@@ -275,6 +370,21 @@ public class ManagerUI extends UIElements{
         }
     }
 
+    /** Constructs the list of course buttons that, when clicked,
+     * will select that course for action
+     * @param courseList The list of available courses, stored as a list of map where
+     *                    user fields and their values
+     * @param addBtn    The action button to add a course to this list
+     * @param rightPanel The right panel in which the button actions
+     *                   for said course will display
+     * @param courseDetails    A VBox that will be shown on the right panel that reports the current
+     *                         state and values of the courses
+     * @param moduleList   List of modules that manager can apply in course management, stored as a list of
+     *                     map with modules fields and their values
+     * @param departmentList List of departments that manager can apply in course management,
+     * @return          A VBox that displays to the left of the course layout with a list
+     *                  of course that the manager can choose
+     */
     private VBox courseButtons(List<Map<String, String>> courseList, Button addBtn, VBox rightPanel,
                                VBox courseDetails, List<Map<String, String>> departmentList, List<Map<String, String>> moduleList){
         VBox panel = new VBox();
@@ -296,6 +406,12 @@ public class ManagerUI extends UIElements{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
+    /** Makes the list button that appears for a given course
+     * @param name  The name of the course
+     * @param level The level of study for that course
+     * @param years The length of the course in years
+     * @return  A display button for the course button list
+     */
     private HBox makeCourseListButton(String name, String level, String years) {
         HBox yearsDisplay = listDetail("YEARS" , years);
         HBox levelDisplay = listDetail("LEVEL" , level);
@@ -305,6 +421,21 @@ public class ManagerUI extends UIElements{
         return makeListButton(name, new FontIcon(FontAwesomeSolid.SCHOOL), courseDetails);
     }
 
+    /**
+     *  Constructs the list of course actions that a manager can
+     *  perform on a selected course
+     * @param tempCourse    The course the manager has selected to perform
+     *                      actions on
+     * @param rightPanel The right panel in which the button actions
+     *                   for said course will display
+     * @param courseDetails    A VBox that will be shown on the right panel that reports the current
+     *                         state and values of the courses
+     * @param moduleList   List of modules that manager can apply in course management, stored as a list of
+     *                     map with modules fields and their values
+     * @param departments List of departments that manager can apply in course management,
+     * @return  A VBox that displays to the right of the course layout with a list
+     *          of course actions tailored to the selected course
+     */
     private EventHandler<Event> pickCourse(Map<String, String> tempCourse, VBox rightPanel, VBox courseDetails,
                                            List<Map<String, String>> departments, List<Map<String, String>> moduleList){
         return event -> {
@@ -331,10 +462,17 @@ public class ManagerUI extends UIElements{
     }
 
 
-
-    /**
+    /*
      * Course Dashboard - modals
      **/
+
+    /**
+     * The content within popup for adding a new course
+     * @param department    A list of departments with their fields and values
+     *                     that the new course can be
+     *                      apart of
+     * @return              The content for the modal popup, addCourse
+     */
     private VBox addCourse(List<Map<String, String>> department) {
         VBox setCode = textAndField("ADD CODE",
                 lengthCheck(1, 5,"ADD CODE", "Code", "COURSE", "ADD"));
@@ -355,6 +493,13 @@ public class ManagerUI extends UIElements{
         return new VBox(setCode, setName, setDesc, setLevel, setYears, setDept);
     }
 
+    /** The content within the popup for updating a course
+     * @param currentCourse The course, with their fields and values, that is
+     *                      being updated
+     * @param department    A list of departments with their fields and values
+     *                     that the new course can be
+     * @return          The content for the modal popup, editCourse
+     */
     private VBox editCourse(Map<String, String> currentCourse, List<Map<String, String>> department) {
         VBox setCode = setTextAndField("EDIT CODE", currentCourse.get("Id"),
                 lengthCheck(1, 5, "EDIT CODE", "Code", "COURSE", "EDIT"), true);
@@ -380,6 +525,13 @@ public class ManagerUI extends UIElements{
     }
 
 
+    /** The content within the popup for assigning a course a module
+     * @param modules   A list of modules with their fields and values
+     *                  that the course can have in their curriculum
+     * @param years     The options for the year that the module is taught
+     *                  on the course
+     * @return          The content for the modal popup, assignCourseModule
+     */
     private VBox assignCourseModule(List<Map<String, String>> modules, int years) {
         List<String> moduleNames = new ArrayList<>();
         List<String> semOptions = new ArrayList<>();
@@ -406,10 +558,17 @@ public class ManagerUI extends UIElements{
         return new VBox(setCourse, setSem, setYear);
     }
 
-    /**
+    /*
      * Modules Dashboard
      **/
 
+    /**
+     * Constructs the layout for the modules dashboard
+     * @param moduleList The list of avaiable modules, stored as a list of map where
+     *                    user fields and their values
+     * @param lecturerList The list of lecturer users, stored as a list of map where
+     *                         user fields and their values
+     */
     public void modules(List<Map<String, String>> moduleList, List<Map<String, String>> lecturerList) {
         resetCurrentValues();
 
@@ -419,7 +578,9 @@ public class ManagerUI extends UIElements{
 
         makeModal(add, "ADD", addModule(), true);
         makeModal(edit, "EDIT", new VBox(), false);
-        makeModal( assign, "ASSIGN", assignModuleLecturers(lecturerList), false);
+        makeModal( assign, "ASSIGN", new VBox(), false);
+
+        setModalContent("ASSIGN", assignModuleLecturers(lecturerList));
 
         if (moduleList.isEmpty()) {
             VBox mainPanel = makePanelWithAction(emptyModelContent("modules"), add);
@@ -436,6 +597,19 @@ public class ManagerUI extends UIElements{
         }
     }
 
+    /**
+     * Constructs the list of module buttons that, when clicked,
+     * will select that module for action
+     * @param moduleList The list of available modules, stored as a list of map where
+     *                    user fields and their values
+     * @param addBtn     The action button to add a module to this list
+     *  @param rightPanel The right panel in which the button actions
+     *                 for said course will display
+     *  @param moduleDetails    A VBox that will be shown on the right panel that reports the current
+     *                               state and values of the modules
+     * @return          A VBox that displays to the left of the module layout with a list
+     *                  of modules that the manager can choose
+     */
     private VBox moduleButtons(List<Map<String, String>> moduleList, Button addBtn, VBox rightPanel, VBox moduleDetails){
         VBox panel = new VBox();
         HBox tempButton;
@@ -456,6 +630,17 @@ public class ManagerUI extends UIElements{
         return makeScrollablePanelWithAction(courseListPanel, addBtn);
     }
 
+
+    /**
+     *  Constructs the list of module actions that a manager can perform on a selected module
+     * @param tempModule    The module the manager has selected to perform actions
+     *                      on
+     *  @param rightPanel The right panel in which the button actions
+     *                 for said course will display
+     *  @param moduleDetails    A VBox that will be shown on the right panel that reports the current
+     *                               state and values of the modules
+     * @return
+     */
     private EventHandler<Event> pickModule(Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
         return event -> {
             moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
@@ -477,9 +662,15 @@ public class ManagerUI extends UIElements{
         };
     }
 
-    /**
+
+    /*
      * Module Dashboard - modals
      **/
+
+    /**
+     * The content within the popup for adding a new module
+     * @return  The content within the modal popup, addModule
+     */
     private VBox addModule() {
         VBox setCode = textAndField("ADD CODE",
                 lengthCheck(1, 5, "ADD CODE", "Code", "MODULE", "ADD"));
@@ -493,21 +684,46 @@ public class ManagerUI extends UIElements{
         return new VBox(setCode, setName, setDesc, setCredits);
     }
 
+    /**
+     * The content within the popup for assigning a lecturer to a module
+     * @param lecturers     List of lecturers, with their fields and values,
+     *                      that can be assigned to teach the module
+     * @return              The content within the modal popup,
+     *                      assignModuleLecturers
+     */
     private VBox assignModuleLecturers(List<Map<String, String>> lecturers) {
         List<String> lecturersList = new ArrayList<>();
+        VBox setCourse = new VBox();
 
-        for (Map<String, String> lec : lecturers) {
-            lecturersList.add(lec.get("Name"));
+        if (lecturers.isEmpty()) {
+            Label label = new Label("LECTURER TO ASSIGN TO");
+            VBox field = emptyModelContent("lecturers under your management that you can assign");
+
+            VBox inputField = new VBox(label, field);
+            inputField.setPadding(new Insets(10));
+
+            setCourse = inputField;
+            currentButtons.get("ASSIGN").setDisable(true);
+        } else {
+            for (Map<String, String> lec : lecturers) {
+                lecturersList.add(lec.get("Name"));
+            }
+            setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
         }
-        VBox setCourse = dropdownField("LECTURER TO ASSIGN TO", lecturersList);
 
         return new VBox(setCourse);
     }
 
-    /**
+    /*
      * Signup workflow Dashboard
      **/
 
+    /**
+     * Constructs the layout for the signup workflow dashboard
+     * @param accountList The list of user accounts that are to be activated, stored as a list of map of
+     *                    user fields and their values
+     *
+     */
     public void signups(List<HashMap<String, String>> accountList)  {
         resetCurrentValues();
 
@@ -533,6 +749,18 @@ public class ManagerUI extends UIElements{
 
     }
 
+    /**
+     * Constructs the list of unapproved account buttons that, when clicked, will select that account for action
+     * @param accountList The list of user accounts that are to be
+     *                    aprroved, stored as a list of map where
+     *                      user fields and their values
+     * @param rightPanel The right panel in which the button actions for said account will display
+     * @param details    A VBox that will be shown on the right panel that reports the current
+     *                   state and information that the selected account is in (like the value
+     *                   of fields)
+     * @return          A VBox that displays to the left of the signup workflow layout with a list
+     *                  of accounts that the manager can approve
+     */
     private VBox signupButtons(List<HashMap<String, String>> accountList, VBox rightPanel, VBox details){
         VBox panel = new VBox();
         HBox tempButton;
@@ -556,6 +784,18 @@ public class ManagerUI extends UIElements{
     }
 
 
+    /**
+     *  Constructs the list of signup approval actions that a manager can perform on a
+     *  selected user
+     * @param user The selected user the manager has
+     * @param rightPanel The right panel in which the button actions for said user will display
+     * @param accDetails    A VBox that will be shown on the right panel that reports the current
+     *                   state and information that the selected user is in (like the value
+     *                   of fields)
+     * @return          A VBox that displays to the right of the signup workflow
+     *                  layout with a list
+     *                  of signup approval actions tailored to selected user
+     */
     private EventHandler<Event> pickSignup(HashMap<String, String> user, VBox rightPanel, VBox accDetails){
         return event -> {
 
@@ -573,10 +813,18 @@ public class ManagerUI extends UIElements{
         };
     }
 
+    /*
+     * Business Rules Dashboard
+     **/
 
-
-
-
+    /**
+     * Constructs the layout for the business rule dashboard
+     * @param activatedBusinessRules The list of activated business rules stored as
+     *                               a list of maps of fields and their values
+     * @param associatedOfRules     The modules/courses associated with an activated
+     *                              business rule, stored as a list of maps of fields
+     *                              and their values
+     */
     public void manageBusinessRules(List<Map<String, String>> activatedBusinessRules, Map<String, List<String>> associatedOfRules){
         resetCurrentValues();
         Button addRuleBtn = inputButton("ADD BUSINESS RULE");
@@ -592,7 +840,19 @@ public class ManagerUI extends UIElements{
     }
 
 
-
+    /**
+     * Constructs the list of activated business rules
+     * @param activatedBusinessRules The list of activated business rules stored as
+     *                               a list of maps of fields and their values
+     * @param associatedOfRules     The modules/courses associated with an activated
+     *                              business rule, stored as a list of maps of fields
+     *                              and their values
+     * @param addBtn                The action button to add a new business rule to this
+     *                              list
+     * @return          A VBox that displays at the center of the business rules
+     *                  layout with a list
+     *                  of business rules that the manager can view
+     */
     private VBox listOfRules(List<Map<String, String>> activatedBusinessRules,
                              Map<String, List<String>> associatedOfRules, Button addBtn){
 
@@ -613,6 +873,12 @@ public class ManagerUI extends UIElements{
     }
 
 
+    /** Constructs the list item for a business rule
+     * @param type  The type of business rule
+     * @param value     The value of that business rule
+     * @param associated   The modules/courses that business rule is applied to
+     * @return  The HBox container that details the business rule for the list
+     */
     private HBox makeRuleSection(String type, String value, List<String> associated){
         Text typeDisplay = new Text(type + ": " + value);
 
@@ -645,6 +911,14 @@ public class ManagerUI extends UIElements{
         return listButton;
     }
 
+    /*
+    * Business Rules dashboard - pages
+    */
+
+    /**
+     * @param courseList
+     * @param moduleList
+     */
     public void addBusinessRule(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         resetCurrentValues();
 
@@ -652,7 +926,7 @@ public class ManagerUI extends UIElements{
         Button setModuleBtn = inputButton("SET MODULE RULE");
 
         setCourseBtn.setDisable(true);
-        setCourseBtn.setDisable(true);
+        setModuleBtn.setDisable(true);
 
         VBox actionPanel = rulesForm(courseList, moduleList, setCourseBtn, setModuleBtn);
         actionPanel.setAlignment(Pos.CENTER);
@@ -660,21 +934,23 @@ public class ManagerUI extends UIElements{
         singlePanelLayout(actionPanel, "ADD BUSINESS RULES");
     }
 
+    /**
+     * Creates the form for making a new business rule
+     * @param courseList    A list of courses (with their fields and values)
+     *                      that the business rule can be applied to
+     * @param moduleList    A list of modules (with their fields and values)
+     *                     that the business rule can be applied to
+     * @param course       Action button for applying the business rule to a course
+     * @param module       Action button for applying the business rule to a module
+     * @return          A VBox containing the content for making a business rule
+     */
     private VBox rulesForm(Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, Button course, Button module){
-
-        HBox ruleSelector = new HBox();
 
         ToggleGroup rulesSelected = new ToggleGroup();
         ToggleButton rules1 = setToggleOption(rulesSelected, "Course Rules");
         ToggleButton rules2 = setToggleOption(rulesSelected, "Module Rules");
         rules1.setSelected(true);
-        ruleSelector.getChildren().add(rules1);
-        ruleSelector.getChildren().add(rules2);
-        ruleSelector.setSpacing(20.0);
-        ruleSelector.setAlignment(Pos.BASELINE_CENTER);
-
-        HBox.setHgrow(rules1, Priority.ALWAYS);
-        HBox.setHgrow(rules2, Priority.ALWAYS);
+        HBox ruleSelector = styleToggleOptions(rules1, rules2);
 
         List<String> types = new ArrayList<>();
         types.add("Max Number Of Resits");
@@ -738,6 +1014,18 @@ public class ManagerUI extends UIElements{
     }
 
 
+    /*
+     * Business Rules dashboard - form elements and validation
+     */
+
+    /** Creates a dropdown box for choosing a course or module to apply a rule to
+     * @param course    If the rule is for a course (<code>true</code>), or not (<code>false</code>)
+     * @param name      The name labelled to the dropdown field
+     * @param courseList    The list of courses that the business rule can be applied to
+     * @param moduleList    The list of modules that the business rule can be applied to
+     * @return  A VBOX containing dropdown field for choosing which modules/courses
+     *          the business rule will apply to
+     */
     private VBox dropdownCreator(Boolean course, String name, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList){
         ArrayList<String> fields;
         if(course){
@@ -761,6 +1049,13 @@ public class ManagerUI extends UIElements{
         return dropdown;
     }
 
+    /** Adds a new dropdown box so the user can select another module/
+     * course to apply the business rule to
+     * @param panel     The panel that the new dropdown is appended to
+     * @param courseList    The list of courses that the business rule can be applied to
+     * @param moduleList    The list of modules that the business rule can be applied to
+     * @param type          The type of business rule being made - a course business rule or a module business rule
+     */
     private void addDropdown(VBox panel, Map<String, Map<String, Boolean>> courseList, Map<String, Boolean> moduleList, String type){
         String newVal = String.valueOf(Integer.parseInt(currentValues.get("AMOUNT OF "+type))+1);
 
@@ -777,6 +1072,11 @@ public class ManagerUI extends UIElements{
         checkRulesValidity(type);
     }
 
+    /** Removes the last additional dropdown from a business rule's
+     * course/module selection
+     * @param panel     The panel that the dropdown is removed from
+     * @param type          The type of business rule being made - a course business rule or a module business rule
+     */
     private void removeDropdown(VBox panel, String type){
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
 
@@ -793,6 +1093,10 @@ public class ManagerUI extends UIElements{
         checkRulesValidity(type);
     }
 
+    /**
+     * Validates the user's input for rule's value
+     * @param type          The type of business rule being made - a course business rule or a module business rule
+     */
     private void checkRulesValidity(String type){
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
         ArrayList<String> valuesChecked = new ArrayList<>();
@@ -810,7 +1114,7 @@ public class ManagerUI extends UIElements{
         String value = ((TextField)currentFields.get(type+" VALUE")).getText();
 
         if((value.isEmpty() || !(value.matches("\\d+")) || Integer.parseInt(value) < 0 || Integer.parseInt(value) >5)){
-            currentText.get(type + " CHECK").setText("ERROR: VALUE MUST BE A NUMBER BETWEEN 1 AND 5");
+            currentText.get(type + " CHECK").setText("ERROR: VALUE MUST BE A NUMBER BETWEEN 0 AND 5");
             currentButtons.get("SET " + type + " RULE").setDisable(true);
             return;
         }
@@ -820,6 +1124,14 @@ public class ManagerUI extends UIElements{
 
     }
 
+    /**
+     * Toggles the form to show either the business rule form for adding
+     * a module business rule or a course business rule
+     * @param ruleContent   Where the form content will go
+     * @param courseContent The form content for creating a new business rule for course(s)
+     * @param moduleContent The form content for creating a new business rule for module(s)
+     * @return  A listener that will change the form to fit the selected type of business rule - a course or a module
+     */
     protected ChangeListener<Toggle> toggleRules(ScrollPane ruleContent, VBox courseContent, VBox moduleContent){
         return (observableValue, previousToggle, newToggle) -> {
             if (newToggle == null) {
@@ -834,8 +1146,17 @@ public class ManagerUI extends UIElements{
 
         };
 
+
     }
 
+    /** Checks the value of dropdown boxes when they are set and
+     * reports to the user if the course selected is already applied
+     * to a rule
+     * @param fieldChanged  The dropdown being changed
+     * @param courseRules   List of course business rules
+     * @return  A listener that reports if the selected course has a
+     *          rule it is applied to
+     */
     protected ChangeListener<String> onDropdownChangeCourse(String fieldChanged, Map<String, Map <String,Boolean>> courseRules){
         return (observableValue, previousSelect, newSelect) -> {
             ComboBox dropdown = (ComboBox) currentFields.get(fieldChanged);
@@ -854,6 +1175,14 @@ public class ManagerUI extends UIElements{
     }
 
 
+    /** Checks the value of dropdown boxes when they are set and
+     * reports to the user if the module selected is already applied
+     * to a rule
+     * @param fieldChanged  The dropdown being changed
+     * @param moduleRules   List of module business rules
+     * @return  A listener that reports if the selected module has a
+     *          rule it is applied to
+     */
     protected ChangeListener<String> onDropdownChangeModule(String fieldChanged, Map <String,Boolean> moduleRules){
         return (observableValue, previousSelect, newSelect) -> {
             ComboBox dropdown = (ComboBox) currentFields.get(fieldChanged);
@@ -865,16 +1194,20 @@ public class ManagerUI extends UIElements{
                         "REPLACING IT WILL DELETE THE ALREADY MADE RULE", false);
             }
 
-            checkRulesValidity("COURSE");
+            checkRulesValidity("MODULE");
         };
     }
 
 
+    /** Returns what courses/modules a business rule will be applied to
+     * @param type The type of business rule - a module business rule or a course business rule
+     * @return  The list of business rules that a course/module is applied to
+     */
     public List<String> getRulesAppliedTo(String type){
         List<String> appliedTo = new ArrayList<>();
         int val = Integer.parseInt(currentValues.get("AMOUNT OF "+type));
         for(int i=1; i<=val; i++){
-            appliedTo.add(((ComboBox) currentFields.get(type +" " + val)).getValue().toString());
+            appliedTo.add(((ComboBox) currentFields.get(type +" " + i)).getValue().toString());
         }
         return appliedTo;
     }

@@ -63,7 +63,8 @@ public abstract class BusinessRule {
     }
 
     /**
-     * Gets all business rules that were applied to a given mark at the time of its achievement
+     * Gets all business rules that were applied to a given mark at the time of its achievement.
+     * In the event of no rules of a given type being applied, strict default rules will be added.
      * @param courseID The ID of the course the module belongs to
      * @param mark The mark to get the rules for
      * @return A list of both course & module business rules that were applied to the mark
@@ -89,6 +90,14 @@ public abstract class BusinessRule {
             int value = res.getInt("Value");
             rules.add(new CourseBusinessRule(ruleID, active, courseID, type, value));
         }
+
+        // If there are no MAX_RESITS rules applied at all, add a default one to the module with value 0
+        final boolean HAS_MAX_RESITS_MODULE_RULE = rules.stream().anyMatch(rule -> rule.getType() == RuleType.MAX_RESITS);
+        if (!HAS_MAX_RESITS_MODULE_RULE) rules.add(new ModuleBusinessRule(-1, true, mark.getModuleID(), RuleType.MAX_RESITS, 0));
+
+        // If there is no MAX_COMPENSATED_MODULES rule, add a default one to the course with value 0
+        final boolean HAS_MAX_COMPENSATED_MODULES_COURSE_RULE = rules.stream().anyMatch(rule -> rule.getType() == RuleType.MAX_COMPENSATED_MODULES);
+        if (!HAS_MAX_COMPENSATED_MODULES_COURSE_RULE) rules.add(new CourseBusinessRule(-1, true, courseID, RuleType.MAX_COMPENSATED_MODULES, 0));
 
         return rules;
     }

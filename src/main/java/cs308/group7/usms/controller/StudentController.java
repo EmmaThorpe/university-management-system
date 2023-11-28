@@ -1,21 +1,17 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.App;
-import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.StudentUI;
-import cs308.group7.usms.utils.Password;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import javax.sql.rowset.CachedRowSet;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
 
-public class StudentController{
+public class StudentController extends BaseController {
 
     private final String studentID;
     private final StudentUI stuUI;
@@ -58,12 +54,12 @@ public class StudentController{
             case "MATERIALS":
                 stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), spansTwoSems(stuUI.getValues().get("ID")));
                 buttons = stuUI.getCurrentButtons();
-                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> viewLectureNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))));
+                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> viewLabNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))));
 
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(getLectureNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))), "LECTURER NOTES");
+                stuUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"));
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
@@ -85,21 +81,7 @@ public class StudentController{
     /**
      * Changes a student's password.
      */
-    public void changePassword(String oldPass, String newPass){
-        try {
-            final Student s = getCurrentStudent();
-            final boolean AUTHORISED = Password.matches(oldPass, s.getEncryptedPassword());
-            if (AUTHORISED) {
-                final boolean success = s.changePassword(newPass);
-                if (success) stuUI.makeNotificationModal(null, "Successfully changed your password!", true);
-                else throw new SQLException();
-            } else {
-                stuUI.makeNotificationModal(null, "Couldn't change your password! Old password provided is incorrect.", false);
-            }
-        } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "Failed to change your password! A database error occurred.", false);
-        }
-    }
+    public void changePassword(String oldPass, String newPass){ changePassword(stuUI, studentID, oldPass, newPass); }
 
 
     /**
@@ -107,30 +89,12 @@ public class StudentController{
      */
     private boolean spansTwoSems(String moduleID) {
         try {
-            Student s = getCurrentStudent();
-            if(s.getCourseID()!=null) {
-                String courseID = s.getCourseID();
-                DatabaseConnection db = App.getDatabaseConnection();
-                CachedRowSet res = db.select(
-                        new String[]{"Curriculum"},
-                        new String[]{"ModuleID"},
-                        new String[]{
-                                "CourseID = " + db.sqlString(courseID),
-                                "ModuleID = " + db.sqlString(moduleID),
-                                "Semester1 = TRUE",
-                                "Semester2 = TRUE"
-                        }
-                );
-                return res.next();
-            }
-            else{
-                stuUI.makeNotificationModal(null, "STUDENT IS NOT ASSIGNED TO ANY MODULE", false);
-                return false;
-            }
+            return spansTwoSems(stuUI.getValues().get("ID"), moduleID);
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GET WHETHER MODULE " + moduleID + " SPANS BOTH SEMESTERS: " + e.getMessage(), false);
+            System.err.println("Failed to get whether module " + moduleID + " spans two semesters: " + e.getMessage());
             return false;
         }
+
     }
 
     /**
@@ -162,42 +126,26 @@ public class StudentController{
     }
 
     /**
-     * Get the lecture note for a module, from a given week.
-     * @return A file representing the lecture note, or null if it doesn't exist
+     * Display the lecture note for a module, from a given week.
      */
-    @Nullable
-    public File getLectureNote(String moduleID, int week) {
+    public void viewLectureNote(String moduleID, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(week);
-            Optional<byte[]> lectureNote = m.getLectureNote();
-            if (lectureNote.isEmpty()) return null;
-
-            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
-            try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
-            return f;
+            downloadLectureNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GET THE LECTURE NOTES FOR MODULE  " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
-            return null;
+            stuUI.makeNotificationModal(null, "Failed to get the lecture notes for module " + moduleID + " in week " + week + "!: " + e.getMessage(), false);
         }
     }
 
     /**
-     * Get the lab note for a module, from a given week.
-     * @return A file representing the lab note, or null if it doesn't exist
+     * Display the lab note for a module, from a given week.
      */
-    @Nullable
-    public File getLabNote(String moduleID, int semester, int week) {
+    public void viewLabNote(String moduleID, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(week);
-            Optional<byte[]> labNote = m.getLabNote();
-            if (labNote.isEmpty()) return null;
-
-            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
-            try (OutputStream out = new FileOutputStream(f)) { out.write(labNote.get()); }
-            return f;
+            downloadLabNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GET THE LAB NOTES FOR MODULE " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
-            return null;
+            stuUI.makeNotificationModal(null, "Failed to get the lab notes for module " + moduleID + " in week " + week + "!: " + e.getMessage(), false);
         }
     }
 
@@ -205,34 +153,12 @@ public class StudentController{
      * A list of maps representing whether lecture/lab materials exist for each week of a module.
      */
     public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) {
-        DatabaseConnection db = App.getDatabaseConnection();
-        List<Map<String, Boolean>> materials = new ArrayList<>();
-
         try {
-            final boolean SPANS_TWO_SEMS = spansTwoSems(moduleID);
-            final int WEEKS = StudentUI.WEEKS_PER_SEM * (SPANS_TWO_SEMS ? 2 : 1);
-
-            CachedRowSet res = db.executeQuery("SELECT Week, (CASE WHEN LectureNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LectureNote, (CASE WHEN LabNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LabNote FROM Material WHERE ModuleID = " + db.sqlString(moduleID) + " ORDER BY Week ASC");
-            res.next();
-            for (int i = 1; i <= WEEKS; i++) {
-                int week;
-                if (res.getRow() == 0) week = -1;
-                else week = res.getInt("Week");
-                Map<String, Boolean> w = new HashMap<>();
-                if (week == i) {
-                    w.put("Lecture", res.getBoolean("LectureNote"));
-                    w.put("Lab", res.getBoolean("LabNote"));
-                    materials.add(w);
-                    res.next();
-                } else {
-                    w.put("Lecture", false);
-                    w.put("Lab", false);
-                    materials.add(w);
-                }
-            }
-            return materials;
+            final String courseID = getCurrentStudent().getCourseID();
+            if (courseID == null) return Collections.emptyList();
+            return getAllLectureMaterials(stuUI, courseID, moduleID);
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "FAILED TO THE LECTURE MATERIALS FOR MODULE " + moduleID + "!: " + e.getMessage(), false);
+            System.err.println("FAILED TO GET THE LECTURE MATERIALS FOR MODULE " + moduleID + "!: " + e.getMessage());
             return Collections.emptyList();
         }
     }

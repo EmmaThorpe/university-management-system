@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Optional;
 
 public class Material {
@@ -62,7 +63,15 @@ public class Material {
                     new String[]{"LectureNote"},
                     new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
-            res.next();
+
+            final boolean exists = res.next();
+            if (!exists) {
+                Map<String, String> values = Map.of(
+                        "ModuleID", db.sqlString(moduleID),
+                        "Week", String.valueOf(week)
+                );
+                db.insert("Material", values);
+            }
 
             try (FileInputStream fis = new FileInputStream(lectureNote)) {
                 byte[] bytes = fis.readAllBytes();
@@ -114,7 +123,15 @@ public class Material {
                     new String[]{"LabNote"},
                     new String[]{"ModuleID = " + db.sqlString(moduleID), "Week = " + week}
             );
-            res.next();
+
+            final boolean exists = res.next();
+            if (!exists) {
+                Map<String, String> values = Map.of(
+                        "ModuleID", db.sqlString(moduleID),
+                        "Week", String.valueOf(week)
+                );
+                db.insert("Material", values);
+            }
 
             try (FileInputStream fis = new FileInputStream(labNote)) {
                 byte[] bytes = fis.readAllBytes();

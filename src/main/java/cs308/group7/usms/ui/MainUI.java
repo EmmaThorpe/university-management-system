@@ -86,12 +86,14 @@ public class MainUI {
     }
 
 
-    /** Creates a scene by taking in a top, main content and bottom
-     * @param top - String containing title to put on the scene
+    /**
+     * Creates a scene by taking in a top, main content and bottom
+     *
+     * @param top         - String containing title to put on the scene
      * @param mainContent - Pane containing the main content to show
-     * @param bottom - Pane containg content to show at bottom of scene
+     * @param bottom      - Pane containg content to show at bottom of scene
      */
-    public void createScene(String top, Pane mainContent, Pane bottom){
+    public void createScene(String top, Pane mainContent, Pane bottom) {
         VBox title = setTitle(top);
 
         BorderPane root = new BorderPane(mainContent);
@@ -111,43 +113,53 @@ public class MainUI {
     /**
      * Resets the currently stored values
      */
-    public void resetCurrentValues(){
+    public void resetCurrentValues() {
         currentFields = new HashMap<>();
         currentText = new HashMap<>();
         currentButtons = new HashMap<>();
         currentModals = new HashMap<>();
-        currentValues =  new HashMap<>();
+        currentValues = new HashMap<>();
     }
 
 
-    /**gets the values currently shown on the page being shown
+    /**
+     * gets the values currently shown on the page being shown
+     *
      * @return Map of the current values being shown in the ui
      */
-    public Map<String, String> getValues(){
+    public Map<String, String> getValues() {
         return currentValues;
     }
 
 
-    /**gets the text fields currently shown on the page being shown
+    /**
+     * gets the text fields currently shown on the page being shown
+     *
      * @return Map of text fields
      */
-    public Map<String, Node> getCurrentFields(){
+    public Map<String, Node> getCurrentFields() {
         return currentFields;
     }
 
 
-    /** Gets the current text being shown on the stage currently
+    /**
+     * Gets the current text being shown on the stage currently
+     *
      * @return Current text displayed on scene
      */
-    public Map<String, Text> getCurrentText(){
+    public Map<String, Text> getCurrentText() {
         return currentText;
     }
 
 
-    /** Gets the current buttons being shown on the stage currently
+    /**
+     * Gets the current buttons being shown on the stage currently
+     *
      * @return Current buttons being displayed
      */
-    public Map<String, Button> getCurrentButtons(){return currentButtons;}
+    public Map<String, Button> getCurrentButtons() {
+        return currentButtons;
+    }
 
 
 
@@ -156,13 +168,15 @@ public class MainUI {
      */
 
 
-    /** Creates a title card
+    /**
+     * Creates a title card
+     *
      * @param titleText - text to be set as the title
      * @return - a VBox containing the title
      */
     private VBox setTitle(String titleText) {
-        FontIcon appGraphic =  new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
-        StackPane iconStack = makeCircleIcon(35, "login-back" ,appGraphic, "login-graphic");
+        FontIcon appGraphic = new FontIcon(FontAwesomeSolid.GRADUATION_CAP);
+        StackPane iconStack = makeCircleIcon(35, "login-back", appGraphic, "login-graphic");
 
         Text titleName = new Text(titleText);
         titleName.getStyleClass().add("login-title");
@@ -172,14 +186,16 @@ public class MainUI {
         return title;
     }
 
-    /** Creates a circular icon
-     * @param radius - radius of circle
+    /**
+     * Creates a circular icon
+     *
+     * @param radius          - radius of circle
      * @param backgroundStyle - string containing the id of the background styling
-     * @param icon - icon contained in circle
-     * @param graphicStyle - string containing the id of the graphic styling
+     * @param icon            - icon contained in circle
+     * @param graphicStyle    - string containing the id of the graphic styling
      * @return
      */
-    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle){
+    public StackPane makeCircleIcon(Integer radius, String backgroundStyle, FontIcon icon, String graphicStyle) {
         StackPane iconStack = new StackPane();
         Circle appGraphicBack = new Circle(radius);
         appGraphicBack.getStyleClass().add(backgroundStyle);
@@ -194,8 +210,9 @@ public class MainUI {
      */
 
 
-
-    /**Makes a panel and styles it
+    /**
+     * Makes a panel and styles it
+     *
      * @param content - content to put in panel
      * @return - VBox panel
      */
@@ -208,7 +225,9 @@ public class MainUI {
         return panel;
     }
 
-    /** Creates a top panel
+    /**
+     * Creates a top panel
+     *
      * @param content - VBox of content to put in panel
      * @return - VBox containg the panel
      */
@@ -222,9 +241,11 @@ public class MainUI {
     }
 
 
-    /** Creates a panel with an action
+    /**
+     * Creates a panel with an action
+     *
      * @param content - VBox containing the content to be added to panel
-     * @param action - Action button
+     * @param action  - Action button
      * @return
      */
     protected VBox makePanelWithAction(VBox content, Button action) {
@@ -234,7 +255,9 @@ public class MainUI {
     }
 
 
-    /** Creates a scrollable panel
+    /**
+     * Creates a scrollable panel
+     *
      * @param content - ScrollPane containing the content to be added to panel
      * @return - VBox containing a scrollable panel
      */
@@ -249,7 +272,9 @@ public class MainUI {
     }
 
 
-    /** Creates a bottom scrollable panel
+    /**
+     * Creates a bottom scrollable panel
+     *
      * @param content - ScrollPane containing the content to be added to panel
      * @return - VBox containing a scrollable panel
      */
@@ -263,9 +288,11 @@ public class MainUI {
         return panel;
     }
 
-    /** Creates a scrollable panel with action
+    /**
+     * Creates a scrollable panel with action
+     *
      * @param content - ScrollPane containing the content to be added to panel
-     * @param action - Action button
+     * @param action  - Action button
      * @return - VBox containing a scrollable panel
      */
     protected VBox makeScrollablePanelWithAction(ScrollPane content, Button action) {
@@ -277,21 +304,23 @@ public class MainUI {
     }
 
 
-    /** Makes a panel of buttons
+    /**
+     * Makes a panel of buttons
+     *
      * @param contentPane - ScrollPane of content
      * @param contentVBox - VBox containing content
-     * @param action - Action Button
+     * @param action      - Action Button
      * @return - VBox containing a panel full of buttons
      */
-    private VBox makePanelButtons(ScrollPane contentPane, VBox contentVBox, Button action){
+    private VBox makePanelButtons(ScrollPane contentPane, VBox contentVBox, Button action) {
         HBox btnContainer = new HBox(action);
         btnContainer.setAlignment(Pos.BOTTOM_CENTER);
         btnContainer.setPadding(new Insets(0, 0, 20, 0));
 
         VBox panel;
-        if(contentVBox==null){
+        if (contentVBox == null) {
             panel = new VBox(contentPane, btnContainer);
-        }else{
+        } else {
             panel = new VBox(contentVBox, btnContainer);
         }
 
@@ -303,7 +332,9 @@ public class MainUI {
     }
 
 
-    /** Creates a scrollable section
+    /**
+     * Creates a scrollable section
+     *
      * @param content - content containing VBox
      * @return - a VBox containing a scrollable section
      */
@@ -316,13 +347,15 @@ public class MainUI {
     }
 
 
-    /** Styles the buttons
+    /**
+     * Styles the buttons
+     *
      * @param btns - Array of buttons to be styled
      * @return - Array of buttons
      */
-    protected Button[] stylePanelActions (Button[] btns) {
+    protected Button[] stylePanelActions(Button[] btns) {
         int i = 0;
-        for (Button btn: btns) {
+        for (Button btn : btns) {
             if (i % 2 == 0) {
                 btn.getStyleClass().add("panel-button-1");
             } else {
@@ -341,11 +374,13 @@ public class MainUI {
      */
 
 
-    /** Creates a modal
-     * @param trigger - Button that triggers modal
-     * @param btnTxt - Text for a new button
+    /**
+     * Creates a modal
+     *
+     * @param trigger      - Button that triggers modal
+     * @param btnTxt       - Text for a new button
      * @param modalContent - VBox of content to put on modal
-     * @param disabled - Boolean of whether it is disabled or not
+     * @param disabled     - Boolean of whether it is disabled or not
      */
     protected void makeModal(Button trigger, String btnTxt, VBox modalContent, boolean disabled) {
         DialogPane modalDialog = new DialogPane();
@@ -366,8 +401,8 @@ public class MainUI {
 
         Button actionBtn = inputButton(btnTxt.toUpperCase());
 
-        if(disabled){
-           actionBtn.setDisable(true);
+        if (disabled) {
+            actionBtn.setDisable(true);
         }
 
         HBox btnContainer = modalButtonBar(actionBtn, modalDialog);
@@ -388,10 +423,12 @@ public class MainUI {
     }
 
 
-    /** Creates a notification modal
-     * @param openedModal - String containing the name of already opened modal (if any)
+    /**
+     * Creates a notification modal
+     *
+     * @param openedModal  - String containing the name of already opened modal (if any)
      * @param modalContent - String containing the content of modal
-     * @param isSuccess - Boolean containing if the notification is a success or not
+     * @param isSuccess    - Boolean containing if the notification is a success or not
      */
     public void makeNotificationModal(String openedModal, String modalContent, boolean isSuccess) {
         if (openedModal != null) {
@@ -404,9 +441,9 @@ public class MainUI {
 
         Text headerTitle;
 
-        if(isSuccess){
+        if (isSuccess) {
             headerTitle = new Text("SUCCESS");
-        }else{
+        } else {
             headerTitle = new Text("ERROR");
         }
         headerTitle.getStyleClass().add("modal-header-text");
@@ -419,7 +456,7 @@ public class MainUI {
             modalGraphic.getStyleClass().add("modal-graphic");
             header.getChildren().add(modalGraphic);
             header.setId("SUCCESS");
-        } else{
+        } else {
             header.getStyleClass().add("modal-header-err");
             modalGraphic = new FontIcon(FontAwesomeSolid.TIMES_CIRCLE);
             modalGraphic.getStyleClass().add("modal-graphic");
@@ -449,11 +486,13 @@ public class MainUI {
     }
 
 
-    /** Sets the modal content
-     * @param modalName - String containing the name of the modal
+    /**
+     * Sets the modal content
+     *
+     * @param modalName     - String containing the name of the modal
      * @param updateContent - VBox of content
      */
-    protected void setModalContent(String modalName, VBox updateContent){
+    protected void setModalContent(String modalName, VBox updateContent) {
         Dialog modal = currentModals.get(modalName);
         VBox modalContent = (VBox) modal.getDialogPane().getContent();
         modalContent.getChildren().set(0, updateContent);
@@ -461,7 +500,9 @@ public class MainUI {
     }
 
 
-    /** Close the opened modal
+    /**
+     * Close the opened modal
+     *
      * @param modalKey - String containing a key of the modal
      */
     protected void closeOpenedModal(String modalKey) {
@@ -478,12 +519,14 @@ public class MainUI {
     }
 
 
-    /** Creates a modal bar button
+    /**
+     * Creates a modal bar button
+     *
      * @param action - action button
-     * @param modal - DialogPane containing a modal
+     * @param modal  - DialogPane containing a modal
      * @return - A HBox containing a modal bar button
      */
-    protected HBox modalButtonBar(Button action, DialogPane modal){
+    protected HBox modalButtonBar(Button action, DialogPane modal) {
         ButtonType cancelButtonType = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         modal.getButtonTypes().addAll(cancelButtonType);
@@ -502,8 +545,10 @@ public class MainUI {
     }
 
 
-    /**Creates a list button
-     * @param id - String of id of button
+    /**
+     * Creates a list button
+     *
+     * @param id          - String of id of button
      * @param listGraphic - Icon to display on button
      * @param listContent - VBox containing the list content
      * @return - HBox of a list button
@@ -512,7 +557,7 @@ public class MainUI {
         Label nameDisplay = new Label(id);
         nameDisplay.getStyleClass().add("list-id");
 
-        StackPane iconStack = makeCircleIcon(25, "list-back" ,listGraphic, "list-graphic");
+        StackPane iconStack = makeCircleIcon(25, "list-back", listGraphic, "list-graphic");
 
         listContent.setSpacing(5.0);
 
@@ -533,16 +578,18 @@ public class MainUI {
      */
 
 
-    /**Creates list details section
-     * @param title - String containing title
+    /**
+     * Creates list details section
+     *
+     * @param title   - String containing title
      * @param content - String of content
      * @return - HBox of a list detail
      */
-    protected HBox listDetail(String title, String content){
+    protected HBox listDetail(String title, String content) {
         HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
         titleDisplay.getStyleClass().add("list-detail");
 
-        Text contentDisplay =new Text(content);
+        Text contentDisplay = new Text(content);
 
         HBox detail = new HBox(titleDisplay, contentDisplay);
         detail.setPadding(new Insets(10));
@@ -552,12 +599,14 @@ public class MainUI {
     }
 
 
-    /** Creates an active section
-     * @param text - Text of section
+    /**
+     * Creates an active section
+     *
+     * @param text     - Text of section
      * @param isActive - Boolean is active or not
      * @return - HBox containing the active section
      */
-    protected HBox activeDetail(String text, Boolean isActive){
+    protected HBox activeDetail(String text, Boolean isActive) {
         HBox activatedDisplay = new HBox();
         if (isActive) {
             activatedDisplay.getChildren().add(new Text(text));
@@ -570,7 +619,9 @@ public class MainUI {
     }
 
 
-    /** Creates the information content
+    /**
+     * Creates the information content
+     *
      * @param content - VBox of content
      * @return - VBox containing the information content
      */
@@ -584,16 +635,18 @@ public class MainUI {
     }
 
 
-    /** Creates a long information content section
-     * @param title - String of title
+    /**
+     * Creates a long information content section
+     *
+     * @param title   - String of title
      * @param content - String of content
      * @return - VBox containing the long information content
      */
-    protected VBox infoDetailLong(String title, String content){
+    protected VBox infoDetailLong(String title, String content) {
         HBox titleDisplay = new HBox(new Text(title.toUpperCase()));
         titleDisplay.getStyleClass().add("list-detail");
 
-        Text contentDisplay =new Text(content);
+        Text contentDisplay = new Text(content);
         contentDisplay.setWrappingWidth(370);
 
         VBox detail = new VBox(titleDisplay, contentDisplay);
@@ -612,19 +665,21 @@ public class MainUI {
      */
 
 
-    /** Creates an input field
-     * @param text - String of name of field
+    /**
+     * Creates an input field
+     *
+     * @param text     - String of name of field
      * @param password - Boolean of if the field is a password or not
      * @return
      */
-    protected VBox inputField(String text, Boolean password){
-        Label label=new Label(text);
+    protected VBox inputField(String text, Boolean password) {
+        Label label = new Label(text);
 
         TextField field;
-        if(password){
-            field=new PasswordField();
-        }else{
-            field=new TextField();
+        if (password) {
+            field = new PasswordField();
+        } else {
+            field = new TextField();
         }
 
         currentFields.put(text, field);
@@ -636,11 +691,13 @@ public class MainUI {
     }
 
 
-    /** Creates a piece of text which will be displayed
+    /**
+     * Creates a piece of text which will be displayed
+     *
      * @param name - String of what the text will say
      * @return the created piece of text
      */
-    protected Text inputText(String name){
+    protected Text inputText(String name) {
         Text inputText = new Text();
         inputText.getStyleClass().add("notice-text");
         currentText.put(name, inputText);
@@ -648,41 +705,47 @@ public class MainUI {
     }
 
 
-    /** Creates a text and a field and a listener on the field
-     * @param text - The value used for the name of the text and the field
+    /**
+     * Creates a text and a field and a listener on the field
+     *
+     * @param text     - The value used for the name of the text and the field
      * @param listener - The listener to be added to the field
      * @return - a VBox containing the created text and field
      */
-    protected VBox textAndField(String text, ChangeListener<String> listener){
-        Label label=new Label(text);
-        TextField field=new TextField();
+    protected VBox textAndField(String text, ChangeListener<String> listener) {
+        Label label = new Label(text);
+        TextField field = new TextField();
         return styleTextAndField(field, label, text, listener, false);
     }
 
 
-    /** Creates a text and a field and sets the initial value of the field
-     * @param text - The text used for the name of the text and the field
-     * @param value - The initial value of the field
+    /**
+     * Creates a text and a field and sets the initial value of the field
+     *
+     * @param text     - The text used for the name of the text and the field
+     * @param value    - The initial value of the field
      * @param listener - The listener to be added to the field
-     * @param valid - value of whether or not to set the field to initially be valid or not
+     * @param valid    - value of whether or not to set the field to initially be valid or not
      * @return - a VBox containing the created text and field
      */
-    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid){
-        Label label=new Label(text);
-        TextField field=new TextField(value);
+    protected VBox setTextAndField(String text, String value, ChangeListener<String> listener, Boolean valid) {
+        Label label = new Label(text);
+        TextField field = new TextField(value);
 
         return styleTextAndField(field, label, text, listener, valid);
     }
 
 
-    /** Creates a long text and a field and a listener on the field
-     * @param text - The value used for the name of the text and the field
+    /**
+     * Creates a long text and a field and a listener on the field
+     *
+     * @param text     - The value used for the name of the text and the field
      * @param listener - The listener to be added to the field
      * @return - a VBox containing the created text and field
      */
-    protected VBox longTextAndField(String text, ChangeListener<String> listener){
-        Label label=new Label(text);
-        TextArea field=new TextArea();
+    protected VBox longTextAndField(String text, ChangeListener<String> listener) {
+        Label label = new Label(text);
+        TextArea field = new TextArea();
         field.setWrapText(true);
         field.setPrefRowCount(4);
 
@@ -690,15 +753,17 @@ public class MainUI {
     }
 
 
-    /** Creates a long text and sets the initial value of the field
-     * @param text - The value used for the name of the text and the field
-     * @param value - The initial value of the field
+    /**
+     * Creates a long text and sets the initial value of the field
+     *
+     * @param text     - The value used for the name of the text and the field
+     * @param value    - The initial value of the field
      * @param listener - The listener to be added to the field
      * @return - a VBox containing the created text and field
      */
-    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener){
-        Label label=new Label(text);
-        TextArea field=new TextArea(value);
+    protected VBox setLongTextAndField(String text, String value, ChangeListener<String> listener) {
+        Label label = new Label(text);
+        TextArea field = new TextArea(value);
         field.setWrapText(true);
         field.setPrefRowCount(4);
 
@@ -706,15 +771,17 @@ public class MainUI {
     }
 
 
-    /** Styles the text and the field
-     * @param field - the field to be styled
-     * @param label - the label for the field
-     * @param text - the text of the field
+    /**
+     * Styles the text and the field
+     *
+     * @param field    - the field to be styled
+     * @param label    - the label for the field
+     * @param text     - the text of the field
      * @param listener - the listener of the field
-     * @param valid - a boolean on if the field should initially be set to valid or not
+     * @param valid    - a boolean on if the field should initially be set to valid or not
      * @return - a vbox containing the styled text and field
      */
-    private VBox styleTextAndField(TextInputControl field, Label label, String text, ChangeListener<String> listener, Boolean valid){
+    private VBox styleTextAndField(TextInputControl field, Label label, String text, ChangeListener<String> listener, Boolean valid) {
         Text inputText = new Text();
         inputText.getStyleClass().add("notice-text");
 
@@ -728,6 +795,23 @@ public class MainUI {
         return new VBox(label, field, inputText);
     }
 
+    /**
+     * Styles a pair of toggle options
+     *
+     * @param btn1     - the first toggle button
+     * @param btn2     - the second toggle button
+     * @return - a hbox containing the styled toggled buttons
+     */
+    protected HBox styleToggleOptions(ToggleButton btn1, ToggleButton btn2){
+        HBox.setHgrow(btn1,Priority.ALWAYS);
+        HBox.setHgrow(btn2,Priority.ALWAYS);
+
+        HBox toggleOptions = new HBox(btn1, btn2);
+        toggleOptions.setSpacing(20.0);
+        toggleOptions.setAlignment(Pos.BASELINE_CENTER);
+
+        return toggleOptions;
+}
 
 
 

@@ -159,7 +159,6 @@ public class LecturerUI extends UIElements{
                 studentBtnsList.add(currentButtons.get("SET NEW MARK"));
             }
 
-
             VBox studentActionsDisplay = makeScrollablePart(createButtonsVBox(studentBtnsList));
 
 
@@ -279,12 +278,13 @@ public class LecturerUI extends UIElements{
      */
     private EventHandler<Event> pickWeek(int weekNo, int semNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
-            materialDetails.getChildren().set(0, new VBox(new Text(String.valueOf(weekNo))));
+            materialDetails.getChildren().set(0, listDetail("Materials for week " + String.valueOf(weekNo) + ", " +
+                            "Semester " + String.valueOf(semNo),
+                    ""));
+
 
             currentValues.put("WEEK", String.valueOf(weekNo));
             currentValues.put("SEMESTER", String.valueOf(semNo));
-
-            VBox courseActionsDisplay;
 
             ArrayList<Button> materialBtnsList = new ArrayList<>();
 
@@ -311,12 +311,10 @@ public class LecturerUI extends UIElements{
             materialBtnsList.add(currentButtons.get("CHANGE LECTURE MATERIAL"));
             materialBtnsList.add(currentButtons.get("CHANGE LAB MATERIAL"));
 
-            courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
-
-
+            VBox materialActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
 
             rightPanel.getChildren().set(0, materialDetails);
-            rightPanel.getChildren().set(1, courseActionsDisplay);
+            rightPanel.getChildren().set(1, materialActionsDisplay);
             rightPanel.setVisible(true);
         };
     }

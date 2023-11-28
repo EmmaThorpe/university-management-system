@@ -943,7 +943,7 @@ public class UIElements extends MainUI{
         decisionMade.getStyleClass().add("decision-text");
         title.getStyleClass().add("decision-text");
 
-        switch (decision) {
+        switch (decision.toUpperCase()) {
             case "AWARD" -> decisionMade.getStyleClass().add("decision-award");
             case "WITHDRAWAL" -> decisionMade.getStyleClass().add("decision-withdraw");
             case "RESIT" -> decisionMade.getStyleClass().add("decision-resit");
@@ -973,8 +973,6 @@ public class UIElements extends MainUI{
     }
 
 
-
-
     protected VBox weekButtons2Sem(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails,
                                    VBox panelSem1, VBox panelSem2){
         ToggleGroup semSelected = new ToggleGroup();
@@ -982,9 +980,7 @@ public class UIElements extends MainUI{
         ToggleButton sem2 = setToggleOption(semSelected, "Semester 2");
         sem1.setSelected(true);
 
-        HBox.setHgrow(sem1, Priority.ALWAYS);
-        HBox.setHgrow(sem2, Priority.ALWAYS);
-        HBox semOptions = new HBox(sem1, sem2);
+        HBox semOptions = styleToggleOptions(sem1, sem2);
 
         panelSem1.setSpacing(20.0);
         panelSem1.setPadding(new Insets(10, 2, 10, 2));
@@ -992,7 +988,7 @@ public class UIElements extends MainUI{
         panelSem2.setSpacing(20.0);
         panelSem2.setPadding(new Insets(10, 2, 10, 2));
 
-        ScrollPane weekListPanel = new ScrollPane(panelSem1);
+        ScrollPane weekListPanel = new ScrollPane();
 
         semSelected.selectedToggleProperty().addListener(toggleSem(semSelected, weekListPanel, panelSem1, panelSem2, rightPanel));
 
@@ -1001,9 +997,8 @@ public class UIElements extends MainUI{
 
     /** Creates a view for showing a PDF for a module's week's material
      * @param file  The file (PDF) that has the materials to display
-     * @param type  The title for the toolbar
      */
-    public void displayPDF(File file, String type){
+    public void displayPDF(File file){
         resetCurrentValues();
 
         Document pdf = showPage(file);
@@ -1031,7 +1026,7 @@ public class UIElements extends MainUI{
 
         VBox pdfDisplay = new VBox(new ScrollPane(pdfImg));
         BorderPane root = new BorderPane(pdfDisplay);
-        HBox toolbar = makeToolbar(type);
+        HBox toolbar = makeToolbar("Notes");
 
         root.setTop(toolbar);
         root.setBottom(paginationDisplay);
@@ -1099,11 +1094,12 @@ public class UIElements extends MainUI{
             return currentDocument;
 
 
-        } catch (PDFException | PDFSecurityException | IOException ex) {
+        } catch (PDFException | PDFSecurityException | IOException e) {
+            return null;
         }
 
 
-        return null;
+
     }
 
     /** Converts a document to an image view for displaying materials
