@@ -217,6 +217,7 @@ INSERT INTO `Users` (`UserID`, `Forename`, `Surname`, `Email`, `Password`, `DoB`
     ('lec3', 'Rupert', 'Giles', 'Rupert@Strathclyde', 'Fynlre1?', '1960-06-04', 'Male', 'Lecturer', 'mng1', 1),
     ('lec4', 'Sarah', 'Connor', 'Sarah@Strathclyde', 'Fxlarg2!', '1965-07-27', 'Female', 'Lecturer', 'mng2', 1),
     ('stu1', 'Matthew', 'Duffy', 'Matthew@Strathclyde', 'ArireTbaan', '2003-10-09', 'Male', 'Student', 'mng1', 1),
+    ('stu2', 'Fiona', 'McLaren', 'Fiona@Strathclyde', 'YrgL0hQ0ja*', '2002-06-26', 'Female', 'Student', 'mng1', 0)
     ('stu3', 'Rose', 'Tyler', 'Rose@Strathclyde', 'OnqJbys1!', '1985-11-02', 'Female', 'Student', 'mng2', 1),
     ('stu4', 'Amy', 'Pond', 'Amelia@Strathclyde', 'Jnvgvat9?', '1996-09-15', 'Female', 'Student', 'mng1', 1),
     ('stu5', 'Jack', 'Harkness', 'Jack@Strathclyde', 'Gbepujbbq?2', '1870-09-03', 'Male', 'Student', 'mng1', 0),
