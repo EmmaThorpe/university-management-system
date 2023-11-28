@@ -2,8 +2,6 @@ package cs308.group7.usms;
 
 import cs308.group7.usms.database.DatabaseConnection;
 
-import javax.sql.rowset.CachedRowSet;
-
 public class App {
 
     /** The directory that material files will be downloaded to and accessed from. */
@@ -12,31 +10,25 @@ public class App {
     private static DatabaseConnection databaseConnection;
 
     public static void main(String[] args) {
-        // Create database pool (no longer necessary, is created as needed)
-        // DatabaseConnection db = getDatabaseConnection();
-
         AppGUI.main(args);
-
-        // Application code (sample for demonstration)
-        try (CachedRowSet res = getDatabaseConnection().select(new String[]{"Course"}, new String[]{"Name", "Description"}, null)) {
-            while (res.next()) {
-                System.out.println(res.getString("Name") + ": " + res.getString("Description"));
-            }
-        } catch (Exception e) {
-            System.out.println("There was an error querying the database!: " + e);
-        }
-
-        // Close database pool
-        closeDatabaseConnection();
     }
 
     public static DatabaseConnection getDatabaseConnection() {
         if (databaseConnection == null) {
             try {
-                databaseConnection = new DatabaseConnection("src/main/resources/dbConnect.txt");
+                databaseConnection = new DatabaseConnection("dbConnect.txt");
             } catch (Exception e) {
-                System.out.println("There was an error creating database pool!: " + e);
-                System.exit(65);
+                throw new RuntimeException("""
+                    Could not connect to the database! Have you created a database connection file?
+                    Please create a file called 'dbConnect.txt' in the same directory as this executable.
+                    The program will need to be restarted to apply this change.
+                    
+                    The file should have the following format:
+                    <url>
+                    <database-name>
+                    <username>
+                    <password>
+                    """);
             }
         }
         return databaseConnection;
