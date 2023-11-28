@@ -92,17 +92,21 @@ public class UIElements extends MainUI{
      */
     protected ChangeListener<String> passwordCheck(String field, Boolean manager, Boolean signup){
         return (obs, oldText, newText) -> {
-            if (newText.length() <8 || newText.length()>20) {
+            if (newText.length() < 8 || newText.length() > 20) {
                 currentText.get(field).setText("Passwords must be between 8 and 20 characters long");
             } else if (!validPassword(newText, currentText.get(field))) {
                 checkValidPasswordFields(field, false, manager, signup);
-            }else{
+            } else {
                 currentText.get(field).setText("");
                 checkValidPasswordFields(field, true, manager, signup);
             }
-            confirmPasswordCheck("CONFIRM NEW PASSWORD", "NEW PASSWORD", manager, signup);
-        };
 
+            if (signup) {
+                confirmPasswordSame("CONFIRM PASSWORD", "PASSWORD", manager, signup);
+            } else {
+                confirmPasswordSame("CONFIRM NEW PASSWORD", "NEW PASSWORD", manager, signup);
+            }
+        };
     }
 
     /**
@@ -133,8 +137,8 @@ public class UIElements extends MainUI{
     private void confirmPasswordSame(String field, String fieldToMatch, Boolean manager,
                                                           Boolean signup){
 
-        TextField passField = (TextField) currentFields.get(field);
-        TextField newPassField = (TextField) currentFields.get(fieldToMatch);
+        TextField passField = (TextField) currentFields.get(fieldToMatch);
+        TextField newPassField = (TextField) currentFields.get(field);
         if (!passField.getText().equals(newPassField.getText())) {
             currentText.get(field).setText("Passwords must match");
             checkValidPasswordFields(field, false, manager, signup);
@@ -213,8 +217,8 @@ public class UIElements extends MainUI{
             disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");
             currentButtons.get("RESET USER PASSWORD").setDisable(disabled);
         } else if(signup) {
-            disabled = !validFields.get("PASSWORD") || !validFields.get("CONFIRM PASSWORD");
-            currentButtons.get("SUBMIT").setDisable(disabled);
+            checkValidSignupFields("PASSWORD", value);
+            checkValidSignupFields("CONFIRM PASSWORD", value);
         }
         else{
             disabled = !validFields.get("NEW PASSWORD") || !validFields.get("CONFIRM NEW PASSWORD");

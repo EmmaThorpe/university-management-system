@@ -58,10 +58,7 @@ public class ManagerController extends BaseController {
                 buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID"), userID));
                 buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
                 buttons.get("RESET USER PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
-
-                //TODO: please send help @ assignLecturer from the accounts side - unsure how to make the button work with the new function
                 buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModuleFromAcc(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
-
                 buttons.get("ENROL STUDENT").setOnAction((event)-> assignStudentCourse(manUI.getValues().get("UserID"), ((ComboBox)manUI.getCurrentFields().get("COURSE TO ENROL TO")).getValue().toString()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
@@ -874,7 +871,6 @@ public class ManagerController extends BaseController {
     /**
      * @return Map of courses with a map of whether they have a rule set for the 2 different rule types
      */
-    //TODO: i should check if this should look for active rules or all rules
     public Map<String, Map <String,Boolean>> getCourseRulesMap(){
         Map<String, Map<String,Boolean>> courseRules = new HashMap<>();
 
