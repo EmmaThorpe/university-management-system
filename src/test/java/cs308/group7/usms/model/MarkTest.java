@@ -22,6 +22,8 @@ class MarkTest {
     public void setUp() throws SQLException {
         // Creates new mark object without checking database
         mark = new Mark("stu1", "CS104", 2, 75.0, 82.5);
+        mark.setLabMark(75.0);
+        mark.setExamMark(82.5);
 
         // Creates new mark object using db connection
         mark2 = new Mark("stu3", "ML107", 1);
