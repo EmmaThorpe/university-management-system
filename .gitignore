@@ -1,7 +1,8 @@
 # Custom #
 target/
-src/main/resources/dbConnect.txt
+dbConnect.txt
 Material.pdf
+dependency-reduced-pom.xml
 
 ### IntelliJ IDEA ###
 out/
