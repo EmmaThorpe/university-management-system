@@ -18,6 +18,8 @@ public class ModuleBusinessRule extends BusinessRule {
         this.moduleID = moduleID;
     }
 
+    public String getModuleID() { return moduleID; }
+
     /* STATIC METHODS */
 
     /**

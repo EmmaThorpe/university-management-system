@@ -1,23 +1,17 @@
 package cs308.group7.usms.controller;
 
 import cs308.group7.usms.App;
-import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
-import cs308.group7.usms.ui.MainUI;
 import cs308.group7.usms.ui.StudentUI;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import org.jetbrains.annotations.Nullable;
-import org.jpedal.exception.PdfException;
 
-import java.io.*;
-import javax.sql.rowset.CachedRowSet;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
 
-public class StudentController{
+public class StudentController extends BaseController {
 
     private final String studentID;
     private final StudentUI stuUI;
@@ -28,6 +22,11 @@ public class StudentController{
         pageSetter("DASHBOARD", true);
     }
 
+
+    /** Sets the page and assigns the events that will occur when you press the buttons
+     * @param page - the page being moved to
+     * @param initial - if this is the initial page or not
+     */
     public void pageSetter(String page, Boolean initial){
         Map<String, Button> buttons = null;
         switch (page){
@@ -53,14 +52,14 @@ public class StudentController{
                 buttons.get("VIEW MATERIALS").setOnAction(event -> pageSetter("MATERIALS", false));
                 break;
             case "MATERIALS":
-                stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), getTwoSems(stuUI.getValues().get("ID")));
+                stuUI.materials(stuUI.getValues().get("ID"), getAllLectureMaterials(stuUI.getValues().get("ID")), spansTwoSems(stuUI.getValues().get("ID")));
                 buttons = stuUI.getCurrentButtons();
-                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
+                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> viewLectureNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))));
+                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> viewLabNote(stuUI.getValues().get("ID"), Integer.parseInt(stuUI.getValues().get("WEEK"))));
 
                 break;
             case "OPEN PDF":
-                stuUI.displayPDF(getLectureNote(stuUI.getValues().get("ID"), 1, Integer.parseInt(stuUI.getValues().get("WEEK"))), "LECTURER NOTES");
+                stuUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"));
                 buttons = stuUI.getCurrentButtons();
                 break;
         }
@@ -80,38 +79,22 @@ public class StudentController{
     private Student getCurrentStudent() throws SQLException { return new Student(studentID); }
 
     /**
-     * Changes the password for a user.
-     * @param oldPass
-     * @param newPass
+     * Changes a student's password.
      */
-    public boolean changePassword(String oldPass, String newPass){
-        return true;
-    }
+    public void changePassword(String oldPass, String newPass){ changePassword(stuUI, studentID, oldPass, newPass); }
 
 
     /**
      * Gets whether a given module spans both semesters for a given course.
      */
-    private boolean getTwoSems(String moduleID) {
+    private boolean spansTwoSems(String moduleID) {
         try {
-            Student s = getCurrentStudent();
-            String courseID = s.getCourseID();
-            DatabaseConnection db = App.getDatabaseConnection();
-            CachedRowSet res = db.select(
-                    new String[]{"Curriculum"},
-                    new String[]{"ModuleID"},
-                    new String[]{
-                            "CourseID = " + db.sqlString(courseID),
-                            "ModuleID = " + db.sqlString(moduleID),
-                            "Semester1 = TRUE",
-                            "Semester2 = TRUE"
-                    }
-            );
-            return res.next();
+            return spansTwoSems(stuUI.getValues().get("ID"), moduleID);
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GET WHETHER MODULE " + moduleID + " SPANS BOTH SEMESTERS: " + e.getMessage(), false);
+            System.err.println("Failed to get whether module " + moduleID + " spans two semesters: " + e.getMessage());
             return false;
         }
+
     }
 
     /**
@@ -121,15 +104,21 @@ public class StudentController{
      */
     public Map<String,String> getCourseInfo() {
         try {
-            Course c = getCurrentStudent().getCourse();
-            Map<String, String> courseMap = new HashMap<>();
-            courseMap.put("Id", c.getCourseID());
-            courseMap.put("Name", c.getName());
-            courseMap.put("Description", c.getDescription());
-            courseMap.put("Level", c.getLevel());
-            courseMap.put("Years", String.valueOf(c.getLength()));
-            courseMap.put("Department", String.valueOf(c.getDepartment()));
-            return courseMap;
+            Student s = getCurrentStudent();
+            if(s.getCourseID()!=null) {
+                Course c = s.getCourse();
+                Map<String, String> courseMap = new HashMap<>();
+                courseMap.put("Id", c.getCourseID());
+                courseMap.put("Name", c.getName());
+                courseMap.put("Description", c.getDescription());
+                courseMap.put("Level", c.getLevel());
+                courseMap.put("Years", String.valueOf(c.getLength()));
+                courseMap.put("Department", String.valueOf(c.getDepartment()));
+                return courseMap;
+            }
+            else{
+                return Collections.emptyMap();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET COURSE INFO FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyMap();
@@ -137,42 +126,26 @@ public class StudentController{
     }
 
     /**
-     * Get the lecture note for a module, from a given semester and week.
-     * @return A file representing the lecture note, or null if it doesn't exist
+     * Display the lecture note for a module, from a given week.
      */
-    @Nullable
-    public File getLectureNote(String moduleID, int semester, int week) {
+    public void viewLectureNote(String moduleID, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(semester, week);
-            Optional<byte[]> lectureNote = m.getLectureNote();
-            if (lectureNote.isEmpty()) return null;
-
-            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
-            try (OutputStream out = new FileOutputStream(f)) { out.write(lectureNote.get()); }
-            return f;
+            downloadLectureNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GEET THE LECTURE NOTES FOR MODULE  " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
-            return null;
+            stuUI.makeNotificationModal(null, "Failed to get the lecture notes for module " + moduleID + " in week " + week + "!: " + e.getMessage(), false);
         }
     }
 
     /**
-     * Get the lab note for a module, from a given semester and week.
-     * @return A file representing the lab note, or null if it doesn't exist
+     * Display the lab note for a module, from a given week.
      */
-    @Nullable
-    public File getLabNote(String moduleID, int semester, int week) {
+    public void viewLabNote(String moduleID, int week) {
         try {
-            Material m = new Module(moduleID).getMaterial(semester, week);
-            Optional<byte[]> labNote = m.getLabNote();
-            if (labNote.isEmpty()) return null;
-
-            File f = new File(App.FILE_DIR + File.separator + "Material.pdf");
-            try (OutputStream out = new FileOutputStream(f)) { out.write(labNote.get()); }
-            return f;
+            downloadLabNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
         } catch (Exception e) {
-            stuUI.makeNotificationModal(null, "FAILED TO GET THE LAB NOTES FOR MODULE " + moduleID + " IN WEEK " + week + "!: " + e.getMessage(), false);
-            return null;
+            stuUI.makeNotificationModal(null, "Failed to get the lab notes for module " + moduleID + " in week " + week + "!: " + e.getMessage(), false);
         }
     }
 
@@ -180,37 +153,12 @@ public class StudentController{
      * A list of maps representing whether lecture/lab materials exist for each week of a module.
      */
     public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) {
-        DatabaseConnection db = App.getDatabaseConnection();
-        List<Map<String, Boolean>> materials = new ArrayList<>();
-
         try {
-            CachedRowSet max_res = db.select(
-                new String[]{"Material"},
-                new String[]{"MAX(Week) AS MaxWeek"},
-                new String[]{"ModuleID = " + db.sqlString(moduleID)}
-            );
-            max_res.next();
-            int maxWeek = max_res.getInt("MaxWeek");
-
-            CachedRowSet res = db.executeQuery("SELECT Week, (CASE WHEN LectureNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LectureNote, (CASE WHEN LabNote IS NOT NULL THEN TRUE ELSE FALSE END) AS LabNote FROM Material WHERE ModuleID = " + db.sqlString(moduleID) + " ORDER BY Week ASC");
-            res.next();
-            for (int i = 1; i <= maxWeek; i++) {
-                int week = res.getInt("Week");
-                Map<String, Boolean> w = new HashMap<>();
-                if (week == i) {
-                    w.put("Lecture", res.getBoolean("LectureNote"));
-                    w.put("Lab", res.getBoolean("LabNote"));
-                    materials.add(w);
-                    res.next();
-                } else {
-                    w.put("Lecture", false);
-                    w.put("Lab", false);
-                    materials.add(w);
-                }
-            }
-            return materials;
+            final String courseID = getCurrentStudent().getCourseID();
+            if (courseID == null) return Collections.emptyList();
+            return getAllLectureMaterials(stuUI, courseID, moduleID);
         } catch (SQLException e) {
-            stuUI.makeNotificationModal(null, "FAILED TO THE LECTURE MATERIALS FOR MODULE " + moduleID + "!: " + e.getMessage(), false);
+            System.err.println("FAILED TO GET THE LECTURE MATERIALS FOR MODULE " + moduleID + "!: " + e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -247,17 +195,22 @@ public class StudentController{
             Student s = getCurrentStudent();
             final int currentYear = s.getYearOfStudy();
             List<Map<String, String>> marks = new ArrayList<>();
-            for (Module m : s.getCourse().getModules(currentYear)) {
-                // Add most recent mark
-                Mark mostRecentMark = s.getMark(m.getModuleID());
-                marks.add(mapMark(mostRecentMark));
-                // Add previous marks
-                for (int i = mostRecentMark.getAttemptNo() - 1; i > 0; i--) {
-                    Mark mark = s.getMark(m.getModuleID(), i);
-                    marks.add(mapMark(mark));
+            if(s.getCourseID()!=null) {
+                for (Module m : s.getCourse().getModules(currentYear)) {
+                    // Add most recent mark
+                    Mark mostRecentMark = s.getMark(m.getModuleID());
+                    marks.add(mapMark(mostRecentMark));
+                    // Add previous marks
+                    for (int i = mostRecentMark.getAttemptNo() - 1; i > 0; i--) {
+                        Mark mark = s.getMark(m.getModuleID(), i);
+                        marks.add(mapMark(mark));
+                    }
                 }
+                return marks;
             }
-            return marks;
+            else{
+                return Collections.emptyList();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET MARKS FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();
@@ -270,26 +223,30 @@ public class StudentController{
      *         {@code Id, Name, Description, Credit, Lecturers}
      */
     public List<Map<String, String>> getModules(){
-        DatabaseConnection db = App.getDatabaseConnection();
         List<Map<String, String>> modules = new ArrayList<>();
         try {
             Student s = getCurrentStudent();
             final int currentYear = s.getYearOfStudy();
-            for (Module m : s.getCourse().getModules(currentYear)) {
-                Map<String, String> moduleMap = new HashMap<>();
-                moduleMap.put("Id", m.getModuleID());
-                moduleMap.put("Name", m.getName());
-                moduleMap.put("Description", m.getDescription());
-                moduleMap.put("Credit", String.valueOf(m.getCredit()));
-                StringBuilder lecturers = new StringBuilder();
-                for (Lecturer l : m.getLecturers()) {
-                    if (!lecturers.isEmpty()) lecturers.append(", ");
-                    lecturers.append(l.getForename()).append(" ").append(l.getSurname());
+            if(s.getCourseID()!=null) {
+                for (Module m : s.getCourse().getModules(currentYear)) {
+                    Map<String, String> moduleMap = new HashMap<>();
+                    moduleMap.put("Id", m.getModuleID());
+                    moduleMap.put("Name", m.getName());
+                    moduleMap.put("Description", m.getDescription());
+                    moduleMap.put("Credit", String.valueOf(m.getCredit()));
+                    StringBuilder lecturers = new StringBuilder();
+                    for (Lecturer l : m.getLecturers()) {
+                        if (!lecturers.isEmpty()) lecturers.append(", ");
+                        lecturers.append(l.getForename()).append(" ").append(l.getSurname());
+                    }
+                    moduleMap.put("Lecturers", lecturers.toString());
+                    modules.add(moduleMap);
                 }
-                moduleMap.put("Lecturers", lecturers.toString());
-                modules.add(moduleMap);
+                return modules;
             }
-            return modules;
+            else{
+                return Collections.emptyList();
+            }
         } catch (SQLException e) {
             stuUI.makeNotificationModal(null, "FAILED TO GET MODULES FOR STUDENT " + studentID + "!: " + e.getMessage(), false);
             return Collections.emptyList();

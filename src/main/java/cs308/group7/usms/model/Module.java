@@ -103,9 +103,9 @@ public class Module {
     }
 
     /**
-     * Gets the material of the module for a given semester and week
+     * Gets the material of the module for a given week
      */
-    public Material getMaterial(int semester, int week) { return new Material(moduleID, semester, week); }
+    public Material getMaterial(int week) { return new Material(moduleID, week); }
 
     /**
      * Gets the students of a module in a given timeframe

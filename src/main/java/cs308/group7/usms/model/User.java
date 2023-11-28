@@ -102,6 +102,8 @@ public class User {
 
     public String getEmail() { return email; }
 
+    public String getEncryptedPassword() { return encryptedPassword; }
+
     public Date getDOB() { return dob; }
 
     public String getGender() { return gender; }
@@ -160,24 +162,23 @@ public class User {
         }
     }
 
-    public boolean changePassword(String currentPass, String newPass) {
-        final boolean AUTHORISED = Password.matches(currentPass, encryptedPassword);
-        if (!AUTHORISED) {
-            System.out.println("Failed to change password for user " + userID + " - password provided is incorrect!");
-            return false;
-        }
-
+    /**
+     * Sets the user's password
+     * @param newPass The new, unencrypted password
+     * @return Whether the operation was successful
+     */
+    public boolean changePassword(String newPass) {
         final String newEncryptedPass = Password.encrypt(newPass);
 
         DatabaseConnection db = App.getDatabaseConnection();
         HashMap<String, String> values = new HashMap<>();
-        values.put("Password", newEncryptedPass);
+        values.put("Password", db.sqlString(newEncryptedPass));
         try {
-            final boolean success = db.update("Users", values, new String[]{"UserID = '" + userID + "'"}) > 0;
+            final boolean success = db.update("Users", values, new String[]{"UserID = " + db.sqlString(userID)}) > 0;
             if (success) encryptedPassword = newEncryptedPass;
             return success;
         } catch (SQLException e) {
-            System.out.println("Failed to change password for user " + userID + "!");
+            System.out.println("Failed to change password for user " + userID + "!:" + e.getMessage());
             return false;
         }
     }

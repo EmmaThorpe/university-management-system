@@ -206,21 +206,34 @@ public class Mark {
         db.insert("BusinessRuleApplication", applicationRuleValues);
     }
 
+    /**
+     * Returns the averaged mark of the student for this module and attempt, representing the overall mark for the module.
+     * @throws IllegalStateException If either the lab or exam mark is null
+     */
+    public Double getOverallMark() throws IllegalStateException {
+        if (labMark == null || examMark == null) throw new IllegalStateException("Cannot get average mark if mark is incomplete!");
+        return (labMark + examMark) / 2.0;
+    }
+
     public int getAttemptNo()  { return attemptNo; }
 
     /**
      * Checks if the mark passes the module
      * @throws IllegalStateException If the mark is incomplete
      */
-    public boolean passes() throws IllegalStateException {
-        if (labMark == null || examMark == null) throw new IllegalStateException("Cannot check if mark passes if it is incomplete!");
-        return ((labMark + examMark) / 2.0) >= 40;
+    public boolean passes() {
+        try { return getOverallMark() >= 50; }
+        catch (IllegalStateException e) { return false; }
     }
 
+    /**
+     * Whether this mark can be compensated despite a fail when considering a student's award.
+     */
     public boolean canBeCompensated() {
-        final boolean labCompensation = labMark != null && (labMark >= 40 && labMark < 50);
-        final boolean examCompensation = examMark != null && (examMark >= 40 && examMark < 50);
-        return labCompensation || examCompensation;
+        try {
+            final Double overallMark = getOverallMark();
+            return overallMark >= 40 && overallMark < 50;
+        } catch (IllegalStateException e) { return false; }
     }
 
 }

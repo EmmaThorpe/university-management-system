@@ -4,6 +4,10 @@ student:
 Matthew@Strathclyde
 NeverGonna
 
+unactivated student:
+Fiona@Strathclyde
+LetY0uD0wn*
+
 lecturer:
 Veronica@Strathclyde
 GiveYouUp

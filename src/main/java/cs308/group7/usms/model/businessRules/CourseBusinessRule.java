@@ -20,6 +20,8 @@ public class CourseBusinessRule extends BusinessRule {
         this.courseID = courseID;
     }
 
+    public String getCourseID() { return courseID; }
+
     /* STATIC METHODS */
 
     /**
@@ -117,6 +119,8 @@ public class CourseBusinessRule extends BusinessRule {
         }
         return rules;
     }
+
+    /* INSTANCE METHODS */
 
     @Override
     public boolean passes(Student student) throws SQLException {

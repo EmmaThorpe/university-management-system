@@ -4,8 +4,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import java.util.ArrayList;
@@ -13,8 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class that handles the StudentUI
+ */
 public class StudentUI extends UIElements{
 
+    /**
+     * The dashboard students see when they log in
+     */
     public void dashboard() {
         resetCurrentValues();
         HBox toolbar = makeToolbar("Student");
@@ -31,10 +35,16 @@ public class StudentUI extends UIElements{
         createDashboard(mngBtns, toolbar);
     }
 
-    /**
-     * Decision Dashboard
-     **/
 
+
+    // Decision Dashboard Elements
+
+
+    /** Creates the decision dashboard
+     * @param moduleList - The list of modules a student is taking
+     * @param markList - The list of markss a student has
+     * @param decision - The decision a student has obtained
+     */
     public void decision(List<Map<String, String>> moduleList, List<Map<String,String>> markList, String decision) {
         resetCurrentValues();
 
@@ -52,6 +62,13 @@ public class StudentUI extends UIElements{
         }
     }
 
+
+    /** Creates the decision buttons
+     * @param moduleList - The list of modules a student has taken
+     * @param markList - the list of marks a student has obtained
+     * @param rightPanel - the right panel in which will be filled when the button is clicked
+     * @return VBox containing the decision buttons
+     */
     private VBox decisionButtons(List<Map<String, String>> moduleList, List<Map<String,String>> markList,
                                  VBox rightPanel){
         VBox panel = new VBox();
@@ -73,6 +90,12 @@ public class StudentUI extends UIElements{
         return makeScrollableBottomPanel(moduleListPanel);
     }
 
+
+    /** Loads the appropriate panel on the right hand side based on the button clicks
+     * @param id - The id of the module selected
+     * @param markList - the list of marks a student has recieved
+     * @param rightPanel - the panel that the content will fill
+     */
     private void pickModuleMark(String id, List<Map<String, String>> markList,
                                                VBox rightPanel){
 
@@ -101,10 +124,12 @@ public class StudentUI extends UIElements{
 
 
 
-    /**
-     * Modules Dashboard
-     **/
+    //Modules Elements
 
+
+    /**Creates the module dashboard
+     * @param moduleList - The list of modules a student is in
+     */
     public void modules(List<Map<String, String>> moduleList) {
         resetCurrentValues();
 
@@ -126,6 +151,13 @@ public class StudentUI extends UIElements{
         }
     }
 
+
+    /** Creates the module buttons
+     * @param moduleList - The list of modules the student takes
+     * @param rightPanel - The panel that the content will fill
+     * @param moduleDetails - The panel that will be filled with the module details of the selected module
+     * @return - A VBox containing the module buttons
+     */
     private VBox moduleButtons(List<Map<String, String>> moduleList, VBox rightPanel, VBox moduleDetails){
         VBox panel = new VBox();
         HBox tempButton;
@@ -146,6 +178,13 @@ public class StudentUI extends UIElements{
         return makeScrollablePanel(courseListPanel);
     }
 
+
+    /** The event that will occur when a module button is picked
+     * @param id - the id of the selected module
+     * @param tempModule - the details of the selected module
+     * @param rightPanel - the right hand panel that will be filled with details
+     * @param moduleDetails - the module panel that will be filled with module details
+     */
     private void pickModule(String id, Map<String, String> tempModule, VBox rightPanel, VBox moduleDetails){
 
         moduleDetails.getChildren().set(0, infoContainer(moduleDetailDisplay(tempModule)));
@@ -165,10 +204,12 @@ public class StudentUI extends UIElements{
     }
 
 
-    /**
-     * Course Dashboard
-     **/
+    //Course Dashboard Elements
 
+
+    /** Creates the dashboard for a student viewing their courses
+     * @param studentCourse - A map containing info on the student's course
+     */
     public void course(Map<String, String> studentCourse) {
         VBox courseDetails;
         if (studentCourse.isEmpty()) {
@@ -179,10 +220,17 @@ public class StudentUI extends UIElements{
         singlePanelLayout(courseDetails, "Course");
     }
 
-    /**
-     * Materials
-     **/
 
+
+    // Materials
+
+    public final static int WEEKS_PER_SEM = 12;
+
+    /** Creates the materials dashboard
+     * @param moduleID - The module id of the materials being looked at
+     * @param materialList - The list of materials
+     * @param twoSems - Boolean of whether two sems are being checked or not
+     */
     public void materials(String moduleID, List<Map<String, Boolean>> materialList, boolean twoSems){
         resetCurrentValues();
         currentValues.put("ID",moduleID);
@@ -217,15 +265,23 @@ public class StudentUI extends UIElements{
 
     }
 
+
+    /** Creates the semesters and week buttons
+     * @param semester - the semester
+     * @param materialList - the list of materials
+     * @param rightPanel - the right hand panel
+     * @param materialDetails - the panel that will be filled with material details
+     * @return - A VBox containing the semesters and week buttons
+     */
     private VBox getSemWeekButtons(int semester, List<Map<String, Boolean>> materialList, VBox rightPanel,
                                    VBox materialDetails) {
         HBox tempButton;
         VBox semWeekButtonList = new VBox();
         for (int sem=1; sem<=2;sem++) {
-            for (int week=1; week<=10;week++) {
+            for (int week=1; week<=WEEKS_PER_SEM;week++) {
                 if(sem==semester){
                     tempButton = makeWeekButton(week);
-                    tempButton.setOnMouseClicked(pickWeek(week, materialList.get((sem-1)*10 +(week-1)), rightPanel, materialDetails));
+                    tempButton.setOnMouseClicked(pickWeek(week, materialList.get((sem-1)*12 +(week-1)), rightPanel, materialDetails));
                     semWeekButtonList.getChildren().add(tempButton);
                 }
             }
@@ -233,10 +289,19 @@ public class StudentUI extends UIElements{
         return semWeekButtonList;
     }
 
+
+
+
+    /** Creates the week buttons
+     * @param materialList - The list of whether the materials exist or not
+     * @param rightPanel - The right hand panel which will be filled by the button click
+     * @param materialDetails - The panel in which the material details will be entered
+     * @return - A VBox containing the week buttons
+     */
     private VBox weekButtons(List<Map<String, Boolean>> materialList, VBox rightPanel, VBox materialDetails){
         VBox panel = new VBox();
         HBox tempButton;
-        for (int i=1; i<=12;i++) {
+        for (int i=1; i<=WEEKS_PER_SEM;i++) {
             tempButton = makeWeekButton(i);
             tempButton.setOnMouseClicked(pickWeek(i, materialList.get(i-1), rightPanel, materialDetails));
             panel.getChildren().add(tempButton);
@@ -249,9 +314,17 @@ public class StudentUI extends UIElements{
         return makeScrollablePanel(courseListPanel);
     }
 
+
+    /** Creates an event handler that handles clicking the week buttons
+     * @param weekNo - The week number that was selected
+     * @param materials - The list of if the materials exist or not
+     * @param rightPanel - The right hand panel which will be filled by the button click
+     * @param materialDetails - The panel in which the material details will be entered
+     * @return - An event handler that handles clicking the week buttons
+     */
     private EventHandler<Event> pickWeek(int weekNo, Map<String, Boolean> materials, VBox rightPanel, VBox materialDetails){
         return event -> {
-            materialDetails.getChildren().set(0, new VBox(new Text("Week " + String.valueOf(weekNo))));
+            materialDetails.getChildren().set(0, listDetail("Materials for week " + String.valueOf(weekNo), ""));
 
             currentValues.put("WEEK", String.valueOf(weekNo));
 
@@ -276,7 +349,7 @@ public class StudentUI extends UIElements{
                 courseActionsDisplay = makeScrollablePart(createButtonsVBox(materialBtnsList));
 
             }else{
-                courseActionsDisplay = makeScrollablePart(new VBox(new Text("No Material to Show!")));
+                courseActionsDisplay = emptyModelContent("Materials to Show!");
             }
 
             rightPanel.getChildren().set(0, materialDetails);

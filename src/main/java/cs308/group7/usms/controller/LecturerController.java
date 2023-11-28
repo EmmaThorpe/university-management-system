@@ -5,35 +5,35 @@ import cs308.group7.usms.database.DatabaseConnection;
 import cs308.group7.usms.model.*;
 import cs308.group7.usms.model.Module;
 import cs308.group7.usms.ui.LecturerUI;
-import cs308.group7.usms.ui.MainUI;
-import javafx.scene.Node;
+import cs308.group7.usms.ui.StudentUI;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.io.File;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LecturerController{
+public class LecturerController extends BaseController {
 
     private final String lecturerID;
     private final LecturerUI lecUI;
 
-    public LecturerController(String id) throws SQLException {
+    public LecturerController(String id) {
         this.lecturerID = id;
         lecUI = new LecturerUI();
         pageSetter("DASHBOARD", true);
     }
 
 
+    /** Sets the page and assigns the events that will occur when you press the buttons
+     * @param page - the page being moved to
+     * @param initial - if this is the initial page or not
+     */
     public void pageSetter(String page, Boolean initial) {
         Map<String, Button> buttons;
         switch (page){
@@ -46,73 +46,56 @@ public class LecturerController{
                 buttons.get("CHANGE PASSWORD").setOnAction(event -> changePassword(((TextField)lecUI.getCurrentFields().get("OLD PASSWORD")).getText(), ((TextField)lecUI.getCurrentFields().get("NEW PASSWORD")).getText()));
                 break;
             case "VIEW MODULE":
-                try{
-                    lecUI.module(getModuleInformation());
-                    buttons =lecUI.getCurrentButtons();
-                    buttons.get("EDIT").setOnAction((event)-> editModule(
-                                    lecUI.getValues().get("ID"),
-                                    ((TextField)lecUI.getCurrentFields().get("EDIT CODE")).getText(),
-                                    ((TextField)lecUI.getCurrentFields().get("EDIT NAME")).getText(),
-                                    ((TextArea)lecUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(),
-                                    ((TextField)lecUI.getCurrentFields().get("EDIT CREDITS")).getText()
-                            )
-                    );
-                }catch(java.sql.SQLException e){
-                    lecUI.makeNotificationModal(null, "ERROR GETTING MODULE INFORMATION", false);
-                    pageSetter("DASHBOARD", false);
-                };
-
+                lecUI.module(getModuleInformation());
+                buttons =lecUI.getCurrentButtons();
+                buttons.get("EDIT").setOnAction((event)-> editModule(
+                                lecUI.getValues().get("ID"),
+                                ((TextField)lecUI.getCurrentFields().get("EDIT CODE")).getText(),
+                                ((TextField)lecUI.getCurrentFields().get("EDIT NAME")).getText(),
+                                ((TextArea)lecUI.getCurrentFields().get("EDIT DESCRIPTION")).getText(),
+                                ((TextField)lecUI.getCurrentFields().get("EDIT CREDITS")).getText()
+                        )
+                );
                 break;
             case "GIVE MARK":
-                try{
-                    lecUI.mark(getEnrolledStudents());
-                    buttons =lecUI.getCurrentButtons();
+                final List<Map<String, String>> enrolled = getEnrolledStudents();
+                lecUI.mark(enrolled);
+                buttons = lecUI.getCurrentButtons();
+                if(!enrolled.isEmpty()) {
                     buttons.get("ASSIGN MARK").setOnAction(
-                            (event)->updateStudentMark(
-                                        lecUI.getValues().get("StudentID"),
-                                        Integer.parseInt(lecUI.getValues().get("AttemptNo"))+1,
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN LAB MARK")).getText()),
-                                        Double.parseDouble(((TextField)lecUI.getCurrentFields().get("ASSIGN EXAM MARK")).getText()),
-                                        false
+                            (event) -> updateStudentMark(
+                                    lecUI.getValues().get("StudentID"),
+                                    Integer.parseInt(lecUI.getValues().get("AttemptNo")) + 1,
+                                    Double.parseDouble(((TextField) lecUI.getCurrentFields().get("ASSIGN LAB MARK")).getText()),
+                                    Double.parseDouble(((TextField) lecUI.getCurrentFields().get("ASSIGN EXAM MARK")).getText()),
+                                    false
                             )
                     );
                     buttons.get("CHANGE MARK").setOnAction(
-                            (event)->updateStudentMark(
+                            (event) -> updateStudentMark(
                                     lecUI.getValues().get("StudentID"),
                                     Integer.parseInt(lecUI.getValues().get("AttemptNo")),
-                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE LAB MARK")).getText()),
-                                    Double.parseDouble(((TextField)lecUI.getCurrentFields().get("CHANGE EXAM MARK")).getText()),
+                                    Double.parseDouble(((TextField) lecUI.getCurrentFields().get("CHANGE LAB MARK")).getText()),
+                                    Double.parseDouble(((TextField) lecUI.getCurrentFields().get("CHANGE EXAM MARK")).getText()),
                                     true
                             )
                     );
-
-
-                }catch(java.sql.SQLException e){
-                    lecUI.makeNotificationModal(null, "ERROR GETTING ENROLLED STUDENTS", false);
-                    pageSetter("DASHBOARD", false);
                 }
 
                 break;
 
             case "MATERIALS":
-                try{
-                    Map<String, String> moduleInfo = getModuleInformation();
-                    lecUI.materials(moduleInfo.get("Id"), getAllLectureMaterials(lecUI.getValues().get("ID")));
-                    buttons = lecUI.getCurrentButtons();
-                    buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                    buttons.get("VIEW LAB MATERIAL").setOnAction(event -> pageSetter("OPEN PDF", false));
-                    buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lecture", lecUI.uploadFile()));
-                    buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lab", lecUI.uploadFile()));
-
-                }
-                catch(java.sql.SQLException e){
-                    lecUI.makeNotificationModal(null, "FAILED TO GET MATERIALS FROM SERVER", false);
-                    pageSetter("DASHBOARD", false);
-                }
+                Map<String, String> moduleInfo = getModuleInformation();
+                lecUI.materials(moduleInfo.get("Id"), getAllLectureMaterials(moduleInfo.get("Id")));
+                buttons = lecUI.getCurrentButtons();
+                buttons.get("VIEW LECTURE MATERIAL").setOnAction(event -> viewLectureMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), moduleInfo.get("Id")));
+                buttons.get("VIEW LAB MATERIAL").setOnAction(event -> viewLabMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), moduleInfo.get("Id")));
+                buttons.get("CHANGE LECTURE MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lecture", lecUI.uploadFile()));
+                buttons.get("CHANGE LAB MATERIAL").setOnAction(event -> updateModuleMaterial(Integer.parseInt(lecUI.getValues().get("WEEK")), Integer.parseInt(lecUI.getValues().get("SEMESTER")), "Lab", lecUI.uploadFile()));
 
                 break;
             case "OPEN PDF":
-                lecUI.displayPDF(null, "LECTURER NOTES");
+                lecUI.displayPDF(new File(App.FILE_DIR + File.separator + "Material.pdf"));
                 break;
 
 
@@ -134,42 +117,54 @@ public class LecturerController{
         return new Lecturer(lecturerID);
     }
 
-    /**Changes the password for a user.
-     * @param oldPass
-     * @param newPass
+    /**
+     * Changes a lecturer's password.
      */
-    public boolean changePassword(String oldPass, String newPass){
-        System.out.println(oldPass + " " + newPass);
-        return true;
-    }
+    public void changePassword(String oldPass, String newPass) { changePassword(lecUI, lecturerID, oldPass, newPass); }
 
 
-    /**Gets info of the module that the lecturer runs
+    /**
+     * Gets info of the module that the lecturer runs
      * @return A map containing module information
      */
-    public Map<String,String> getModuleInformation() throws SQLException {
-        String moduleID = getCurrentLecturer().getModule().getModuleID();
-        Module mod = new Module(moduleID);
-        Map<String,String> moduleInfo = new HashMap<String, String>();
-        DatabaseConnection db = App.getDatabaseConnection();
-       /* String Semesters = "";
-        CachedRowSet result = db.select(new String[]{"Curriculum"}, new String[]{"Semester1, Semester2"}, new String[]{"ModuleID = " + db.sqlString(moduleID)});
-        result.next();
-        if (result.getBoolean("Semester1")) {
-            Semesters += "1";
-            if(result.getBoolean("Semester2")) {
-                Semesters += "&2";
+    public Map<String,String> getModuleInformation() {
+        try {
+            Lecturer l = getCurrentLecturer();
+            if(l.getModuleID()!=null) {
+                String moduleID = l.getModuleID();
+                Module mod = new Module(moduleID);
+                Map<String, String> moduleInfo = new HashMap<>();
+                moduleInfo.put("Id", mod.getModuleID());
+                moduleInfo.put("Name", mod.getName());
+                moduleInfo.put("Description", mod.getDescription());
+                moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
+                moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
+                return moduleInfo;
             }
-        } else Semesters += "2";*/
+            else throw new SQLException("No module assigned to lecturer");
+        } catch (SQLException e) {
+            System.err.println("Failed to get module information for lecturer " + lecturerID + ": " + e.getMessage());
+            return Collections.emptyMap();
+        }
 
-        moduleInfo.put("Id", mod.getModuleID());
-        moduleInfo.put("Name", mod.getName());
-        moduleInfo.put("Description", mod.getDescription());
-        moduleInfo.put("Credit", Integer.toString(mod.getCredit()));
-        //moduleInfo.put("Semesters", Semesters );
-        moduleInfo.put("Lecturer", getCurrentLecturer().getForename());
-        return moduleInfo;
+    }
 
+    public void viewLabMaterial(int week, String moduleID) {
+        try {
+            downloadLabNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
+        } catch (Exception e) {
+            lecUI.makeNotificationModal(null, "Failed to view lab material for week " + week + ": " + e.getMessage(), false);
+        }
+    }
+
+    public void viewLectureMaterial(int week, String moduleID) {
+        try {
+            downloadLectureNote(moduleID, week);
+            pageSetter("OPEN PDF", false);
+        } catch (Exception e) {
+            lecUI.makeNotificationModal(null, "Failed to view lecture material for week " + week + ": " + e.getMessage(), false);
+        }
     }
 
 
@@ -177,109 +172,86 @@ public class LecturerController{
      * @param moduleID - the module the lecturer teaches
      * @return List of map containing if lab materials and lecture materials exist (goes from weeks 1-12) (1-24 if 2 semesters)
      */
-    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) throws SQLException {
-
-        DatabaseConnection db = App.getDatabaseConnection();
-        String Semesters = "";
-            CachedRowSet result = db.select(new String[]{"Material"}, new String[]{"LectureNote, LabNote"}, new String[]{"Material.ModuleID = '" + moduleID + "'"});
-            ArrayList<Map<String, Boolean>> material = new ArrayList<>();
-
-            while (result.next()) {
-                HashMap<String, Boolean> weekMaterial = new HashMap<>();
-                weekMaterial.put("Lab", result.getBoolean("LabNote"));
-                weekMaterial.put("Lecture", result.getBoolean("LabNote"));
-                material.add(weekMaterial);
-            }
-
-            return material;
-
+    public List<Map<String, Boolean>> getAllLectureMaterials(String moduleID) {
+        return getAllLectureMaterials(lecUI, null, moduleID);
     }
 
 
 
-    /**Gets all the students in the lecturer's module alongisde their current scoring for the lecturer's module
+    /**
+     * Gets all the students in the lecturer's module alongside their current scoring for the lecturer's module
      * @return List of maps with user fields and their values (eg: forename, "john"), including mark fields and values
      */
-    public List<Map<String, String>> getEnrolledStudents() throws SQLException {
-        String moduleID = getCurrentLecturer().getModule().getModuleID();
-        List<Map<String, String>> enrolled = new ArrayList<>();
-        DatabaseConnection db = App.getDatabaseConnection();
-            CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"},new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = '" + moduleID + "'"});
-            List<HashMap<String, String>> users = new ArrayList<>();
+    public List<Map<String, String>> getEnrolledStudents() {
+        try {
+            Lecturer l = getCurrentLecturer();
+
+            if (l.getModuleID() == null) throw new SQLException("No module assigned to lecturer");
+
+            String moduleID = l.getModuleID();
+            List<Map<String, String>> enrolled = new ArrayList<>();
+            DatabaseConnection db = App.getDatabaseConnection();
+            CachedRowSet result = db.select(new String[]{"Student, Curriculum"}, new String[]{"UserID"}, new String[]{"Student.CourseID = Curriculum.CourseID AND Student.yearOfStudy = Curriculum.Year AND Curriculum.ModuleID = " + db.sqlString(moduleID)});
 
             while (result.next()) {
                 Student stu = new Student(result.getString("UserID"));
                 HashMap<String, String> studentDetailsMap = new HashMap<>();
                 studentDetailsMap.put("userID", stu.getUserID());
-                studentDetailsMap.put("managerID", stu.getManager().getUserID());
+                final User MANAGER = stu.getManager();
+                if (MANAGER != null) studentDetailsMap.put("managerID", MANAGER.getUserID());
                 studentDetailsMap.put("forename", stu.getForename());
                 studentDetailsMap.put("surname", stu.getSurname());
-                studentDetailsMap.put("email", stu.getEmail());
-                studentDetailsMap.put("DOB", stu.getDOB().toString());
-                studentDetailsMap.put("gender", stu.getGender());
-                studentDetailsMap.put("userType", stu.getType().toString());
-                studentDetailsMap.put("activated", stu.getActivated() ? "ACTIVATED" : "DEACTIVATED");
-                studentDetailsMap.put("courseID", stu.getCourseID());
-                studentDetailsMap.put("YearOfStudy", Integer.toString(stu.getYearOfStudy()));
-                studentDetailsMap.put("decision", stu.getDecision().toString());
 
-                if(stu.getMark(moduleID).getLabMark() != null){
-                    studentDetailsMap.put("labMark", Double.toString(stu.getMark(moduleID).getLabMark()));
-                }else{
-                    studentDetailsMap.put("labMark", null);
-                }
+                final Double labMark = stu.getMark(moduleID).getLabMark();
+                final Double examMark = stu.getMark(moduleID).getExamMark();
+                final int attempt = stu.getNumberOfAttempts(moduleID);
 
-                if(stu.getMark(moduleID).getExamMark() != null){
-                    studentDetailsMap.put("examMark", Double.toString(stu.getMark(moduleID).getExamMark()));
-                }else{
-                    studentDetailsMap.put("examMark", null);
-                }
-
-                studentDetailsMap.put("attemptNo", Integer.toString(stu.getMark(moduleID).getAttemptNo()));
+                studentDetailsMap.put("labMark", (labMark == null) ? "N/A" : Double.toString(labMark));
+                studentDetailsMap.put("examMark", (examMark == null) ? "N/A" : Double.toString(examMark));
+                studentDetailsMap.put("attemptNo", Integer.toString(attempt));
 
                 enrolled.add(studentDetailsMap);
             }
 
             return enrolled;
+        } catch (SQLException e) {
+            System.err.println("Failed to get enrolled students for lecturer " + lecturerID + ": " + e.getMessage());
+            return Collections.emptyList();
+        }
 
     }
 
-
-    /**Updates the module material for a class
+    /**
+     * Updates the module material for a class
      * @param week - the week the material is for
      * @param semester - the semester the material is for
      * @param type - the type of the material (lab or lecture)
      * @param file - file to be uploaded
      */
     public void updateModuleMaterial(int week, int semester, String type, File file) {
-        Map<String, String> values = new HashMap<>();
-        // TODO Dont know how to upload file in java to sql :(
-        if (Objects.equals(type, "Lecture")){
-            values.put("LectureNote", String.valueOf(file));
-        }
-        else {
-            values.put("LabNote", String.valueOf(file));
-        }
-        if (semester > 1){
-            week+= 12;
-        }
-
+        final int WEEK_TARGET = week + ((semester == 2) ? StudentUI.WEEKS_PER_SEM : 0);
         try {
-            DatabaseConnection db = App.getDatabaseConnection();
-            db.update("Material", values, new String[]{"Week = '"+ week +"' AND ModuleID = '"+ getCurrentLecturer().getModule().getModuleID() +"'"});
-
-
-            lecUI.makeNotificationModal(null, "ADDED MATERIAL", true);
-            pageSetter("MATERIAL", false);
+            String moduleID = getCurrentLecturer().getModuleID();
+            if (moduleID == null) throw new SQLException("No module assigned to lecturer");
+            Material m = new Material(moduleID, WEEK_TARGET);
+            final boolean success;
+            switch(type) {
+                case "Lecture" -> success = m.setLectureNote(file);
+                case "Lab" -> success = m.setLabNote(file);
+                default -> throw new IllegalArgumentException("Invalid material type: " + type);
+            }
+            if (!success) throw new SQLException("Failed to update material");
+            lecUI.makeNotificationModal(null, "Uploaded " + type + " material for week " + week + " of semester " + semester + " successfully!", true);
+            pageSetter("MATERIALS", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal(null, "FAILED TO UPLOAD " + file + e.getMessage(), false);
+            lecUI.makeNotificationModal(null, "Failed to update " + type + " material for week " + week + " of semester " + semester + ": " + e.getMessage(), false);
         }
-
     }
 
 
 
-    /**add the student mark
+    /**
+     * add the student mark
      * @param studentID - the student ID for the student being added
      * @param attNo - the attempt number wanting to be added
      * @param labMark - the new lab mark for that student's attempt
@@ -289,53 +261,43 @@ public class LecturerController{
     public void updateStudentMark(String studentID, int attNo, Double labMark, Double examMark, boolean existing){
 
         try {
-            Map<String, String> values = new HashMap<>();
-            values.put("Lab", String.valueOf(labMark));
-            values.put("Exam", String.valueOf(examMark));
             Lecturer lec = new Lecturer(lecturerID);
-            Mark m = new Mark(studentID, lec.getModule().getModuleID(),attNo);
+
+            if (lec.getModuleID() == null) throw new SQLException("No module assigned to lecturer");
+
+            Mark m = new Mark(studentID, lec.getModuleID(), attNo);
             m.setLabMark(labMark);
             m.setExamMark(examMark);
 
-            if(existing){
+            if (existing) {
                 lecUI.makeNotificationModal("CHANGE MARK", "MARK CHANGED SUCCESSFULLY", true);
-            }else{
+            } else {
                 lecUI.makeNotificationModal("ASSIGN MARK", "MARK ADDED SUCCESSFULLY", true);
 
             }
             pageSetter("GIVE MARK", false);
         } catch (SQLException e) {
             lecUI.makeNotificationModal("ASSIGN MARK", "FAILED TO UPDATE MARK FOR STUDENT " + studentID + " (ATTEMPT #" + attNo + ")." + e.getMessage(), false);
-
         }
     }
 
 
 
-    /**Edits a module
-     * @param code
-     * @param name
-     * @param credit
+    /**
+     * Updates information about a module.
+     * @param oldCode The old module code
+     * @param code The new module code
+     * @param name The new module name
+     * @param credit The new module credit
      */
-
-    //note - same method is present in managerController - should this be moved to a shared controller
-    //where both can use it?
     public void editModule(String oldCode, String code, String name, String description, String credit){
-        DatabaseConnection db = App.getDatabaseConnection();
-        HashMap<String, String> values = new HashMap<>();
-        values.put("ModuleID", db.sqlString(code));
-        values.put("Name", db.sqlString(name));
-        values.put("Description", db.sqlString(description));
-        values.put("Credit", String.valueOf(credit));
-
         try {
-            db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
-            lecUI.makeNotificationModal("EDIT", "MODULE UPDATED SUCCESSFULLY", true);
+            editModule(oldCode, code, name, description, Integer.parseInt(credit));
+            lecUI.makeNotificationModal("EDIT", "Updated module successfully!", true);
             pageSetter("VIEW MODULE", false);
         } catch (SQLException e) {
-            lecUI.makeNotificationModal("EDIT", "ERROR FAILED TO UPDATE MODULE" + e.getMessage(), false);
+            lecUI.makeNotificationModal("EDIT","Error updating module " + e.getMessage(), false);
         }
-
     }
 
 

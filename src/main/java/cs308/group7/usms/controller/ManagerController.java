@@ -8,7 +8,7 @@ import cs308.group7.usms.model.businessRules.BusinessRule;
 import cs308.group7.usms.model.businessRules.CourseBusinessRule;
 import cs308.group7.usms.model.businessRules.ModuleBusinessRule;
 import cs308.group7.usms.ui.ManagerUI;
-import javafx.scene.Node;
+import cs308.group7.usms.utils.Password;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -17,12 +17,11 @@ import javafx.scene.control.TextField;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.sql.Date;
 
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_RESITS;
 import static cs308.group7.usms.model.businessRules.BusinessRule.RuleType.MAX_COMPENSATED_MODULES;
 
-public class ManagerController{
+public class ManagerController extends BaseController {
 
     private final String userID;
     private final ManagerUI manUI;
@@ -33,6 +32,12 @@ public class ManagerController{
         pageSetter("DASHBOARD",true);
     }
 
+    private User getCurrentManager() throws SQLException { return new User(userID); }
+
+    /** Sets the page and assigns the events that will occur when you press the buttons
+     * @param page - the page being moved to
+     * @param initial - if this is the initial page or not
+     */
     public void pageSetter(String page, Boolean initial){
         Map<String, Button> buttons = null;
         switch (page){
@@ -48,12 +53,15 @@ public class ManagerController{
 
                 break;
             case "MANAGE ACCOUNTS":
-                manUI.accounts(getUsers(), getCourses(), getModules());
+                manUI.accounts(getUsers(userID), getCourses(), getModules());
                 buttons = manUI.getCurrentButtons();
                 buttons.get("ACTIVATE").setOnAction((event)-> activateUser(manUI.getValues().get("UserID"), userID));
                 buttons.get("DEACTIVATE").setOnAction((event)-> deactivateUser(manUI.getValues().get("UserID")));
                 buttons.get("RESET USER PASSWORD").setOnAction((event)-> resetPassword(manUI.getValues().get("UserID"), ((TextField)manUI.getCurrentFields().get("NEW PASSWORD")).getText()));
-                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModule(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
+
+                //TODO: please send help @ assignLecturer from the accounts side - unsure how to make the button work with the new function
+                buttons.get("ASSIGN LECTURER").setOnAction((event)-> assignLecturerModuleFromAcc(manUI.getValues().get("UserID"), ((ComboBox<?>)manUI.getCurrentFields().get("MODULE TO ASSIGN")).getValue().toString()));
+
                 buttons.get("ENROL STUDENT").setOnAction((event)-> assignStudentCourse(manUI.getValues().get("UserID"), ((ComboBox)manUI.getCurrentFields().get("COURSE TO ENROL TO")).getValue().toString()));
                 buttons.get("ISSUE STUDENT DECISION").setOnAction(event -> pageSetter("STUDENT DECISION", false));
                 break;
@@ -125,6 +133,35 @@ public class ManagerController{
     //Connections with models
 
 
+    /** Organises the output of a query for getUsers (avoiding duplicate code)
+     * @return List of maps with user fields and their values (eg: forename, "john")
+     */
+    private List<HashMap<String, String>> getUserHashMaps(CachedRowSet result) throws SQLException {
+        List<HashMap<String, String>> users = new ArrayList<>();
+
+        while(result.next()){
+            User acc = new User(result.getString("UserID"));
+            HashMap<String, String> userDetailsMap = new HashMap<>();
+            userDetailsMap.put("userID", acc.getUserID());
+            try {
+                User m = acc.getManager();
+                userDetailsMap.put("managerID", m.getUserID());
+            }
+            catch(SQLException e){
+                userDetailsMap.put("managerID", "N/A");
+            }
+            userDetailsMap.put("forename", acc.getForename());
+            userDetailsMap.put("surname", acc.getSurname());
+            userDetailsMap.put("email", acc.getEmail());
+            userDetailsMap.put("DOB", acc.getDOB().toString());
+            userDetailsMap.put("gender", acc.getGender());
+            userDetailsMap.put("userType", acc.getType().toString());
+            userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
+            users.add(userDetailsMap);
+        }
+
+        return users;
+    }
 
     /** Gets all the users
      * @return List of maps with user fields and their values (eg: forename, "john")
@@ -133,30 +170,7 @@ public class ManagerController{
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, null);
-            List<HashMap<String, String>> users = new ArrayList<>();
-
-            while(result.next()){
-                User acc = new User(result.getString("UserID"));
-                HashMap<String, String> userDetailsMap = new HashMap<>();
-                userDetailsMap.put("userID", acc.getUserID());
-                try {
-                    User m = acc.getManager();
-                    userDetailsMap.put("managerID", m.getUserID());
-                }
-                catch(SQLException e){
-                    userDetailsMap.put("managerID", "N/A");
-                }
-                userDetailsMap.put("forename", acc.getForename());
-                userDetailsMap.put("surname", acc.getSurname());
-                userDetailsMap.put("email", acc.getEmail());
-                userDetailsMap.put("DOB", acc.getDOB().toString());
-                userDetailsMap.put("gender", acc.getGender());
-                userDetailsMap.put("userType", acc.getType().toString());
-                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
-                users.add(userDetailsMap);
-            }
-
-            return users;
+            return getUserHashMaps(result);
         }
         catch(SQLException e){
             manUI.makeNotificationModal(null,"Error fetching users " + e.getMessage(), false);
@@ -167,34 +181,11 @@ public class ManagerController{
     /** Gets all the users that the manager manages
      * @return List of maps with user fields and their values (eg: forename, "john")
      */
-    public List <HashMap <String, String>> getManagedUsers(String managerID) {
+    public List <HashMap <String, String>> getUsers(String managerID) {
         DatabaseConnection db = App.getDatabaseConnection();
         try {
             CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"}, new String[]{"ManagedBy = " + db.sqlString(managerID)});
-            List<HashMap<String, String>> users = new ArrayList<>();
-
-            while(result.next()){
-                User acc = new User(result.getString("UserID"));
-                HashMap<String, String> userDetailsMap = new HashMap<>();
-                userDetailsMap.put("userID", acc.getUserID());
-                try {
-                    User m = acc.getManager();
-                    userDetailsMap.put("managerID", m.getUserID());
-                }
-                catch(SQLException e){
-                    userDetailsMap.put("managerID", "N/A");
-                }
-                userDetailsMap.put("forename", acc.getForename());
-                userDetailsMap.put("surname", acc.getSurname());
-                userDetailsMap.put("email", acc.getEmail());
-                userDetailsMap.put("DOB", acc.getDOB().toString());
-                userDetailsMap.put("gender", acc.getGender());
-                userDetailsMap.put("userType", acc.getType().toString());
-                userDetailsMap.put("activated", acc.getActivated() ? "ACTIVATED" : "DEACTIVATED");
-                users.add(userDetailsMap);
-            }
-
-            return users;
+            return getUserHashMaps(result);
         }
         catch(SQLException e){
             manUI.makeNotificationModal(null,"Error fetching manager " + managerID + "'s users " + e.getMessage(),
@@ -287,14 +278,16 @@ public class ManagerController{
 
 
     /**
-     * Gets a list of all lecturers
+     * Gets a list of all lecturers that the manager manages
      *
      * @return List of maps containing the name and the id of all lecturers
      */
     public List<Map<String, String>> getFreeLecturers(){
         DatabaseConnection db = App.getDatabaseConnection();
         try {
-            CachedRowSet result = db.select(new String[]{"Lecturer"}, new String[]{"UserID"}, null);
+            CachedRowSet result = db.select(new String[]{"Lecturer", "Users"}, new String[]{"Lecturer.UserID"},
+                                            new String[]{"Lecturer.UserID = Users.UserID",
+                                                         "Users.ManagedBy = " + db.sqlString(userID)});
             List<Map<String, String>> lecturers = new ArrayList<>();
 
             while(result.next()){
@@ -376,22 +369,6 @@ public class ManagerController{
         }
     }
 
-
-
-    public String[] checkPassFail(Mark m){
-        if(m.getLabMark()!=null && m.getExamMark()!=null) {
-            if (m.getLabMark() >= 50 && m.getExamMark() >= 50) {
-                return new String[]{"grade", "PASS"};
-            }
-            else{
-                return new String[]{"grade", "FAIL"};
-            }
-        }
-        else{
-            return new String[]{"grade", "N/A"};
-        }
-    }
-
     /**
      * Get marks for a selected student
      *
@@ -444,106 +421,50 @@ public class ManagerController{
      * (this return value can be altered but the reason and the award type must be accessible as separate strings to be passed into the issueStudentDecision method)
      */
     //this thing chugs really badly i'm so sorry
-    public ArrayList<String> getDecisionRec(String userID) {
-        DatabaseConnection db = App.getDatabaseConnection();
+    public List<String> getDecisionRec(String userID) {
         try {
+
             Student s = new Student(userID);
-            CachedRowSet result = db.select(new String[]{"Mark"}, new String[]{"ModuleID", "AttNo"}, new String[]{"UserID = " + db.sqlString(userID)});
-            boolean suggestResit = false;
-            boolean suggestWithdraw = false;
-            boolean maxCompen = false;
-            boolean classesUnmarked = false;
-            int classesMarked = 0;
-            List<String> maxResits = new ArrayList<>();
-            List<String> studentModules = new ArrayList<>();
-            String reason = "";
 
-            if (s.getCourse() != null) {
-                for (Module studentModule : s.getCourse().getModules(s.getYearOfStudy())) {
-                    studentModules.add(studentModule.getModuleID());
-                }
-            } else {
-                classesUnmarked = true;
+            // Determine that a student is assigned to a course
+            if (s.getCourseID() == null) return List.of("N/A", "Student is not assigned to a course, so no decision suggestion can be determined.");
+
+            // Determine that a student has achieved a mark in each module & that there are modules to be marked
+            List<Module> modules = s.getCourse().getModules(s.getYearOfStudy());
+            if (modules.isEmpty()) return List.of("N/A", "Current year of course has no modules, so no decision suggestion can be determined.");
+
+            Set<String> resit_reasons = new HashSet<>();
+            Set<String> withdraw_reasons = new HashSet<>();
+
+            for (Module module : modules) {
+                Mark m = s.getMark(module.getModuleID());
+
+                final boolean HAS_INVALID_MARK = m.getLabMark() == null || m.getExamMark() == null;
+                if (HAS_INVALID_MARK) return List.of("N/A", "Student has not yet received all marks, so no decision suggestion can be determined.");
+
+                final boolean FAILED_AND_UNCOMPENSATABLE = !m.passes() && !m.canBeCompensated();
+                if (FAILED_AND_UNCOMPENSATABLE) resit_reasons.add("Student has failed module " + module.getModuleID() + ".");
             }
 
-            while(result.next()){
-                String currentModule = result.getString("ModuleID");
-                if (studentModules.contains(currentModule)) {
-                    classesMarked++;
-                }
-
-                Mark m = new Mark(userID, result.getString("ModuleID"), result.getInt("AttNo"));
-
-                // check against rules
-                List<BusinessRule> rules = BusinessRule.getRules(s.getCourseID(), m);
-                for(BusinessRule r : rules){
-                    // if student doesn't pass the rule
-                    if(!r.passes(s)){
-                        switch(r.getType()){
-                            case MAX_COMPENSATED_MODULES:
-                                // if at the max compensated modules, set flag for reason and suggest resit
-                                maxCompen = true;
-                                suggestResit = true;
-                                break;
-
-                            case MAX_RESITS:
-                                // add module to list of maximum resit reached and suggest withdraw
-                                if(!maxResits.contains(m.getModuleID() + "\n")) {
-                                    maxResits.add(m.getModuleID() + "\n");
-                                }
-                                suggestWithdraw = true;
-                                break;
-                        }
-                    }
-                }
-
-                // check for regular failure
-                if(m.getLabMark()!=null & m.getExamMark()!=null) {
-                    if (m.getLabMark() < 40 || m.getExamMark() < 40) {
-                        reason = reason + "Failed " + m.getModuleID() + ".\n";
-                        suggestResit = true;
-                    }
+            // Determine that a student has not failed any business rules
+            Set<BusinessRule> failedRules = s.getFailedBusinessRules();
+            for (BusinessRule rule : failedRules) {
+                if (rule.getType() == MAX_COMPENSATED_MODULES) {
+                    resit_reasons.add("Student has failed to pass more than the compensatable " + rule.getValue() + " modules.");
+                } else if (rule.getType() == MAX_RESITS) {
+                    if (rule instanceof CourseBusinessRule) withdraw_reasons.add("Student has resat more than " + rule.getValue() + " modules.");
+                    if (rule instanceof ModuleBusinessRule) withdraw_reasons.add("Student has resat module " + ((ModuleBusinessRule) rule).getModuleID() + " more than " + rule.getValue() + " times.");
                 }
             }
 
-            if(classesMarked < studentModules.size()) {
-                classesUnmarked = true;
-            }
+            if (!withdraw_reasons.isEmpty()) return List.of("WITHDRAW", String.join("\n", withdraw_reasons));
+            if (!resit_reasons.isEmpty()) return List.of("RESIT", String.join("\n", resit_reasons));
 
-            // add reason for max compensations
-            if(maxCompen){
-                reason = reason + "The maximum number of passes by compensation has been passed.\n";
-            }
+            return List.of("AWARD", "Student has passed all business rules that were applied to their marks at the time they achieved them.");
 
-            if(!maxResits.isEmpty()){
-                reason = reason + "The maximum number of resits have been reached for the following modules:\n";
-                for(String modID : maxResits){
-                    reason = reason + modID;
-                }
-            }
-
-            ArrayList<String> suggestion = new ArrayList<>();
-            if (suggestWithdraw){
-                suggestion.add("WITHDRAW");
-                suggestion.add(reason);
-            }
-            else if (suggestResit){
-                suggestion.add("RESIT");
-                suggestion.add(reason);
-            } else if (classesUnmarked) {
-                suggestion.add("N/A");
-                suggestion.add("Student has not got all their marks so no decision suggestion can be determined");
-            }
-            else{
-                suggestion.add("AWARD");
-                suggestion.add("No rules have been failed.");
-            }
-
-            return suggestion;
-        }
-        catch(SQLException e){
-            manUI.makeNotificationModal(null, "Error issuing student decision " + e.getMessage(), false);
-            throw new RuntimeException(e);
+        } catch(SQLException e) {
+            manUI.makeNotificationModal(null,"Error fetching student decision recommendation:" + e.getMessage(), false);
+            throw new RuntimeException(e); // why do we do this???
         }
     }
 
@@ -569,7 +490,6 @@ public class ManagerController{
      * @param userID
      */
     public void deactivateUser(String userID){
-        System.out.println(userID);
         try {
             User u = new User(userID);
             u.setDeactivated();
@@ -582,78 +502,126 @@ public class ManagerController{
         }
     }
 
-    /**Takes in a userID and password, and sets the selected user's password to be the set password
-     * @param userID
-     * @param password
+    /**
+     * Updates a given User's password
+     * @param userID The user's ID
+     * @param password The new password
      */
     public void resetPassword(String userID, String password){
-        manUI.makeNotificationModal("RESET USER PASSWORD", "Changed password successfully!", true);
-        pageSetter("MANAGE ACCOUNTS", false);
-        System.out.println(userID + " " +password);
+        try {
+            User u = new User(userID);
+            final boolean success = u.changePassword(password);
+            if (success) {
+                manUI.makeNotificationModal("RESET USER PASSWORD", "Changed password successfully!", true);
+                pageSetter("MANAGE ACCOUNTS", false);
+            } else throw new SQLException();
+        } catch (SQLException e) {
+            manUI.makeNotificationModal("RESET USER PASSWORD", "There was an error updating this user's password!", false);
+        }
     }
 
 
-    /**Changes the password for a user. And updates the view accordingly
-     * @param userID - the id of the user whose password is being changed
-     * @param newPass - the new password
+    /**
+     * Updates the logged in Manager's password
+     * @param oldPass The old password
+     * @param newPass The new password
      */
-    public void changePassword(String userID, String newPass){
-        // password changing
-        System.out.println(userID + " " +newPass);
-        manUI.makeNotificationModal("CHANGE PASSWORD", "Changed password successfully!", true);
-        pageSetter("DASHBOARD", false);
-
+    public void changePassword(String oldPass, String newPass){
+        changePassword(manUI, userID, oldPass, newPass);
     }
 
 
-    /** Assign a lecturer to a module
-     * @param lecturerID
+    /** Assign a lecturer to a module (for use in the manage models page)
+     * @param lecturerName
      * @param moduleID
      */
-    public void assignLecturerModule(String lecturerID, String moduleID){
+    public void assignLecturerModule(String lecturerName, String moduleID){
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
-            Lecturer l = new Lecturer(lecturerID);
-            l.assignModule(moduleID);
-            manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
-            pageSetter("MANAGE ACCOUNTS", false);
+            String[] splitName = lecturerName.split(" ");
+
+            CachedRowSet result = db.select(new String[]{"Users"}, new String[]{"UserID"},
+                    new String[]{"Forename = " + db.sqlString(splitName[0]),
+                            "Surname = " + db.sqlString(splitName[1])});
+
+            if (result.next()) {
+                String lecturerID = result.getString("UserID");
+                Lecturer l = new Lecturer(lecturerID);
+                l.assignModule(moduleID);
+                manUI.makeNotificationModal("ASSIGN", "Assigned lecturer successfully!", true);
+                pageSetter("MANAGE MODULES", false);
+            } else {
+                manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer - lecturer name not found.", false);
+            }
+
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer " + e.getMessage(), false);
+            manUI.makeNotificationModal("ASSIGN", "Error assigning lecturer.", false);
             throw new RuntimeException(e);
         }
-        System.out.println(lecturerID +" "+moduleID);
+    }
+
+    /**
+     * Assign a lecturer to a module (for use in the manage accounts page)
+     */
+    public void assignLecturerModuleFromAcc(String lecturerID, String moduleName){
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, new String[]{"Name = " + db.sqlString(moduleName)});
+
+            if(result.next()) {
+                String moduleID = result.getString("ModuleID");
+                Lecturer l = new Lecturer(lecturerID);
+                l.assignModule(moduleID);
+                manUI.makeNotificationModal("ASSIGN LECTURER", "Assigned lecturer successfully!", true);
+                pageSetter("MANAGE ACCOUNTS", false);
+            }
+            else{
+                manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning lecturer - module name not found.", false);
+            }
+        }
+        catch(SQLException e){
+            manUI.makeNotificationModal("ASSIGN LECTURER", "Error assigning lecturer.", false);
+            throw new RuntimeException(e);
+        }
     }
 
     /** Assign a student to a course
      * @param studentID
-     * @param courseID
+     * @param courseName
      */
-    public void assignStudentCourse(String studentID, String courseID){
+    public void assignStudentCourse(String studentID, String courseName){
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
-            Student s = new Student(studentID);
-            if (s.setCourse(courseID)) {
-                manUI.makeNotificationModal("ENROL STUDENT","Assigned course successfully!", true);
-                pageSetter("MANAGE ACCOUNTS", false);
-            } else {
-                manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course", false);
+            CachedRowSet result = db.select(new String[]{"Course"}, new String[]{"CourseID"}, new String[]{"Name = " + db.sqlString(courseName)});
+            if(result.next()) {
+                String courseID = result.getString("CourseID");
+                Student s = new Student(studentID);
+                if (s.setCourse(courseID)) {
+                    manUI.makeNotificationModal("ENROL STUDENT", "Assigned course successfully!", true);
+                    pageSetter("MANAGE ACCOUNTS", false);
+                } else {
+                    manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course.", false);
+                }
             }
-
+            else{
+                manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course - course name not found.", false);
+            }
 
         }
         catch(SQLException e){
             manUI.makeNotificationModal("ENROL STUDENT", "Error assigning course " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
-        System.out.println(studentID +" "+ courseID);
     }
 
     /**Assign a module to a course
      * @param courseID
-     * @param moduleID
+     * @param moduleName
      * @param sem - the string choice representing the semesters this module is for in the course
      * @param year
      */
-    public void assignModuleCourse(String courseID, String moduleID, String sem, int year){
+    public void assignModuleCourse(String courseID, String moduleName, String sem, int year){
         Boolean sem1 = false;
         Boolean sem2 = false;
 
@@ -665,20 +633,29 @@ public class ManagerController{
             sem1 = true;
             sem2 = true;
         }
+
+        DatabaseConnection db = App.getDatabaseConnection();
         try {
             Course c = new Course(courseID);
-            if (c.addModule(moduleID, sem1, sem2, year)) {
-                manUI.makeNotificationModal("ASSIGN", "Assigned module successfully!", true);
-                pageSetter("MANAGE COURSES", false);
-            } else {
-                manUI.makeNotificationModal("ASSIGN", "Error assigning module", false);
+
+            CachedRowSet result = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, new String[]{"Name = " + db.sqlString(moduleName)});
+            if(result.next()) {
+                String moduleID = result.getString("ModuleID");
+                if (c.addModule(moduleID, sem1, sem2, year)) {
+                    manUI.makeNotificationModal("ASSIGN", "Assigned module successfully!", true);
+                    pageSetter("MANAGE COURSES", false);
+                } else {
+                    manUI.makeNotificationModal("ASSIGN", "Error assigning module.", false);
+                }
+            }
+            else{
+                manUI.makeNotificationModal("ASSIGN", "Error assigning module - module name not found.", false);
             }
         }
         catch(SQLException e){
-            manUI.makeNotificationModal("ASSIGN", "Error assigning module " + e.getMessage(), false);
+            manUI.makeNotificationModal("ASSIGN", "Error assigning module.", false);
             throw new RuntimeException(e);
         }
-        System.out.println(courseID + " " +moduleID);
     }
 
     /**Issue a student with a decision
@@ -689,19 +666,18 @@ public class ManagerController{
         try {
             Student s = new Student(studentID);
             switch (decision) {
-                case "Award" -> s.issueAward();
-                case "Resit" -> s.issueResit();
-                case "Withdrawal" -> s.issueWithdrawal();
+                case "AWARD" -> s.issueAward();
+                case "RESIT" -> s.issueResit();
+                case "WITHDRAWAL" -> s.issueWithdrawal();
                 default -> throw new IllegalArgumentException("Invalid decision string!");
             };
-            manUI.makeNotificationModal(null,"Issued student decision successfully!", true);
-            pageSetter("MANAGE ACCOUNTS", false);
+            manUI.makeNotificationModal("ISSUE STUDENT DECISION","Issued student decision successfully!", true);
+            pageSetter("STUDENT DECISION", false);
         }
         catch(SQLException e){
-            manUI.makeNotificationModal(null,"Error issuing student decision " + e.getMessage(), false);
+            manUI.makeNotificationModal("ISSUE STUDENT DECISION","Error issuing student decision " + e.getMessage(), false);
             throw new RuntimeException(e);
         }
-        System.out.println(studentID + " " +decision);
     }
 
     /**Add a new course
@@ -802,204 +778,197 @@ public class ManagerController{
         }
     }
 
-        /**Edits a module
-         * @param code
-         * @param name
-         * @param credit
-         */
-        // TODO: couldn't test this in the ui because the button wasn't buttoning (but no errors showed)
-        public void editModule(String oldCode, String code, String name, String description, String credit){
-            DatabaseConnection db = App.getDatabaseConnection();
-            HashMap<String, String> values = new HashMap<>();
-            values.put("ModuleID", db.sqlString(code));
-            values.put("Name", db.sqlString(name));
-            values.put("Description", db.sqlString(description));
-            values.put("Credit", String.valueOf(credit));
+    /**
+     * Updates information about a module.
+     * @param oldCode The old module code
+     * @param code The new module code
+     * @param name The new module name
+     * @param credit The new module credit
+     */
+    public void editModule(String oldCode, String code, String name, String description, String credit){
+        try {
+            editModule(oldCode, code, name, description, Integer.parseInt(credit));
+            manUI.makeNotificationModal("EDIT", "Updated module successfully!", true);
+            pageSetter("MANAGE MODULES", false);
+        } catch (SQLException e) {
+            manUI.makeNotificationModal("EDIT","Error updating module " + e.getMessage(), false);
+        }
+    }
 
+    /**
+     * @return A list of a map containing all the details of each activated business rules
+     */
+    public List<Map<String, String>> getActivatedBusinessRules(){
+        DatabaseConnection db = App.getDatabaseConnection();
+        try {
+            CachedRowSet result = db.select(new String[]{"BusinessRule"}, null, null);
+            List<Map<String, String>> rules = new ArrayList<>();
+
+            while(result.next()){
+                Map<String, String> ruleDetailsMap = new HashMap<>();
+
+                boolean active = result.getBoolean("Active");
+                if(active){
+                    ruleDetailsMap.put("Id", result.getString("RuleID"));
+                    ruleDetailsMap.put("Type", result.getString("Type"));
+                    ruleDetailsMap.put("Value", result.getString("Value"));
+                    rules.add(ruleDetailsMap);
+                }
+            }
+
+            return rules;
+        }
+        catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching business rules " + e.getMessage(), false);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * @return Get a map containing an id of a business rule along with a list of ids of courses/modules it is associated with
+     * Can combine with above function if that is easier
+     */
+    public Map<String, List<String>> getAssociatedOfRules(){
+        Map<String, List<String>> rulesAssoc = new HashMap<>();
+        List<Map<String, String>> activeRules = getActivatedBusinessRules();
+
+        DatabaseConnection db = App.getDatabaseConnection();
+        for(Map<String, String> rule : activeRules) {
             try {
-                db.update("Module", values, new String[]{"ModuleID = " + db.sqlString(oldCode)});
-                manUI.makeNotificationModal("EDIT", "Updated module successfully!", true);
-                pageSetter("MANAGE MODULES", false);
-            } catch (SQLException e) {
-                manUI.makeNotificationModal("EDIT","Error updating module " + e.getMessage(), false);
+                String ruleID = rule.get("Id");
+                ArrayList<String> idList = new ArrayList<>();
+
+                // check for modules
+                CachedRowSet resultMod = db.select(new String[]{"BusinessRule, BusinessRuleModule"},
+                        new String[]{"BusinessRuleModule.ModuleID"},
+                        new String[]{"BusinessRule.RuleID = BusinessRuleModule.RuleID",
+                                "BusinessRuleModule.RuleID = " + ruleID});
+
+                while (resultMod.next()) {
+                    idList.add(resultMod.getString("ModuleID"));
+                }
+
+                // check for courses
+                CachedRowSet resultCour = db.select(new String[]{"BusinessRule, BusinessRuleCourse"},
+                        new String[]{"BusinessRuleCourse.CourseID"},
+                        new String[]{"BusinessRule.RuleID = BusinessRuleCourse.RuleID",
+                                "BusinessRuleCourse.RuleID = " + ruleID});
+
+                while (resultCour.next()) {
+                    idList.add(resultCour.getString("CourseID"));
+                }
+
+                rulesAssoc.put(ruleID, idList);
+            }
+            catch(SQLException e){
+                manUI.makeNotificationModal(null,"Error fetching business rules associations " + e.getMessage(),
+                        false);
                 throw new RuntimeException(e);
             }
         }
+        return rulesAssoc;
+    }
 
-        /**
-         * @return A list of a map containing all the details of each activated business rules
-         */
-        public List<Map<String, String>> getActivatedBusinessRules(){
-            DatabaseConnection db = App.getDatabaseConnection();
-            try {
-                CachedRowSet result = db.select(new String[]{"BusinessRule"}, null, null);
-                List<Map<String, String>> rules = new ArrayList<>();
 
-                while(result.next()){
-                    Map<String, String> ruleDetailsMap = new HashMap<>();
+    /**
+     * @return Map of courses with a map of whether they have a rule set for the 2 different rule types
+     */
+    //TODO: i should check if this should look for active rules or all rules
+    public Map<String, Map <String,Boolean>> getCourseRulesMap(){
+        Map<String, Map<String,Boolean>> courseRules = new HashMap<>();
 
-                    boolean active = result.getBoolean("Active");
-                    if(active){
-                        ruleDetailsMap.put("Id", result.getString("RuleID"));
-                        ruleDetailsMap.put("Type", result.getString("Type"));
-                        ruleDetailsMap.put("Value", result.getString("Value"));
-                        rules.add(ruleDetailsMap);
+        DatabaseConnection db = App.getDatabaseConnection();
+        try{
+            CachedRowSet courses = db.select(new String[]{"Course"}, new String[]{"CourseID"}, null);
+            while(courses.next()){
+                boolean resitFlag = false;
+                boolean compFlag = false;
+
+                String courseID = courses.getString("CourseID");
+
+                List<BusinessRule> ruleList = CourseBusinessRule.getCourseRules(courseID, true);
+                Map<String,Boolean> ruleMap = new HashMap<>();
+
+                for(BusinessRule r : ruleList){
+                    if(r.getType() == MAX_RESITS){
+                        resitFlag = true;
+                    }
+                    else if (r.getType() == MAX_COMPENSATED_MODULES){
+                        compFlag = true;
                     }
                 }
 
-                return rules;
+                ruleMap.put("Max Number Of Resits", resitFlag);
+                ruleMap.put("Number of Compensated Classes", compFlag);
+
+                courseRules.put(courseID, ruleMap);
             }
-            catch(SQLException e){
-                manUI.makeNotificationModal(null,"Error fetching business rules " + e.getMessage(), false);
-                throw new RuntimeException(e);
-            }
+
+            return courseRules;
         }
-
-
-        /**
-         * @return Get a map containing an id of a business rule along with a list of ids of courses/modules it is associated with
-         * Can combine with above function if that is easier
-         */
-        public Map<String, List<String>> getAssociatedOfRules(){
-            Map<String, List<String>> rulesAssoc = new HashMap<>();
-            List<Map<String, String>> activeRules = getActivatedBusinessRules();
-
-            DatabaseConnection db = App.getDatabaseConnection();
-            for(Map<String, String> rule : activeRules) {
-                try {
-                    String ruleID = rule.get("Id");
-                    ArrayList<String> idList = new ArrayList<>();
-
-                    // check for modules
-                    CachedRowSet resultMod = db.select(new String[]{"BusinessRule, BusinessRuleModule"},
-                            new String[]{"BusinessRuleModule.ModuleID"},
-                            new String[]{"BusinessRule.RuleID = BusinessRuleModule.RuleID",
-                                    "BusinessRuleModule.RuleID = " + ruleID});
-
-                    while (resultMod.next()) {
-                        idList.add(resultMod.getString("ModuleID"));
-                    }
-
-                    // check for courses
-                    CachedRowSet resultCour = db.select(new String[]{"BusinessRule, BusinessRuleCourse"},
-                            new String[]{"BusinessRuleCourse.CourseID"},
-                            new String[]{"BusinessRule.RuleID = BusinessRuleCourse.RuleID",
-                                    "BusinessRuleCourse.RuleID = " + ruleID});
-
-                    while (resultCour.next()) {
-                        idList.add(resultCour.getString("CourseID"));
-                    }
-
-                    rulesAssoc.put(ruleID, idList);
-                }
-                catch(SQLException e){
-                    manUI.makeNotificationModal(null,"Error fetching business rules associations " + e.getMessage(),
-                            false);
-                    throw new RuntimeException(e);
-                }
-            }
-            return rulesAssoc;
+        catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching course business rules " + e.getMessage(), false);
+            throw new RuntimeException(e);
         }
+    }
 
 
-        /**
-         * @return Map of courses with a map of whether they have a rule set for the 2 different rule types
-         */
-        //TODO: i should check if this should look for active rules or all rules
-        public Map<String, Map <String,Boolean>> getCourseRulesMap(){
-            Map<String, Map<String,Boolean>> courseRules = new HashMap<>();
+    /**
+     * @return A map containing module id's and if they have a rule set to them or not
+     */
+    public Map<String, Boolean> getModuleRulesMap(){
+        DatabaseConnection db = App.getDatabaseConnection();
+        Map<String,Boolean> ruleMap = new HashMap<>();
+        try{
+            CachedRowSet modules = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, null);
+            while(modules.next()){
+                String moduleID = modules.getString("ModuleID");
+                List<BusinessRule> ruleList = ModuleBusinessRule.getModuleRules(moduleID, true);
 
-            DatabaseConnection db = App.getDatabaseConnection();
-            try{
-                CachedRowSet courses = db.select(new String[]{"Course"}, new String[]{"CourseID"}, null);
-                while(courses.next()){
-                    boolean resitFlag = false;
-                    boolean compFlag = false;
-
-                    String courseID = courses.getString("CourseID");
-
-                    List<BusinessRule> ruleList = CourseBusinessRule.getCourseRules(courseID, true);
-                    Map<String,Boolean> ruleMap = new HashMap<>();
-
-                    for(BusinessRule r : ruleList){
-                        if(r.getType() == MAX_RESITS){
-                            resitFlag = true;
-                        }
-                        else if (r.getType() == MAX_COMPENSATED_MODULES){
-                            compFlag = true;
-                        }
-                    }
-
-                    ruleMap.put("Max Number Of Resits", resitFlag);
-                    ruleMap.put("Number of Compensated Classes", compFlag);
-
-                    courseRules.put(courseID, ruleMap);
-                }
-
-                return courseRules;
+                ruleMap.put(moduleID, !ruleList.isEmpty());
             }
-            catch(SQLException e){
-                manUI.makeNotificationModal(null,"Error fetching course business rules " + e.getMessage(), false);
-                throw new RuntimeException(e);
-            }
+
+            return ruleMap;
         }
-
-
-        /**
-         * @return A map containing module id's and if they have a rule set to them or not
-         */
-        public Map<String, Boolean> getModuleRulesMap(){
-            DatabaseConnection db = App.getDatabaseConnection();
-            Map<String,Boolean> ruleMap = new HashMap<>();
-            try{
-                CachedRowSet modules = db.select(new String[]{"Module"}, new String[]{"ModuleID"}, null);
-                while(modules.next()){
-                    String moduleID = modules.getString("ModuleID");
-                    List<BusinessRule> ruleList = ModuleBusinessRule.getModuleRules(moduleID, true);
-
-                    ruleMap.put(moduleID, !ruleList.isEmpty());
-                }
-
-                return ruleMap;
-            }
-            catch(SQLException e){
-                manUI.makeNotificationModal(null,"Error fetching module business rules " + e.getMessage(), false);
-                throw new RuntimeException(e);
-            }
+        catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error fetching module business rules " + e.getMessage(), false);
+            throw new RuntimeException(e);
         }
+    }
 
 
-        public void addBusinessRuleCourse(String typeStr, int value, List<String> courses){
-            Set<String> courseSet = new HashSet<>(courses);
-            BusinessRule.RuleType type = switch (typeStr) {
-                case "Max Number Of Resits" -> MAX_RESITS;
-                case "Number of Compensated Classes" -> MAX_COMPENSATED_MODULES;
-                default -> throw new RuntimeException("Rule type not understood.");
-            };
+    public void addBusinessRuleCourse(String typeStr, int value, List<String> courses){
+        Set<String> courseSet = new HashSet<>(courses);
+        BusinessRule.RuleType type = switch (typeStr) {
+            case "Max Number Of Resits" -> MAX_RESITS;
+            case "Number of Compensated Classes" -> MAX_COMPENSATED_MODULES;
+            default -> throw new RuntimeException("Rule type not understood.");
+        };
 
-            try {
-                CourseBusinessRule.createGroupRule(courseSet, type, value);
-                manUI.makeNotificationModal(null, "Added business rule successfully!", true);
-                pageSetter("MANAGE BUSINESS RULES", false);
-            }
-            catch(SQLException e){
-                manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
-                throw new RuntimeException(e);
-            }
+        try {
+            CourseBusinessRule.createGroupRule(courseSet, type, value);
+            manUI.makeNotificationModal(null, "Added business rule successfully!", true);
+            pageSetter("MANAGE BUSINESS RULES", false);
         }
-
-
-        public void addBusinessRuleModule(int value, List<String> modules){
-            Set<String> moduleSet = new HashSet<>(modules);
-            try {
-                ModuleBusinessRule.createGroupRule(moduleSet, MAX_RESITS, value);
-                manUI.makeNotificationModal(null, "Added business rule successfully!", true);
-                pageSetter("MANAGE BUSINESS RULES", false);
-            }
-            catch(SQLException e){
-                manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
-                throw new RuntimeException(e);
-            }
+        catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
+            throw new RuntimeException(e);
         }
+    }
+
+
+    public void addBusinessRuleModule(int value, List<String> modules){
+        Set<String> moduleSet = new HashSet<>(modules);
+        try {
+            ModuleBusinessRule.createGroupRule(moduleSet, MAX_RESITS, value);
+            manUI.makeNotificationModal(null, "Added business rule successfully!", true);
+            pageSetter("MANAGE BUSINESS RULES", false);
+        }
+        catch(SQLException e){
+            manUI.makeNotificationModal(null,"Error adding business rule " + e.getMessage(), false);
+            throw new RuntimeException(e);
+        }
+    }
 
 }
