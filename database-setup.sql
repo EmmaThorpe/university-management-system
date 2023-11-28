@@ -72,10 +72,10 @@ Create Table Users(
     UserID VARCHAR(10) NOT NULL,
     Forename VARCHAR(20) NOT NULL,
     Surname VARCHAR(20) NOT NULL,
-    Email VARCHAR(20) NOT NULL,
+    Email VARCHAR(254) NOT NULL,
     Password VARCHAR(20) NOT NULL,
     DoB Date NOT NULL,
-    Gender VARCHAR(20) NOT NULL,
+    Gender VARCHAR(23) NOT NULL,
     Type VARCHAR(10) NOT NULL,
     ManagedBy VARCHAR(10),
     Activated Boolean NOT NULL,
@@ -85,7 +85,7 @@ Create Table Users(
 
 
 Create Table Lecturer(
-    UserID VARCHAR(5) NOT NULL,
+    UserID VARCHAR(10) NOT NULL,
     ModuleID VARCHAR(5),
     Qualification Varchar(15) NOT NULL,
     CONSTRAINT pkLecturer PRIMARY KEY(UserID),

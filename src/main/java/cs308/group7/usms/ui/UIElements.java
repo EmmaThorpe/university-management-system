@@ -340,8 +340,8 @@ public class UIElements extends MainUI{
             if (!EmailValidator.getInstance().isValid(newText)) {
                 currentText.get(field).setText(fieldName + " is not in a valid Email format");
                 checkFields(model, field, false, manipulation);
-            } else if (newText.length() > 20) {
-                currentText.get(field).setText(fieldName + " must be less than or equal to 20 characters");
+            } else if (newText.length() > 254) {
+                currentText.get(field).setText(fieldName + " must be less than or equal to 254 characters");
                 checkFields(model, field, false, manipulation);
             } else {
                 currentText.get(field).setText("");
