@@ -1,12 +1,12 @@
 package cs308.group7.usms.model;
 
+import cs308.group7.usms.App;
 import cs308.group7.usms.database.DatabaseConnection;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-
-import javax.sql.rowset.CachedRowSet;
 
 import java.sql.SQLException;
 
@@ -21,12 +21,12 @@ class MarkTest {
     @BeforeEach
     public void setUp() throws SQLException {
         // Creates new mark object without checking database
-        mark = new Mark("stu1", "CS104", 2, 75.0, 82.5);
+        mark = new Mark("stu1", "CS104", 99, 75.0, 82.5);
         mark.setLabMark(75.0);
         mark.setExamMark(82.5);
 
         // Creates new mark object using db connection
-        mark2 = new Mark("stu3", "ML107", 1);
+        mark2 = new Mark("stu3", "ML107", 98);
         mark2.setLabMark(62.0);
         mark2.setExamMark(50.0);
 
@@ -48,8 +48,8 @@ class MarkTest {
 
     @Test
     public void testGetAttemptNo(){
-        assertEquals(2, mark.getAttemptNo());
-        assertEquals(1, mark2.getAttemptNo());
+        assertEquals(99, mark.getAttemptNo());
+        assertEquals(98, mark2.getAttemptNo());
     }
 
     @Test
@@ -95,6 +95,15 @@ class MarkTest {
         assertTrue(mark.canBeCompensated());
 
         assertFalse(failMark.canBeCompensated());
+    }
+
+    @AfterAll
+    public static void tearDown() throws SQLException {
+        DatabaseConnection db = App.getDatabaseConnection();
+        db.delete("BusinessRuleApplication", new String[]{"UserID = 'stu1'", "ModuleID = 'CS104'", "AttNo = 99"});
+        db.delete("Mark", new String[]{"UserID = 'stu1'", "ModuleID = 'CS104'", "AttNo = 99"});
+        db.delete("BusinessRuleApplication", new String[]{"UserID = 'stu3'", "ModuleID = 'ML107'", "AttNo = 98"});
+        db.delete("Mark", new String[]{"UserID = 'stu3'", "ModuleID = 'ML107'", "AttNo = 98"});
     }
 
 }
