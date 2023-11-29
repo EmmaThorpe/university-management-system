@@ -26,18 +26,22 @@ public class DatabaseConnection implements Closeable {
      */
     public DatabaseConnection(String parameterFilePath) throws FileNotFoundException {
         File file = new File(parameterFilePath);
-        Scanner sc = new Scanner(file);
-        String address = sc.nextLine();
-        String database = sc.nextLine();
-        String username = sc.nextLine();
-        String password = sc.nextLine();
-        sc.close();
+        try (Scanner sc = new Scanner(file)) {
 
-        dataSource = new HikariDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setJdbcUrl("jdbc:mysql://" + address + "/" + database);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
+            String address = sc.nextLine();
+            String database = sc.nextLine();
+            String username = sc.nextLine();
+            String password = sc.nextLine();
+
+            dataSource = new HikariDataSource();
+            dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            dataSource.setJdbcUrl("jdbc:mysql://" + address + "/" + database);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+
+        } catch (Exception e) {
+            throw new FileNotFoundException("The file " + parameterFilePath + " cannot be read, does not exist or is not formatted correctly!");
+        }
     }
 
     /**
@@ -73,6 +77,8 @@ public class DatabaseConnection implements Closeable {
      * @throws SQLException If the query fails / times out
      */
     public int insert(@NotNull String table, @NotNull Map<String, String> columnValueMap) throws SQLException {
+        if (columnValueMap.isEmpty()) throw new IllegalArgumentException("At least one key value pair must be inserted!");
+
         final String columnsString = String.join(", ", columnValueMap.keySet());
         final String valuesString = String.join(", ", columnValueMap.values());
 
@@ -92,11 +98,12 @@ public class DatabaseConnection implements Closeable {
      * @throws SQLException If the query fails / times out
      */
     public int update(@NotNull String table, @NotNull Map<String, String> columnValueMap, String[] whereConditions) throws SQLException {
+        if (columnValueMap.isEmpty()) throw new IllegalArgumentException("At least one key value pair must be updated!");
+
         final boolean NO_WHERE = (whereConditions == null) || (whereConditions.length == 0); // No WHERE conditions if none are specified
 
         StringBuilder updateString = new StringBuilder();
-        for (Map.Entry<String, String> entry : columnValueMap.entrySet())
-            updateString.append(entry.getKey()).append(" = ").append(entry.getValue()).append(", ");
+        columnValueMap.forEach((key, value) -> updateString.append(key).append(" = ").append(value).append(", "));
         updateString.delete(updateString.length() - 2, updateString.length()); // Remove the last ", "
 
         final String whereString = (NO_WHERE) ? "" : " WHERE " + String.join(" AND ", whereConditions);
@@ -161,10 +168,15 @@ public class DatabaseConnection implements Closeable {
      * Used to get a connection to the database for more complex updates.
      * @deprecated Not recommended for use unless absolutely necessary.
      */
+    @Deprecated
     public Connection getConnection() throws SQLException { return dataSource.getConnection(); }
 
+    /**
+     * Used to escape a string for use as a value in a SQL query.
+     */
     public String sqlString(String s) {
-        s = s.replaceAll("'", "\\\\'");
+        s = s.replace("\\", "\\\\");
+        s = s.replace("'", "\\'");
         return "'" + s + "'";
     }
 
