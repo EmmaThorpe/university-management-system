@@ -1108,7 +1108,7 @@ public class UIElements extends MainUI{
             return currentDocument;
 
 
-        } catch (PDFException | PDFSecurityException | IOException e) {
+        } catch (PDFSecurityException | IOException e) {
             return null;
         }
 
